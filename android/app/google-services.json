@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "861738091454",
+    "project_id": "clevrcash-3bad0",
+    "storage_bucket": "clevrcash-3bad0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:861738091454:android:58f6614be5091f3a1defef",
+        "android_client_info": {
+          "package_name": "com.devsfort.clevrcash"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAku83-XtjnjVXc7ei1u3GAUwciZ2orqvE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

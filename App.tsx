@@ -1,45 +1,55 @@
 /**
- * Sample React Native App
- * https://github.com/facebook/react-native
+ * ClevrCash - Splitwise Alternative
+ * Powered by devsfort
  *
  * @format
  */
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import React, {useEffect} from 'react';
+import {StatusBar} from 'react-native';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {AuthProvider, useAuth} from './src/contexts/AuthContext';
+import {ThemeProvider, useTheme} from './src/contexts/ThemeContext';
+import {BrandProvider} from './src/contexts/BrandContext';
+import AppNavigator from './src/navigation/AppNavigator';
+import {pushNotificationService} from './src/services/pushNotifications';
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
+function AppContent() {
+  const {isDark} = useTheme();
+  const {isAuthenticated} = useAuth();
+
+  useEffect(() => {
+    // Initialize push notifications when app starts
+    pushNotificationService.initialize();
+  }, []);
+
+  useEffect(() => {
+    // Re-register device token when user logs in
+    if (isAuthenticated) {
+      pushNotificationService.registerDeviceToken();
+    }
+  }, [isAuthenticated]);
 
   return (
+    <>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+      <AppNavigator />
+    </>
+  );
+}
+
+function App(): React.JSX.Element {
+  return (
     <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
+      <BrandProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </ThemeProvider>
+      </BrandProvider>
     </SafeAreaProvider>
   );
 }
-
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
-
-  return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
 
 export default App;

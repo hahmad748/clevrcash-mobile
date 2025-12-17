@@ -1,97 +1,322 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# ClevrCash Mobile App
 
-# Getting Started
+React Native CLI mobile application for ClevrCash - a Splitwise-like expense tracking app with white-label support.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+**Package:** `com.devsfort.clevecash`  
+**Powered by:** devsfort
 
-## Step 1: Start Metro
+## Features
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+- ✅ Complete API integration with Laravel backend
+- ✅ Authentication (Email/Password, Social Login, 2FA)
+- ✅ Groups management (Create, Join, Invite, Settle)
+- ✅ Friends management (Add, Invite, Settle, Remind)
+- ✅ Expense tracking (Create, Edit, Delete, Splits, Itemization, Attachments)
+- ✅ Transaction history
+- ✅ Charts & Statistics
+- ✅ Notifications (In-app + Push)
+- ✅ Deep linking support
+- ✅ White-label branding
+- ✅ Offline mode with sync
+- ✅ Responsive design (Phone, Tablet, Landscape)
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## Prerequisites
 
-```sh
-# Using npm
-npm start
+- Node.js >= 20
+- React Native CLI
+- Android Studio (for Android)
+- Xcode (for iOS)
+- CocoaPods (for iOS)
 
-# OR using Yarn
-yarn start
+## Installation
+
+### 1. Install Dependencies
+
+```bash
+cd clevrcash-mobile
+npm install
 ```
 
-## Step 2: Build and run your app
+### 2. iOS Setup
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+```bash
+cd ios
+pod install
+cd ..
+```
+
+### 3. Environment Configuration
+
+Create a `.env` file in the root directory:
+
+```env
+API_BASE_URL=http://localhost:8000/api/v1
+API_TIMEOUT=30000
+```
+
+For production:
+
+```env
+API_BASE_URL=https://api.clevrcash.com/api/v1
+API_TIMEOUT=30000
+```
+
+## Running the App
 
 ### Android
 
-```sh
-# Using npm
+```bash
 npm run android
+```
 
-# OR using Yarn
-yarn android
+Or:
+
+```bash
+npx react-native run-android
 ```
 
 ### iOS
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
+```bash
 npm run ios
-
-# OR using Yarn
-yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+Or:
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+```bash
+npx react-native run-ios
+```
 
-## Step 3: Modify your app
+## Development
 
-Now that you have successfully run the app, let's make changes!
+### Start Metro Bundler
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+```bash
+npm start
+```
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+### Run Tests
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+```bash
+npm test
+```
 
-## Congratulations! :tada:
+### Lint Code
 
-You've successfully run and modified your React Native App. :partying_face:
+```bash
+npm run lint
+```
 
-### Now what?
+## Project Structure
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+```
+src/
+├── components/          # Reusable UI components
+│   ├── DrawerContent/
+│   │   ├── index.tsx
+│   │   └── styles.ts
+│   └── ...
+├── config/             # Configuration files
+│   ├── api.ts          # API base URL
+│   └── brand.ts        # Brand configuration
+├── contexts/           # React contexts
+│   ├── AuthContext.tsx
+│   ├── BrandContext.tsx
+│   └── ThemeContext.tsx
+├── navigation/         # Navigation setup
+│   ├── AppNavigator.tsx
+│   └── types.ts
+├── screens/           # Screen components
+│   ├── auth/          # Authentication screens
+│   │   ├── Login/
+│   │   │   ├── index.tsx
+│   │   │   └── styles.ts
+│   │   └── Register/
+│   ├── groups/        # Group screens
+│   ├── friends/       # Friend screens
+│   ├── expenses/      # Expense screens
+│   └── ...
+├── services/          # API and storage services
+│   ├── api.ts        # Base API service
+│   ├── apiClient.ts  # Typed API client
+│   └── storage.ts    # AsyncStorage helpers
+├── theme/            # Theme system
+│   └── theme.ts
+└── types/           # TypeScript types
+    └── api.ts       # API response types
+```
 
-# Troubleshooting
+## Deep Linking
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+### Custom URL Scheme
 
-# Learn More
+- `clevrcash://invite/{token}` - Accept friend/group invitation
+- `clevrcash://group/{groupId}` - Open group detail
+- `clevrcash://expense/{expenseId}` - Open expense detail
+- `clevrcash://settle/{groupId or friendId}` - Open settle screen
+- `clevrcash://notification/{id}` - Open notification
 
-To learn more about React Native, take a look at the following resources:
+### Universal Links / App Links
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+- `https://{brand-domain}/invite/{token}`
+- `https://{brand-domain}/g/{groupId}`
+- `https://{brand-domain}/e/{expenseId}`
+
+### Testing Deep Links
+
+#### Android
+
+```bash
+adb shell am start -W -a android.intent.action.VIEW -d "clevrcash://group/ABC123" com.devsfort.clevecash
+```
+
+#### iOS
+
+```bash
+xcrun simctl openurl booted "clevrcash://group/ABC123"
+```
+
+## Push Notifications
+
+### Firebase Cloud Messaging (FCM) Setup
+
+1. Create a Firebase project
+2. Add Android app with package name: `com.devsfort.clevecash`
+3. Download `google-services.json` and place in `android/app/`
+4. Add iOS app and download `GoogleService-Info.plist` to `ios/clevrcash/`
+5. Configure FCM in the app
+
+### Apple Push Notification Service (APNs) Setup
+
+1. Create APNs key in Apple Developer Portal
+2. Configure in Firebase Console
+3. Update `ios/clevrcash/Info.plist` with APNs configuration
+
+## Offline Mode
+
+The app uses SQLite for local storage and implements an outbox pattern for offline actions:
+
+- All actions are queued locally when offline
+- Background sync when connection is restored
+- Conflict resolution: last-write-wins
+
+## Branding
+
+Brand configuration is loaded from:
+1. Build-time config: `src/config/brand.ts`
+2. Runtime API: `GET /api/v1/user/brand`
+
+Brand properties:
+- Logo, Splash screen, Favicon
+- Primary/Secondary colors
+- Font family
+- Theme tokens (light/dark)
+- Feature flags
+- Supported languages/currencies
+
+## Building for Production
+
+### Android
+
+```bash
+cd android
+./gradlew assembleRelease
+```
+
+APK will be in: `android/app/build/outputs/apk/release/`
+
+### iOS
+
+1. Open `ios/clevrcash.xcworkspace` in Xcode
+2. Select "Any iOS Device" as target
+3. Product → Archive
+4. Distribute App
+
+## Environment Variables
+
+Update `src/config/api.ts` for different environments:
+
+```typescript
+export const API_BASE_URL = __DEV__
+  ? 'http://localhost:8000/api/v1'
+  : 'https://api.clevrcash.com/api/v1';
+```
+
+## Troubleshooting
+
+### iOS Build Issues
+
+#### rsync.samba Sandbox Error
+
+If you encounter errors like:
+```
+Sandbox: rsync.samba(XXXXX) deny(1) file-write-create
+```
+
+This is a macOS sandbox permission issue with rsync. Try these solutions:
+
+1. **Build from Xcode GUI** (Recommended):
+   - Open `ios/clevrcash.xcworkspace` in Xcode
+   - Product → Clean Build Folder (Shift+Cmd+K)
+   - Product → Build (Cmd+B)
+   - The error may appear but the build often succeeds
+
+2. **Use Custom DerivedData Path**:
+   ```bash
+   # Already configured in ios/.xcode.env
+   # Or set manually:
+   export IDEDerivedDataPathOverride=~/Library/Developer/Xcode/DerivedData-custom
+   ```
+
+3. **Fix Permissions**:
+   ```bash
+   chmod -R 755 ~/Library/Developer/Xcode/DerivedData/
+   ```
+
+4. **Clean Everything**:
+   ```bash
+   cd ios
+   rm -rf ~/Library/Developer/Xcode/DerivedData/clevrcash-*
+   pod deintegrate
+   pod install
+   cd ..
+   ```
+
+5. **If build still fails**, the error might be harmless - check if the app actually builds successfully despite the warning.
+
+## Troubleshooting
+
+### Metro Bundler Issues
+
+```bash
+npm start -- --reset-cache
+```
+
+### iOS Build Issues
+
+```bash
+cd ios
+pod deintegrate
+pod install
+cd ..
+```
+
+### Android Build Issues
+
+```bash
+cd android
+./gradlew clean
+cd ..
+```
+
+## API Documentation
+
+See `/docs/API_DOCUMENTATION.md` for complete API reference.
+
+## Feature Parity
+
+See `/docs/parity-checklist.md` for feature implementation status.
+
+## License
+
+Proprietary - devsfort

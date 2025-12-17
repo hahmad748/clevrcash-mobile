@@ -1,0 +1,152 @@
+import React, {useState, useEffect} from 'react';
+import {View, Text, TouchableOpacity, Platform, StatusBar} from 'react-native';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import {MaterialIcons} from '@react-native-vector-icons/material-icons';
+import {useTheme} from '../../contexts/ThemeContext';
+import {useBrand} from '../../contexts/BrandContext';
+import {apiClient} from '../../services/apiClient';
+import {styles} from './styles';
+
+interface CustomHeaderProps {
+  title?: string;
+  showBack?: boolean;
+  showDrawer?: boolean;
+  rightComponent?: React.ReactNode;
+  showNotifications?: boolean;
+}
+
+export function CustomHeader({
+  title,
+  showBack,
+  showDrawer,
+  rightComponent,
+  showNotifications = true,
+}: CustomHeaderProps) {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const {colors, isDark} = useTheme();
+  const {brand} = useBrand();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const primaryColor = brand?.primary_color || colors.primary;
+  const headerBackground = isDark ? colors.surface : '#FFFFFF';
+  const textColor = isDark ? colors.text : '#1A1A1A';
+  const iconColor = isDark ? colors.text : '#1A1A1A';
+
+  useEffect(() => {
+    if (showNotifications) {
+      loadUnreadCount();
+    }
+  }, [showNotifications]);
+
+  const loadUnreadCount = async () => {
+    try {
+      // TODO: Replace with actual notifications API call
+      // const notifications = await apiClient.getNotifications({unread: true});
+      // setUnreadCount(notifications.filter(n => !n.read_at).length);
+      setUnreadCount(0); // Placeholder
+    } catch (error) {
+      console.error('Failed to load notification count:', error);
+    }
+  };
+
+  const handleNotificationsPress = () => {
+    navigation.navigate('Notifications' as never);
+  };
+
+  // Determine if we should show drawer or back button
+  const canGoBack = navigation.canGoBack();
+  const shouldShowBack = showBack !== undefined ? showBack : canGoBack;
+  const shouldShowDrawer =
+    showDrawer !== undefined
+      ? showDrawer
+      : !canGoBack && route.name !== 'Main';
+
+  const handleDrawerPress = () => {
+    // @ts-ignore - drawer navigation type
+    navigation.openDrawer();
+  };
+
+  const handleBackPress = () => {
+    if (canGoBack) {
+      navigation.goBack();
+    }
+  };
+
+  return (
+    <>
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={headerBackground}
+        translucent={false}
+      />
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor: headerBackground,
+            borderBottomColor: isDark ? colors.border : '#E5E5E5',
+          },
+        ]}>
+        <View style={styles.content}>
+          {/* Left Button */}
+          <View style={styles.leftSection}>
+            {shouldShowDrawer ? (
+              <TouchableOpacity
+                onPress={handleDrawerPress}
+                style={styles.iconButton}
+                activeOpacity={0.7}>
+                <MaterialIcons name="menu" size={24} color={iconColor} />
+              </TouchableOpacity>
+            ) : shouldShowBack ? (
+              <TouchableOpacity
+                onPress={handleBackPress}
+                style={styles.iconButton}
+                activeOpacity={0.7}>
+                <MaterialIcons name="arrow-back" size={24} color={iconColor} />
+              </TouchableOpacity>
+            ) : null}
+          </View>
+
+          {/* Title */}
+          <View style={styles.titleSection}>
+            <Text
+              style={[
+                styles.title,
+                {
+                  color: textColor,
+                },
+              ]}
+              numberOfLines={1}>
+              {title || route.name}
+            </Text>
+          </View>
+
+          {/* Right Component */}
+          <View style={styles.rightSection}>
+            {rightComponent || (
+              <>
+                {showNotifications && (
+                  <TouchableOpacity
+                    onPress={handleNotificationsPress}
+                    style={styles.iconButton}
+                    activeOpacity={0.7}>
+                    <MaterialIcons name="notifications" size={24} color={iconColor} />
+                    {unreadCount > 0 && (
+                      <View style={[styles.badge, {backgroundColor: '#FF3B30'}]}>
+                        <Text style={styles.badgeText}>
+                          {unreadCount > 99 ? '99+' : unreadCount}
+                        </Text>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                )}
+                {!showNotifications && <View style={styles.iconButton} />}
+              </>
+            )}
+          </View>
+        </View>
+      </View>
+    </>
+  );
+}

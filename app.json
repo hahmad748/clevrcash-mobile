@@ -1,4 +1,5 @@
 {
   "name": "clevrcash",
-  "displayName": "clevrcash"
+  "displayName": "ClevrCash",
+  "package": "com.devsfort.clevecash"
 }

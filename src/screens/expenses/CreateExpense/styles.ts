@@ -1,0 +1,385 @@
+import {StyleSheet} from 'react-native';
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 100,
+  },
+  pageHeader: {
+    marginBottom: 24,
+    paddingHorizontal: 4,
+  },
+  pageTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+  },
+  section: {
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  sectionLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 12,
+  },
+  // Participants Section
+  searchContainer: {
+    position: 'relative',
+    marginBottom: 12,
+  },
+  searchInput: {
+    height: 48,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+  },
+  searchResults: {
+    position: 'absolute',
+    top: 52,
+    left: 0,
+    right: 0,
+    borderRadius: 12,
+    borderWidth: 1,
+    maxHeight: 200,
+    zIndex: 1000,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  searchResultItem: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.1)',
+  },
+  searchResultText: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  searchResultEmail: {
+    fontSize: 14,
+  },
+  chipsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 24,
+    minHeight: 36,
+  },
+  chipText: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginRight: 6,
+  },
+  chipRemove: {
+    marginLeft: 4,
+  },
+  // Expense Details
+  expenseDetailsRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  receiptArea: {
+    width: 100,
+    height: 100,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+    opacity: 0.6,
+  },
+  receiptText: {
+    fontSize: 12,
+    marginTop: 8,
+  },
+  expenseInputs: {
+    flex: 1,
+    gap: 12,
+  },
+  descriptionInput: {
+    fontSize: 18,
+    paddingBottom: 8,
+    borderBottomWidth: 2,
+  },
+  amountRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  currencyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  currencyText: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginRight: 4,
+  },
+  amountInput: {
+    flex: 1,
+    fontSize: 24,
+    fontWeight: '700',
+    paddingBottom: 8,
+    borderBottomWidth: 2,
+  },
+  // Paid By Section
+  paidBySection: {
+    paddingVertical: 20,
+    paddingHorizontal: 4,
+  },
+  paidByRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 8,
+  },
+  paidByText: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  paidByButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    minHeight: 36,
+    justifyContent: 'center',
+  },
+  paidByButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  splitPerPerson: {
+    fontSize: 14,
+    marginTop: 8,
+    fontWeight: '400',
+  },
+  // Split Details
+  splitRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.05)',
+  },
+  splitRowName: {
+    fontSize: 16,
+    fontWeight: '500',
+    flex: 1,
+  },
+  splitInput: {
+    width: 120,
+    height: 40,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    fontSize: 16,
+    textAlign: 'right',
+  },
+  // Date and Category
+  dateCategoryRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  dateContainer: {
+    flex: 1,
+  },
+  fieldLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 8,
+  },
+  dateInput: {
+    height: 48,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dateText: {
+    fontSize: 16,
+  },
+  datePickerContainer: {
+    marginBottom: 16,
+  },
+  datePickerInput: {
+    height: 48,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    marginBottom: 12,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+  },
+  quickDateButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  quickDateButton: {
+    flex: 1,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  quickDateText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  categoryButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 48,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    gap: 8,
+  },
+  categoryButtonText: {
+    fontSize: 16,
+  },
+  // Notes
+  addNotesButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    gap: 8,
+    borderWidth: 1,
+  },
+  addNotesText: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  notesHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  notesInput: {
+    minHeight: 80,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 16,
+    borderWidth: 1,
+    textAlignVertical: 'top',
+  },
+  // Action Buttons
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+    marginBottom: 32,
+  },
+  cancelButton: {
+    flex: 1,
+    height: 50,
+    borderRadius: 12,
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  saveButton: {
+    flex: 1,
+    height: 50,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  saveButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  // Modals
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    maxHeight: '80%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 16,
+  },
+  modalScroll: {
+    maxHeight: 400,
+  },
+  modalOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  modalOptionText: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  modalOptionDesc: {
+    fontSize: 14,
+    marginTop: 4,
+  },
+  modalCloseButton: {
+    marginTop: 16,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.05)',
+  },
+  modalCloseText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});

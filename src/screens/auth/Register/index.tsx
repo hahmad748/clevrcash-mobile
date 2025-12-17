@@ -1,0 +1,247 @@
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+  ActivityIndicator,
+  ImageBackground,
+  Image,
+  StatusBar,
+  ScrollView,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {MaterialIcons} from '@react-native-vector-icons/material-icons';
+import {useAuth} from '../../../contexts/AuthContext';
+import {useTheme} from '../../../contexts/ThemeContext';
+import {useBrand} from '../../../contexts/BrandContext';
+import {styles} from './styles';
+
+export function RegisterScreen() {
+  const navigation = useNavigation();
+  const {register} = useAuth();
+  const {colors} = useTheme();
+  const {brand} = useBrand();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false);
+
+  const primaryColor = brand?.primary_color || '#4CAF50';
+
+  const handleRegister = async () => {
+    if (!name.trim() || !email.trim() || !password.trim() || !passwordConfirmation.trim()) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    if (password !== passwordConfirmation) {
+      Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
+
+    if (password.length < 8) {
+      Alert.alert('Error', 'Password must be at least 8 characters');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await register({
+        name: name.trim(),
+        email: email.trim(),
+        password,
+        password_confirmation: passwordConfirmation,
+        default_currency: 'USD',
+        language: 'en',
+      });
+    } catch (error: any) {
+      Alert.alert('Registration Failed', error.message || 'Failed to create account');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Try to load background image, fallback to solid color
+  let backgroundSource;
+  try {
+    backgroundSource = require('../../../assets/images/welcome-background.png');
+  } catch {
+    try {
+      backgroundSource = require('../../../assets/images/splash.jpg');
+    } catch {
+      backgroundSource = null;
+    }
+  }
+
+  return (
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      {/* Background Image with Overlay */}
+      {backgroundSource ? (
+        <ImageBackground
+          source={backgroundSource}
+          style={styles.backgroundImage}
+          resizeMode="cover">
+          <View style={styles.overlay} />
+        </ImageBackground>
+      ) : (
+        <View style={[styles.backgroundImage, styles.fallbackBackground]}>
+          <View style={styles.overlay} />
+        </View>
+      )}
+
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}>
+          {/* Logo Section */}
+          <View style={styles.logoSection}>
+            {brand?.logo_url ? (
+              <Image source={{uri: brand.logo_url}} style={styles.logo} resizeMode="contain" />
+            ) : (
+              <View style={styles.logoContainer}>
+                <Image
+                  source={require('../../../assets/images/icon.png')}
+                  style={styles.logo}
+                  resizeMode="contain"
+                />
+                <Text style={styles.logoText}>{brand?.display_name || 'CLEVRCASH'}</Text>
+              </View>
+            )}
+            <Text style={styles.welcomeText}>Create Account</Text>
+            <Text style={styles.subtitleText}>Sign up to get started</Text>
+          </View>
+
+          {/* Form Card */}
+          <View style={styles.formCard}>
+            <View style={styles.form}>
+              {/* Name Input */}
+              <View style={styles.inputContainer}>
+                <View style={styles.inputLabelContainer}>
+                  <MaterialIcons name="person" size={20} color="#666666" style={styles.inputIcon} />
+                  <Text style={styles.label}>Full Name</Text>
+                </View>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter your name"
+                  placeholderTextColor="#999999"
+                  value={name}
+                  onChangeText={setName}
+                  autoCapitalize="words"
+                />
+              </View>
+
+              {/* Email Input */}
+              <View style={styles.inputContainer}>
+                <View style={styles.inputLabelContainer}>
+                  <MaterialIcons name="email" size={20} color="#666666" style={styles.inputIcon} />
+                  <Text style={styles.label}>Email</Text>
+                </View>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter your email"
+                  placeholderTextColor="#999999"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  autoComplete="email"
+                />
+              </View>
+
+              {/* Password Input */}
+              <View style={styles.inputContainer}>
+                <View style={styles.inputLabelContainer}>
+                  <MaterialIcons name="lock" size={20} color="#666666" style={styles.inputIcon} />
+                  <Text style={styles.label}>Password</Text>
+                </View>
+                <View style={styles.passwordWrapper}>
+                  <TextInput
+                    style={styles.passwordInput}
+                    placeholder="Enter your password"
+                    placeholderTextColor="#999999"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry={!showPassword}
+                    autoCapitalize="none"
+                    autoComplete="password"
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowPassword(!showPassword)}
+                    style={styles.eyeButton}>
+                    <MaterialIcons
+                      name={showPassword ? 'visibility' : 'visibility-off'}
+                      size={22}
+                      color="#666666"
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Confirm Password Input */}
+              <View style={styles.inputContainer}>
+                <View style={styles.inputLabelContainer}>
+                  <MaterialIcons name="lock-outline" size={20} color="#666666" style={styles.inputIcon} />
+                  <Text style={styles.label}>Confirm Password</Text>
+                </View>
+                <View style={styles.passwordWrapper}>
+                  <TextInput
+                    style={styles.passwordInput}
+                    placeholder="Confirm your password"
+                    placeholderTextColor="#999999"
+                    value={passwordConfirmation}
+                    onChangeText={setPasswordConfirmation}
+                    secureTextEntry={!showPasswordConfirmation}
+                    autoCapitalize="none"
+                    autoComplete="password"
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowPasswordConfirmation(!showPasswordConfirmation)}
+                    style={styles.eyeButton}>
+                    <MaterialIcons
+                      name={showPasswordConfirmation ? 'visibility' : 'visibility-off'}
+                      size={22}
+                      color="#666666"
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Sign Up Button */}
+              <TouchableOpacity
+                style={[styles.primaryButton, {backgroundColor: primaryColor}]}
+                onPress={handleRegister}
+                disabled={loading}
+                activeOpacity={0.8}>
+                {loading ? (
+                  <ActivityIndicator color="#FFFFFF" />
+                ) : (
+                  <Text style={styles.primaryButtonText}>Sign Up</Text>
+                )}
+              </TouchableOpacity>
+
+              {/* Sign In Link */}
+              <View style={styles.signInContainer}>
+                <Text style={styles.signInText}>Already have an account? </Text>
+                <TouchableOpacity onPress={() => navigation.navigate('Login' as never)}>
+                  <Text style={[styles.signInLink, {color: primaryColor}]}>Sign In</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </View>
+  );
+}
