@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-  Modal,
   FlatList,
   Image,
 } from 'react-native';
@@ -18,16 +17,27 @@ import {useBrand} from '../../../contexts/BrandContext';
 import {useAuth} from '../../../contexts/AuthContext';
 import {apiClient} from '../../../services/apiClient';
 import {ScreenWrapper} from '../../../components/ScreenWrapper';
+import {CurrencyModal} from '../../../components/modals/CurrencyModal';
+import {CategoryModal} from '../../../components/modals/CategoryModal';
+import {SplitTypeModal, type SplitType} from '../../../components/modals/SplitTypeModal';
+import {DatePickerModal} from '../../../components/modals/DatePickerModal';
+import {PaidByModal} from '../../../components/modals/PaidByModal';
 import type {User, Category, Currency} from '../../../types/api';
 import {styles} from './styles';
 
-type SplitType = 'equal' | 'exact' | 'percentage' | 'shares' | 'adjustment' | 'reimbursement' | 'itemized';
 
 interface Participant {
   user_id: number;
   amount?: number;
   percentage?: number;
   shares?: number;
+}
+
+interface ExpenseItem {
+  id: string;
+  name: string;
+  amount: number;
+  quantity: number;
 }
 
 export function CreateExpenseScreen() {
@@ -48,9 +58,12 @@ export function CreateExpenseScreen() {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [notes, setNotes] = useState('');
   const [categoryId, setCategoryId] = useState<number | undefined>();
+  const [categoryName, setCategoryName] = useState<string | undefined>();
   const [splitType, setSplitType] = useState<SplitType>('equal');
   const [paidBy, setPaidBy] = useState<number>(user?.id || 0);
   const [participants, setParticipants] = useState<Participant[]>([]);
+  const [reimbursedUserId, setReimbursedUserId] = useState<number | undefined>();
+  const [items, setItems] = useState<ExpenseItem[]>([]);
 
   // UI state
   const [showNotes, setShowNotes] = useState(false);
@@ -63,8 +76,6 @@ export function CreateExpenseScreen() {
 
   // Data state
   const [availableUsers, setAvailableUsers] = useState<User[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<User[]>([]);
 
@@ -82,8 +93,12 @@ export function CreateExpenseScreen() {
       setParticipants(prev =>
         prev.map(p => ({...p, amount: splitAmount, percentage: undefined, shares: undefined})),
       );
+    } else if (splitType === 'itemized' && items.length > 0) {
+      // Calculate total from items
+      const total = items.reduce((sum, item) => sum + item.amount * item.quantity, 0);
+      setAmount(total.toFixed(2));
     }
-  }, [amount, participants.length, splitType]);
+  }, [amount, participants.length, splitType, items]);
 
   useEffect(() => {
     if (searchQuery.trim()) {
@@ -96,24 +111,17 @@ export function CreateExpenseScreen() {
   const loadInitialData = async () => {
     try {
       setLoadingData(true);
-      const [categoriesData, currenciesData] = await Promise.all([
-        apiClient.getCategories(),
-        apiClient.getCurrencies(),
-      ]);
-      setCategories(categoriesData);
-      setCurrencies(currenciesData);
 
       // Load participants based on context
       if (groupId) {
         const group = await apiClient.getGroup(groupId);
         const groupMembers = group.members?.map(m => m.user!).filter(Boolean) || [];
-        // Remove duplicates and filter out current user from group members
+        // Remove duplicates
         const uniqueMembers = groupMembers
-          .filter((m, index, self) => index === self.findIndex(mem => mem.id === m.id))
-          .filter(m => m.id !== user?.id); // Exclude current user from group members
-        setAvailableUsers([user!, ...uniqueMembers].filter(Boolean));
-        // Only add user once
-        setParticipants([{user_id: user!.id}]);
+          .filter((m, index, self) => index === self.findIndex(mem => mem.id === m.id));
+        setAvailableUsers(uniqueMembers.filter(Boolean));
+        // Select all group members by default
+        setParticipants(uniqueMembers.map(m => ({user_id: m.id})));
       } else if (friendId) {
         const friends = await apiClient.getFriends();
         const friend = friends.find(f => f.id === friendId);
@@ -172,7 +180,7 @@ export function CreateExpenseScreen() {
     setParticipants(prev =>
       prev.map(p => {
         if (p.user_id === userId) {
-          if (splitType === 'exact') {
+          if (splitType === 'exact' || splitType === 'adjustment') {
             return {...p, amount: value, percentage: undefined, shares: undefined};
           } else if (splitType === 'percentage') {
             return {...p, percentage: value, amount: undefined, shares: undefined};
@@ -183,6 +191,35 @@ export function CreateExpenseScreen() {
         return p;
       }),
     );
+  };
+
+  const addItem = () => {
+    setItems(prev => [
+      ...prev,
+      {
+        id: Date.now().toString(),
+        name: '',
+        amount: 0,
+        quantity: 1,
+      },
+    ]);
+  };
+
+  const updateItem = (itemId: string, field: 'name' | 'amount' | 'quantity', value: string | number) => {
+    setItems(prev =>
+      prev.map(item =>
+        item.id === itemId
+          ? {
+              ...item,
+              [field]: field === 'name' ? value : parseFloat(String(value)) || 0,
+            }
+          : item,
+      ),
+    );
+  };
+
+  const removeItem = (itemId: string) => {
+    setItems(prev => prev.filter(item => item.id !== itemId));
   };
 
   const getSelectedUser = (userId: number): User | undefined => {
@@ -245,10 +282,50 @@ export function CreateExpenseScreen() {
         Alert.alert('Error', 'Percentages must equal 100%');
         return;
       }
+    } else if (splitType === 'reimbursement') {
+      if (!reimbursedUserId) {
+        Alert.alert('Error', 'Please select who is being reimbursed');
+        return;
+      }
+    } else if (splitType === 'itemized') {
+      if (items.length === 0) {
+        Alert.alert('Error', 'Please add at least one item');
+        return;
+      }
+      const hasInvalidItems = items.some(item => !item.name.trim() || item.amount <= 0);
+      if (hasInvalidItems) {
+        Alert.alert('Error', 'Please fill in all item names and amounts');
+        return;
+      }
     }
 
     setLoading(true);
     try {
+      // Prepare split_data based on split type
+      let splitData: Record<string, any> = {};
+      if (splitType === 'reimbursement' && reimbursedUserId) {
+        splitData = {reimbursed_user_id: reimbursedUserId};
+      } else if (splitType === 'adjustment' || splitType === 'exact' || splitType === 'percentage' || splitType === 'shares') {
+        participants.forEach(p => {
+          if (splitType === 'exact' || splitType === 'adjustment') {
+            splitData[p.user_id] = p.amount || 0;
+          } else if (splitType === 'percentage') {
+            splitData[p.user_id] = p.percentage || 0;
+          } else if (splitType === 'shares') {
+            splitData[p.user_id] = p.shares || 0;
+          }
+        });
+      }
+
+      // Prepare items for itemized expenses
+      const expenseItems = splitType === 'itemized' && items.length > 0
+        ? items.map(item => ({
+            name: item.name,
+            amount: item.amount,
+            quantity: item.quantity,
+          }))
+        : undefined;
+
       await apiClient.createExpense({
         group_id: groupId,
         description: description.trim(),
@@ -258,7 +335,9 @@ export function CreateExpenseScreen() {
         notes: notes.trim() || undefined,
         paid_by: paidBy,
         participants,
-        split_type: splitType as 'equal' | 'exact' | 'percentage' | 'shares',
+        split_type: splitType as 'equal' | 'exact' | 'percentage' | 'shares' | 'adjustment' | 'reimbursement' | 'itemized',
+        split_data: Object.keys(splitData).length > 0 ? splitData : undefined,
+        items: expenseItems,
         category_id: categoryId,
       });
       navigation.goBack();
@@ -371,7 +450,7 @@ export function CreateExpenseScreen() {
                     style={[styles.currencyButton, {backgroundColor: backgroundColor}]}
                     onPress={() => setShowCurrencyModal(true)}>
                     <Text style={[styles.currencyText, {color: textColor}]}>
-                      {currency} ({currencies.find(c => c.code === currency)?.symbol || '$'})
+                      {currency}
                     </Text>
                     <MaterialIcons name="arrow-drop-down" size={20} color={textColor} />
                   </TouchableOpacity>
@@ -409,8 +488,8 @@ export function CreateExpenseScreen() {
             </Text>
           </View>
 
-          {/* Split Inputs (for exact, percentage, shares) */}
-          {splitType !== 'equal' && participants.length > 0 && (
+          {/* Split Inputs (for exact, percentage, shares, adjustment) */}
+          {splitType !== 'equal' && splitType !== 'reimbursement' && splitType !== 'itemized' && participants.length > 0 && (
             <View style={[styles.section, {backgroundColor: cardBackground}]}>
               <Text style={[styles.sectionLabel, {color: textColor}]}>Split Details</Text>
               {participants.map((p, index) => {
@@ -423,7 +502,7 @@ export function CreateExpenseScreen() {
                     <TextInput
                       style={[styles.splitInput, {backgroundColor: backgroundColor, color: textColor}]}
                       placeholder={
-                        splitType === 'exact'
+                        splitType === 'exact' || splitType === 'adjustment'
                           ? 'Amount'
                           : splitType === 'percentage'
                           ? '%'
@@ -431,7 +510,7 @@ export function CreateExpenseScreen() {
                       }
                       placeholderTextColor={secondaryTextColor}
                       value={
-                        splitType === 'exact'
+                        splitType === 'exact' || splitType === 'adjustment'
                           ? p.amount?.toString() || ''
                           : splitType === 'percentage'
                           ? p.percentage?.toString() || ''
@@ -443,6 +522,93 @@ export function CreateExpenseScreen() {
                   </View>
                 );
               })}
+            </View>
+          )}
+
+          {/* Reimbursement Selection */}
+          {splitType === 'reimbursement' && participants.length > 0 && (
+            <View style={[styles.section, {backgroundColor: cardBackground}]}>
+              <Text style={[styles.sectionLabel, {color: textColor}]}>Who is being reimbursed?</Text>
+              <View style={styles.reimbursementSelect}>
+                {participants.map((p, index) => {
+                  const participantUser = getSelectedUser(p.user_id);
+                  const isSelected = reimbursedUserId === p.user_id;
+                  return (
+                    <TouchableOpacity
+                      key={`reimburse-${p.user_id}-${index}`}
+                      style={[
+                        styles.reimbursementOption,
+                        isSelected && {backgroundColor: primaryColor + '20'},
+                      ]}
+                      onPress={() => setReimbursedUserId(p.user_id)}>
+                      <Text style={[styles.reimbursementOptionText, {color: textColor}]}>
+                        {p.user_id === user?.id ? 'You' : participantUser?.name || 'Unknown'}
+                      </Text>
+                      {isSelected && <MaterialIcons name="check" size={20} color={primaryColor} />}
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          )}
+
+          {/* Itemized Expenses */}
+          {splitType === 'itemized' && (
+            <View style={[styles.section, {backgroundColor: cardBackground}]}>
+              <View style={styles.itemizedHeader}>
+                <Text style={[styles.sectionLabel, {color: textColor}]}>Items</Text>
+                <TouchableOpacity
+                  style={[styles.addItemButton, {backgroundColor: primaryColor}]}
+                  onPress={addItem}>
+                  <MaterialIcons name="add" size={20} color="#FFFFFF" />
+                  <Text style={styles.addItemText}>Add Item</Text>
+                </TouchableOpacity>
+              </View>
+              {items.length === 0 ? (
+                <Text style={[styles.emptyText, {color: secondaryTextColor}]}>
+                  No items added. Click "Add Item" to start.
+                </Text>
+              ) : (
+                <View style={styles.itemsList}>
+                  {items.map((item, index) => (
+                    <View key={item.id} style={[styles.itemCard, {backgroundColor: backgroundColor}]}>
+                      <View style={styles.itemRow}>
+                        <TextInput
+                          style={[styles.itemNameInput, {color: textColor}]}
+                          placeholder="Item name"
+                          placeholderTextColor={secondaryTextColor}
+                          value={item.name}
+                          onChangeText={text => updateItem(item.id, 'name', text)}
+                        />
+                        <TextInput
+                          style={[styles.itemAmountInput, {color: textColor}]}
+                          placeholder="Amount"
+                          placeholderTextColor={secondaryTextColor}
+                          value={item.amount.toString()}
+                          onChangeText={text => updateItem(item.id, 'amount', text)}
+                          keyboardType="decimal-pad"
+                        />
+                      </View>
+                      <View style={styles.itemRow}>
+                        <TextInput
+                          style={[styles.itemQuantityInput, {color: textColor}]}
+                          placeholder="Qty"
+                          placeholderTextColor={secondaryTextColor}
+                          value={item.quantity.toString()}
+                          onChangeText={text => updateItem(item.id, 'quantity', text)}
+                          keyboardType="number-pad"
+                        />
+                        <TouchableOpacity
+                          style={styles.removeItemButton}
+                          onPress={() => removeItem(item.id)}>
+                          <MaterialIcons name="delete" size={20} color="#F44336" />
+                          <Text style={[styles.removeItemText, {color: '#F44336'}]}>Remove</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
             </View>
           )}
 
@@ -475,12 +641,16 @@ export function CreateExpenseScreen() {
                 </View>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.categoryButton, {borderColor: colors.border}]}
+                style={[]}
                 onPress={() => setShowCategoryModal(true)}>
-                <MaterialIcons name="folder" size={20} color={secondaryTextColor} />
-                <Text style={[styles.categoryButtonText, {color: categoryId ? textColor : secondaryTextColor}]}>
-                  {categoryId ? categories.find(c => c.id === categoryId)?.name : 'Category (Optional)'}
-                </Text>
+                  <Text style={[styles.fieldLabel, {color: secondaryTextColor}]}>Category</Text>
+                  <View style={[styles.categoryButton, {borderColor: colors.border}]}>
+
+                    <MaterialIcons name="folder" size={20} color={secondaryTextColor} />
+                    <Text style={[styles.categoryButtonText, {color: categoryId ? textColor : secondaryTextColor}]}>
+                      {categoryName || 'Category (Optional)'}
+                    </Text>
+                  </View>
               </TouchableOpacity>
             </View>
           </View>
@@ -533,228 +703,61 @@ export function CreateExpenseScreen() {
           </View>
         </ScrollView>
 
-        {/* Paid By Modal */}
-        <Modal visible={showPaidByModal} transparent animationType="slide">
-          <View style={styles.modalOverlay}>
-            <View style={[styles.modalContent, {backgroundColor: cardBackground}]}>
-              <Text style={[styles.modalTitle, {color: textColor}]}>Who paid?</Text>
-              <ScrollView style={styles.modalScroll}>
-                {participants.map((p, index) => {
-                  const participantUser = getSelectedUser(p.user_id);
-                  const isSelected = paidBy === p.user_id;
-                  return (
-                    <TouchableOpacity
-                      key={`paidby-${p.user_id}-${index}`}
-                      style={[styles.modalOption, isSelected && {backgroundColor: primaryColor + '20'}]}
-                      onPress={() => {
-                        setPaidBy(p.user_id);
-                        setShowPaidByModal(false);
-                      }}>
-                      <Text style={[styles.modalOptionText, {color: textColor}]}>
-                        {p.user_id === user?.id ? 'You' : participantUser?.name || 'Unknown'}
-                      </Text>
-                      {isSelected && <MaterialIcons name="check" size={20} color={primaryColor} />}
-                    </TouchableOpacity>
-                  );
-                })}
-              </ScrollView>
-              <TouchableOpacity
-                style={styles.modalCloseButton}
-                onPress={() => setShowPaidByModal(false)}>
-                <Text style={[styles.modalCloseText, {color: textColor}]}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
+        {/* Modal Components */}
+        <PaidByModal
+          visible={showPaidByModal}
+          participants={participants}
+          selectedPaidBy={paidBy}
+          currentUserId={user?.id}
+          getParticipantName={(userId) => {
+            if (userId === user?.id) return 'You';
+            const participantUser = getSelectedUser(userId);
+            return participantUser?.name || 'Unknown';
+          }}
+          onSelect={setPaidBy}
+          onClose={() => setShowPaidByModal(false)}
+        />
 
-        {/* Split Type Modal */}
-        <Modal visible={showSplitModal} transparent animationType="slide">
-          <View style={styles.modalOverlay}>
-            <View style={[styles.modalContent, {backgroundColor: cardBackground}]}>
-              <Text style={[styles.modalTitle, {color: textColor}]}>How to split</Text>
-              <ScrollView style={styles.modalScroll}>
-                {(['equal', 'exact', 'percentage', 'shares', 'adjustment', 'reimbursement', 'itemized'] as SplitType[]).map(type => {
-                  const labels: Record<SplitType, {title: string; description: string}> = {
-                    equal: {title: 'Equally', description: 'Split the total equally'},
-                    exact: {title: 'Exact amounts', description: 'Enter exact amounts for each person'},
-                    percentage: {title: 'By percentage', description: 'Split by percentage'},
-                    shares: {title: 'By shares', description: 'Split by shares (e.g., 1:2:3)'},
-                    adjustment: {title: 'By adjustment', description: 'Manually adjust amounts for each person'},
-                    reimbursement: {title: 'Reimbursement', description: 'One person is being reimbursed'},
-                    itemized: {title: 'Itemized expense', description: 'Split by individual items'},
-                  };
-                  const isSelected = splitType === type;
-                  return (
-                    <TouchableOpacity
-                      key={type}
-                      style={[styles.modalOption, isSelected && {backgroundColor: primaryColor + '20'}]}
-                      onPress={() => {
-                        setSplitType(type);
-                        setShowSplitModal(false);
-                      }}>
-                      <View>
-                        <Text style={[styles.modalOptionText, {color: textColor}]}>{labels[type].title}</Text>
-                        <Text style={[styles.modalOptionDesc, {color: secondaryTextColor}]}>
-                          {labels[type].description}
-                        </Text>
-                      </View>
-                      {isSelected && <MaterialIcons name="check" size={20} color={primaryColor} />}
-                    </TouchableOpacity>
-                  );
-                })}
-              </ScrollView>
-              <TouchableOpacity
-                style={styles.modalCloseButton}
-                onPress={() => setShowSplitModal(false)}>
-                <Text style={[styles.modalCloseText, {color: textColor}]}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
+        <SplitTypeModal
+          visible={showSplitModal}
+          selectedSplitType={splitType}
+          onSelect={setSplitType}
+          onClose={() => setShowSplitModal(false)}
+        />
 
-        {/* Currency Modal */}
-        <Modal visible={showCurrencyModal} transparent animationType="slide">
-          <View style={styles.modalOverlay}>
-            <View style={[styles.modalContent, {backgroundColor: cardBackground}]}>
-              <View style={styles.modalHeader}>
-                <Text style={[styles.modalTitle, {color: textColor}]}>Select Currency</Text>
-                <TouchableOpacity onPress={() => setShowCurrencyModal(false)}>
-                  <MaterialIcons name="close" size={24} color={textColor} />
-                </TouchableOpacity>
-              </View>
-              <ScrollView style={styles.modalScroll}>
-                {currencies.map(curr => {
-                  const isSelected = currency === curr.code;
-                  return (
-                    <TouchableOpacity
-                      key={curr.code}
-                      style={[styles.modalOption, isSelected && {backgroundColor: primaryColor + '20'}]}
-                      onPress={() => {
-                        setCurrency(curr.code);
-                        setShowCurrencyModal(false);
-                      }}>
-                      <View>
-                        <Text style={[styles.modalOptionText, {color: textColor}]}>
-                          {curr.code} ({curr.symbol})
-                        </Text>
-                        <Text style={[styles.modalOptionDesc, {color: secondaryTextColor}]}>
-                          {curr.name}
-                        </Text>
-                      </View>
-                      {isSelected && <MaterialIcons name="check" size={20} color={primaryColor} />}
-                    </TouchableOpacity>
-                  );
-                })}
-              </ScrollView>
-            </View>
-          </View>
-        </Modal>
+        <CurrencyModal
+          visible={showCurrencyModal}
+          selectedCurrency={currency}
+          onSelect={setCurrency}
+          onClose={() => setShowCurrencyModal(false)}
+        />
 
-        {/* Date Picker Modal */}
-        <Modal visible={showDatePicker} transparent animationType="slide">
-          <View style={styles.modalOverlay}>
-            <View style={[styles.modalContent, {backgroundColor: cardBackground}]}>
-              <View style={styles.modalHeader}>
-                <Text style={[styles.modalTitle, {color: textColor}]}>Select Date</Text>
-                <TouchableOpacity onPress={() => setShowDatePicker(false)}>
-                  <MaterialIcons name="close" size={24} color={textColor} />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.datePickerContainer}>
-                {/* Date input with proper format */}
-                <TextInput
-                  style={[styles.datePickerInput, {backgroundColor: backgroundColor, color: textColor}]}
-                  value={date}
-                  onChangeText={(text) => {
-                    // Allow YYYY-MM-DD format
-                    const cleaned = text.replace(/[^\d-]/g, '');
-                    if (cleaned.length <= 10) {
-                      setDate(cleaned);
-                    }
-                  }}
-                  placeholder="YYYY-MM-DD"
-                  placeholderTextColor={secondaryTextColor}
-                  keyboardType="numeric"
-                />
-                {/* Quick date selection buttons */}
-                <View style={styles.quickDateButtons}>
-                  <TouchableOpacity
-                    style={[styles.quickDateButton, {backgroundColor: primaryColor + '20'}]}
-                    onPress={() => {
-                      const today = new Date();
-                      const year = today.getFullYear();
-                      const month = String(today.getMonth() + 1).padStart(2, '0');
-                      const day = String(today.getDate()).padStart(2, '0');
-                      setDate(`${year}-${month}-${day}`);
-                      setShowDatePicker(false);
-                    }}>
-                    <Text style={[styles.quickDateText, {color: primaryColor}]}>Today</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.quickDateButton, {backgroundColor: primaryColor + '20'}]}
-                    onPress={() => {
-                      const yesterday = new Date();
-                      yesterday.setDate(yesterday.getDate() - 1);
-                      const year = yesterday.getFullYear();
-                      const month = String(yesterday.getMonth() + 1).padStart(2, '0');
-                      const day = String(yesterday.getDate()).padStart(2, '0');
-                      setDate(`${year}-${month}-${day}`);
-                      setShowDatePicker(false);
-                    }}>
-                    <Text style={[styles.quickDateText, {color: primaryColor}]}>Yesterday</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-              <TouchableOpacity
-                style={styles.modalCloseButton}
-                onPress={() => setShowDatePicker(false)}>
-                <Text style={[styles.modalCloseText, {color: textColor}]}>Done</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
+        <DatePickerModal
+          visible={showDatePicker}
+          selectedDate={date}
+          onSelect={setDate}
+          onClose={() => setShowDatePicker(false)}
+        />
 
-        {/* Category Modal */}
-        <Modal visible={showCategoryModal} transparent animationType="slide">
-          <View style={styles.modalOverlay}>
-            <View style={[styles.modalContent, {backgroundColor: cardBackground}]}>
-              <View style={styles.modalHeader}>
-                <Text style={[styles.modalTitle, {color: textColor}]}>Select Category</Text>
-                <TouchableOpacity onPress={() => setShowCategoryModal(false)}>
-                  <MaterialIcons name="close" size={24} color={textColor} />
-                </TouchableOpacity>
-              </View>
-              <ScrollView style={styles.modalScroll}>
-                <TouchableOpacity
-                  style={[styles.modalOption, !categoryId && {backgroundColor: primaryColor + '20'}]}
-                  onPress={() => {
-                    setCategoryId(undefined);
-                    setShowCategoryModal(false);
-                  }}>
-                  <Text style={[styles.modalOptionText, {color: textColor}]}>None</Text>
-                  {!categoryId && <MaterialIcons name="check" size={20} color={primaryColor} />}
-                </TouchableOpacity>
-                {categories.map(cat => {
-                  const isSelected = categoryId === cat.id;
-                  return (
-                    <TouchableOpacity
-                      key={cat.id}
-                      style={[styles.modalOption, isSelected && {backgroundColor: primaryColor + '20'}]}
-                      onPress={() => {
-                        setCategoryId(cat.id);
-                        setShowCategoryModal(false);
-                      }}>
-                      <Text style={[styles.modalOptionText, {color: textColor}]}>
-                        {cat.icon} {cat.name}
-                      </Text>
-                      {isSelected && <MaterialIcons name="check" size={20} color={primaryColor} />}
-                    </TouchableOpacity>
-                  );
-                })}
-              </ScrollView>
-            </View>
-          </View>
-        </Modal>
+        <CategoryModal
+          visible={showCategoryModal}
+          selectedCategoryId={categoryId}
+          onSelect={(id) => {
+            setCategoryId(id);
+            if (id) {
+              // Fetch category name for display
+              apiClient.getCategories().then(categories => {
+                const cat = categories.find(c => c.id === id);
+                setCategoryName(cat ? `${cat.icon} ${cat.name}` : undefined);
+              }).catch(() => {
+                setCategoryName(undefined);
+              });
+            } else {
+              setCategoryName(undefined);
+            }
+          }}
+          onClose={() => setShowCategoryModal(false)}
+        />
       </ScreenWrapper>
     </View>
   );

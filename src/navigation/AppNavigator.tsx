@@ -295,18 +295,7 @@ export default function AppNavigator() {
               options={{headerShown: false}}
             />
             {/* GroupDetail and FriendDetail are now in nested stacks within MainTabNavigator */}
-            <RootStack.Screen
-              name="CreateExpense"
-              component={CreateExpenseScreen}
-              options={{
-                header: ({options}) => (
-                  <CustomHeader
-                    title={options.title || 'Add Expense'}
-                    showNotifications={true}
-                  />
-                ),
-              }}
-            />
+            {/* CreateExpense is now in ExpensesStack within MainTabNavigator */}
             <RootStack.Screen
               name="SettleUpFriend"
               component={SettleUpFriendScreen}

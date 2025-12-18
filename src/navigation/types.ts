@@ -10,7 +10,6 @@ export type RootStackParamList = {
   GroupDetail: {groupId: string};
   FriendDetail: {friendId: number};
   ExpenseDetail: {expenseId: string};
-  CreateExpense: {groupId?: string; friendId?: number} | undefined;
   SettleUpFriend: {friendId: number};
   SettleUpGroup: {groupId: string};
   EditExpense: {expenseId: string};

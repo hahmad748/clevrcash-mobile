@@ -154,7 +154,7 @@ export const styles = StyleSheet.create({
   // Paid By Section
   paidBySection: {
     paddingVertical: 20,
-    paddingHorizontal: 4,
+    paddingHorizontal: 20,
   },
   paidByRow: {
     flexDirection: 'row',
@@ -205,6 +205,99 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 12,
     fontSize: 16,
     textAlign: 'right',
+  },
+  // Reimbursement
+  reimbursementSelect: {
+    gap: 8,
+  },
+  reimbursementOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  reimbursementOptionText: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  // Itemized
+  itemizedHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  addItemButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    gap: 6,
+  },
+  addItemText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  itemsList: {
+    gap: 12,
+  },
+  itemCard: {
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  itemRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 12,
+    alignItems: 'center',
+  },
+  itemNameInput: {
+    flex: 2,
+    height: 40,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    fontSize: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.1)',
+  },
+  itemAmountInput: {
+    flex: 1,
+    height: 40,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    fontSize: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.1)',
+    textAlign: 'right',
+  },
+  itemQuantityInput: {
+    width: 80,
+    height: 40,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    fontSize: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.1)',
+  },
+  removeItemButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginLeft: 'auto',
+  },
+  removeItemText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  emptyText: {
+    fontSize: 14,
+    textAlign: 'center',
+    paddingVertical: 24,
   },
   // Date and Category
   dateCategoryRow: {
@@ -295,7 +388,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    borderWidth: 1,
+    borderWidth: 0.1,
     textAlignVertical: 'top',
   },
   // Action Buttons

@@ -178,7 +178,11 @@ export function ExpensesListScreen() {
       />
       <TouchableOpacity
         style={[styles.fab, {backgroundColor: colors.primary}]}
-        onPress={() => navigation.navigate('CreateExpense' as never)}>
+        onPress={() => {
+          navigation.navigate('Expenses' as never, {
+            screen: 'CreateExpense',
+          } as never);
+        }}>
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
     </View>

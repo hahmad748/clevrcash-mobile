@@ -489,7 +489,7 @@ class ApiClient {
       percentage?: number;
       shares?: number;
     }>;
-    split_type: 'equal' | 'exact' | 'percentage' | 'shares';
+    split_type: 'equal' | 'exact' | 'percentage' | 'shares' | 'adjustment' | 'reimbursement' | 'itemized';
     split_data?: Record<string, any>;
     category_id?: number;
     items?: Array<{
