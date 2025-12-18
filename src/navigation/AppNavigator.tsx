@@ -3,6 +3,7 @@ import {NavigationContainer, Linking, NavigationContainerRef} from '@react-navig
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createDrawerNavigator} from '@react-navigation/drawer';
+import {CommonActions} from '@react-navigation/native';
 import type {NavigatorScreenParams} from '@react-navigation/native';
 import {useAuth} from '../contexts/AuthContext';
 import {useTheme} from '../contexts/ThemeContext';
@@ -20,6 +21,7 @@ import {GroupDetailScreen} from '../screens/groups/GroupDetail';
 import {FriendsListScreen} from '../screens/friends/FriendsList';
 import {FriendDetailScreen} from '../screens/friends/FriendDetail';
 import {TransactionsListScreen} from '../screens/transactions/TransactionsList';
+import {TransactionDetailScreen} from '../screens/transactions/TransactionDetail';
 import {AccountScreen} from '../screens/account/AccountScreen';
 import {DashboardScreen} from '../screens/dashboard/Dashboard';
 import {CreateExpenseScreen} from '../screens/expenses/CreateExpense';
@@ -55,6 +57,24 @@ const GroupsStack = createNativeStackNavigator();
 const FriendsStack = createNativeStackNavigator();
 const ExpensesStack = createNativeStackNavigator();
 
+function CustomDetailHeader() {
+  const {colors} = useTheme();
+  const {brand} = useBrand();
+  const primaryColor = brand?.primary_color || colors.primary;
+
+  return (
+    <CustomHeader
+      title=""
+      showBack={true}
+      showDrawer={false}
+      showNotifications={false}
+      backgroundColor={primaryColor}
+    />
+  );
+}
+
+
+
 function AuthNavigator() {
   const {colors} = useTheme();
   const {brand} = useBrand();
@@ -79,7 +99,15 @@ function GroupsStackNavigator() {
   return (
     <GroupsStack.Navigator screenOptions={{headerShown: false}}>
       <GroupsStack.Screen name="GroupsList" component={GroupsListScreen} />
-      <GroupsStack.Screen name="GroupDetail" component={GroupDetailScreen} />
+      <GroupsStack.Screen
+        name="GroupDetail"
+        component={GroupDetailScreen}
+        options={{
+          header: () => <CustomDetailHeader />,
+          headerShown: true,
+        }}
+      />
+      <GroupsStack.Screen name="SettleUpGroup" component={SettleUpGroupScreen} />
     </GroupsStack.Navigator>
   );
 }
@@ -88,7 +116,14 @@ function FriendsStackNavigator() {
   return (
     <FriendsStack.Navigator screenOptions={{headerShown: false}}>
       <FriendsStack.Screen name="FriendsList" component={FriendsListScreen} />
-      <FriendsStack.Screen name="FriendDetail" component={FriendDetailScreen} />
+      <FriendsStack.Screen
+        name="FriendDetail"
+        component={FriendDetailScreen}
+        options={{
+          header: () => <CustomDetailHeader />,
+          headerShown: true,
+        }}
+      />
     </FriendsStack.Navigator>
   );
 }
@@ -130,6 +165,43 @@ function MainTabNavigator() {
         options={{
           tabBarLabel: 'Groups',
         }}
+        listeners={({navigation}) => ({
+          tabPress: (e) => {
+            // Get the current navigation state
+            const state = navigation.getState();
+            const currentTabIndex = state.index;
+            const groupsRoute = state.routes.find((r: any) => r.name === 'Groups');
+            const currentRoute = state.routes[currentTabIndex];
+
+            // Check if we're switching TO Groups tab from another tab
+            // OR if Groups stack has nested screens (index > 0 means we're not on GroupsList)
+            const isSwitchingToGroups = currentRoute?.name !== 'Groups';
+            const hasNestedScreens = groupsRoute?.state && groupsRoute.state.index > 0;
+
+            // Always reset if we have nested screens OR if we're switching tabs
+            if (isSwitchingToGroups || hasNestedScreens) {
+              e.preventDefault();
+              const groupsTabIndex = state.routes.findIndex((r: any) => r.name === 'Groups');
+              navigation.dispatch(
+                CommonActions.reset({
+                  index: groupsTabIndex,
+                  routes: state.routes.map((route: any) => {
+                    if (route.name === 'Groups') {
+                      return {
+                        ...route,
+                        state: {
+                          routes: [{name: 'GroupsList'}],
+                          index: 0,
+                        },
+                      };
+                    }
+                    return route;
+                  }),
+                }),
+              );
+            }
+          },
+        })}
       />
       <MainTab.Screen
         name="Friends"
@@ -137,6 +209,36 @@ function MainTabNavigator() {
         options={{
           tabBarLabel: 'Friends',
         }}
+        listeners={({navigation}) => ({
+          tabPress: (e) => {
+            const state = navigation.getState();
+            const friendsRoute = state.routes.find((r: any) => r.name === 'Friends');
+            const hasNestedScreens = friendsRoute?.state && friendsRoute.state.index > 0;
+
+            // Always reset to FriendsList if we have nested screens
+            if (hasNestedScreens) {
+              e.preventDefault();
+              const friendsTabIndex = state.routes.findIndex((r: any) => r.name === 'Friends');
+              navigation.dispatch(
+                CommonActions.reset({
+                  index: friendsTabIndex,
+                  routes: state.routes.map((route: any) => {
+                    if (route.name === 'Friends') {
+                      return {
+                        ...route,
+                        state: {
+                          routes: [{name: 'FriendsList'}],
+                          index: 0,
+                        },
+                      };
+                    }
+                    return route;
+                  }),
+                }),
+              );
+            }
+          },
+        })}
       />
       <MainTab.Screen
         name="Transactions"
@@ -273,7 +375,7 @@ export default function AppNavigator() {
     return (
       <NavigationContainer ref={navigationRef}>
         <DeepLinkHandler />
-        <RootStack.Navigator screenOptions={{headerShown: false}}>
+        <RootStack.Navigator screenOptions={{headerShown: false}} >
           <RootStack.Screen name="Splash" component={SplashScreen} />
         </RootStack.Navigator>
       </NavigationContainer>
@@ -300,85 +402,64 @@ export default function AppNavigator() {
               name="SettleUpFriend"
               component={SettleUpFriendScreen}
               options={{
-                header: ({options}) => (
-                  <CustomHeader
-                    title={options.title || 'Settle Up'}
-                    showNotifications={true}
-                  />
-                ),
+                header: () => <CustomDetailHeader />,
+                headerShown: true,
               }}
             />
             <RootStack.Screen
               name="CreateGroup"
               component={CreateGroupScreen}
               options={{
-                header: ({options}) => (
-                  <CustomHeader
-                    title={options.title || 'Create Group'}
-                    showNotifications={true}
-                  />
-                ),
+                header: () => <CustomDetailHeader />,
+                headerShown: true,
               }}
             />
             <RootStack.Screen
               name="SearchFriends"
               component={SearchFriendsScreen}
               options={{
-                header: ({options}) => (
-                  <CustomHeader
-                    title={options.title || 'Search Friends'}
-                    showNotifications={true}
-                  />
-                ),
+                header: () => <CustomDetailHeader />,
+                headerShown: true,
               }}
             />
             <RootStack.Screen
               name="InviteFriend"
               component={InviteFriendScreen}
               options={{
-                header: ({options}) => (
-                  <CustomHeader
-                    title={options.title || 'Invite Friend'}
-                    showBack={true}
-                    showNotifications={true}
-                  />
-                ),
+                header: () => <CustomDetailHeader />,
+                headerShown: true,
               }}
             />
             <RootStack.Screen
               name="PendingRequests"
               component={PendingRequestsScreen}
               options={{
-                header: ({options}) => (
-                  <CustomHeader
-                    title={options.title || 'Pending Requests'}
-                    showNotifications={true}
-                  />
-                ),
+                header: () => <CustomDetailHeader />,
+                headerShown: true,
               }}
             />
             <RootStack.Screen
               name="JoinGroup"
               component={JoinGroupScreen}
               options={{
-                header: ({options}) => (
-                  <CustomHeader
-                    title={options.title || 'Join Group'}
-                    showNotifications={true}
-                  />
-                ),
+                header: () => <CustomDetailHeader />,
+                headerShown: true,
               }}
             />
             <RootStack.Screen
               name="ExpenseDetail"
               component={ExpenseDetailScreen}
               options={{
-                header: ({options}) => (
-                  <CustomHeader
-                    title={options.title || 'Expense Details'}
-                    showNotifications={true}
-                  />
-                ),
+                header: () => <CustomDetailHeader />,
+                headerShown: true,
+              }}
+            />
+            <RootStack.Screen
+              name="TransactionDetail"
+              component={TransactionDetailScreen}
+              options={{
+                header: () => <CustomDetailHeader />,
+                headerShown: true,
               }}
             />
             <RootStack.Screen
@@ -397,48 +478,32 @@ export default function AppNavigator() {
               name="InviteMember"
               component={InviteMemberScreen}
               options={{
-                header: ({options}) => (
-                  <CustomHeader
-                    title={options.title || 'Invite Member'}
-                    showNotifications={true}
-                  />
-                ),
+                header: () => <CustomDetailHeader />,
+                headerShown: true,
               }}
             />
             <RootStack.Screen
               name="SettleUpGroup"
               component={SettleUpGroupScreen}
               options={{
-                header: ({options}) => (
-                  <CustomHeader
-                    title={options.title || 'Settle Up'}
-                    showNotifications={true}
-                  />
-                ),
+                header: () => <CustomDetailHeader />,
+                headerShown: true,
               }}
             />
             <RootStack.Screen
               name="EditGroup"
               component={EditGroupScreen}
               options={{
-                header: ({options}) => (
-                  <CustomHeader
-                    title={options.title || 'Edit Group'}
-                    showNotifications={true}
-                  />
-                ),
+                header: () => <CustomDetailHeader />, 
+                headerShown: true,
               }}
             />
             <RootStack.Screen
               name="EditExpense"
               component={EditExpenseScreen}
               options={{
-                header: ({options}) => (
-                  <CustomHeader
-                    title={options.title || 'Edit Expense'}
-                    showNotifications={true}
-                  />
-                ),
+                header: () => <CustomDetailHeader />,
+                headerShown: true,
               }}
             />
             <RootStack.Screen

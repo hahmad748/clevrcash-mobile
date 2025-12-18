@@ -277,6 +277,28 @@ class ApiClient {
     return response.data;
   }
 
+  async getFriendBalancesByCurrency(friendId: number): Promise<Array<{currency: string; balance: number}>> {
+    const response = await apiService.get<ApiResponse<Array<{currency: string; balance: number}>>>(
+      `/friends/${friendId}/balances-by-currency`,
+    );
+    return response.data;
+  }
+
+  async getSharedGroups(friendId: number): Promise<Group[]> {
+    const response = await apiService.get<ApiResponse<Group[]>>(
+      `/friends/${friendId}/shared-groups`,
+    );
+    return response.data;
+  }
+
+  async blockFriend(friendId: number): Promise<void> {
+    await apiService.post(`/friends/${friendId}/block`);
+  }
+
+  async reportFriend(friendId: number, reason: string, description?: string): Promise<void> {
+    await apiService.post(`/friends/${friendId}/report`, {reason, description});
+  }
+
   async getFriendTransactions(
     friendId: number,
     filters?: TransactionFilters,

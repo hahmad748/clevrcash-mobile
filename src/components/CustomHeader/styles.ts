@@ -17,6 +17,8 @@ export const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     zIndex: 1000,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
   },
   content: {
     flex: 1,

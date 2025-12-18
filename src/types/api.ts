@@ -254,7 +254,10 @@ export interface Balance {
 
 export interface FriendBalance {
   balance: number;
+  converted_balance?: number;
+  converted_currency?: string;
   friend: User;
+  balances_by_currency?: Array<{currency: string; balance: number}>;
 }
 
 export interface GroupBalance {

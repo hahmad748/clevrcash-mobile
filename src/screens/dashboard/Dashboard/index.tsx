@@ -156,7 +156,7 @@ export function DashboardScreen() {
           {balancesByCurrency.length > 0 && (
             <View style={[styles.sectionCard, {backgroundColor: cardBackground}]}>
               <Text style={[styles.sectionTitle, {color: textColor}]}>Balances by Currency</Text>
-              <View style={styles.currencyGrid}>
+              <ScrollView style={styles.currencyGridView} horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.currencyGrid} nestedScrollEnabled={true}>
                 {balancesByCurrency.map(({currency, balance}) => {
                   const balanceNum = Number(balance) || 0;
                   const isPositive = balanceNum >= 0;
@@ -176,12 +176,12 @@ export function DashboardScreen() {
                           styles.currencyAmount,
                           {color: isPositive ? '#4CAF50' : '#F44336'},
                         ]}>
-                        {formatCurrency(balanceNum, currency)}
+                        {balanceNum.toFixed(2)}
                       </Text>
                     </View>
                   );
                 })}
-              </View>
+              </ScrollView>
             </View>
           )}
 

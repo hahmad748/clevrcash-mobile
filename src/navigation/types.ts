@@ -2,6 +2,7 @@ import type {NavigatorScreenParams} from '@react-navigation/native';
 import type {StackScreenProps} from '@react-navigation/stack';
 import type {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
 import type {DrawerScreenProps} from '@react-navigation/drawer';
+import type {Transaction} from '../types/api';
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -10,8 +11,8 @@ export type RootStackParamList = {
   GroupDetail: {groupId: string};
   FriendDetail: {friendId: number};
   ExpenseDetail: {expenseId: string};
+  TransactionDetail: {transaction: Transaction};
   SettleUpFriend: {friendId: number};
-  SettleUpGroup: {groupId: string};
   EditExpense: {expenseId: string};
   CreateGroup: undefined;
   EditGroup: {groupId: string};
@@ -51,6 +52,7 @@ export type AuthStackParamList = {
 export type GroupsStackParamList = {
   GroupsList: undefined;
   GroupDetail: {groupId: string};
+  SettleUpGroup: {groupId: string; friendId?: number; amount?: number};
 };
 
 export type FriendsStackParamList = {

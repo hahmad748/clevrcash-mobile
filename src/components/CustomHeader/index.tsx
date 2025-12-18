@@ -13,6 +13,7 @@ interface CustomHeaderProps {
   showDrawer?: boolean;
   rightComponent?: React.ReactNode;
   showNotifications?: boolean;
+  backgroundColor?: string;
 }
 
 export function CustomHeader({
@@ -21,6 +22,7 @@ export function CustomHeader({
   showDrawer,
   rightComponent,
   showNotifications = true,
+  backgroundColor,
 }: CustomHeaderProps) {
   const navigation = useNavigation();
   const route = useRoute();
@@ -29,9 +31,9 @@ export function CustomHeader({
   const [unreadCount, setUnreadCount] = useState(0);
 
   const primaryColor = brand?.primary_color || colors.primary;
-  const headerBackground = isDark ? colors.surface : '#FFFFFF';
-  const textColor = isDark ? colors.text : '#1A1A1A';
-  const iconColor = isDark ? colors.text : '#1A1A1A';
+  const headerBackground = backgroundColor || (isDark ? colors.surface : '#FFFFFF');
+  const textColor = backgroundColor ? '#FFFFFF' : (isDark ? colors.text : '#1A1A1A');
+  const iconColor = backgroundColor ? '#FFFFFF' : (isDark ? colors.text : '#1A1A1A');
 
   useEffect(() => {
     if (showNotifications) {
@@ -76,7 +78,7 @@ export function CustomHeader({
   return (
     <>
       <StatusBar
-        barStyle={isDark ? 'light-content' : 'dark-content'}
+        barStyle={backgroundColor ? 'light-content' : (isDark ? 'light-content' : 'dark-content')}
         backgroundColor={headerBackground}
         translucent={false}
       />
@@ -109,18 +111,20 @@ export function CustomHeader({
           </View>
 
           {/* Title */}
-          <View style={styles.titleSection}>
-            <Text
-              style={[
-                styles.title,
-                {
-                  color: textColor,
-                },
-              ]}
-              numberOfLines={1}>
-              {title || route.name}
-            </Text>
-          </View>
+          {title !== '' && (
+            <View style={styles.titleSection}>
+              <Text
+                style={[
+                  styles.title,
+                  {
+                    color: textColor,
+                  },
+                ]}
+                numberOfLines={1}>
+                {title || route.name}
+              </Text>
+            </View>
+          )}
 
           {/* Right Component */}
           <View style={styles.rightSection}>

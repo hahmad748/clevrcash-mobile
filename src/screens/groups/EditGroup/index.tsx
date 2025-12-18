@@ -5,33 +5,41 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
   Alert,
   ActivityIndicator,
 } from 'react-native';
 import {useRoute, useNavigation} from '@react-navigation/native';
+import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useTheme} from '../../../contexts/ThemeContext';
+import {useBrand} from '../../../contexts/BrandContext';
 import {apiClient} from '../../../services/apiClient';
-import type {Group, Currency} from '../../../types/api';
+import {CurrencyModal} from '../../../components/modals/CurrencyModal';
+import type {Group} from '../../../types/api';
 import {styles} from './styles';
 
 export function EditGroupScreen() {
   const route = useRoute();
   const navigation = useNavigation();
-  const {colors} = useTheme();
+  const {colors, isDark} = useTheme();
+  const {brand} = useBrand();
   const {groupId} = route.params as {groupId: string};
   const [group, setGroup] = useState<Group | null>(null);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [currency, setCurrency] = useState('');
-  const [currencies, setCurrencies] = useState<Currency[]>([]);
+  const [showDescription, setShowDescription] = useState(false);
+  const [showCurrencyModal, setShowCurrencyModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  const primaryColor = brand?.primary_color || colors.primary;
+  const backgroundColor = isDark ? '#0A0E27' : '#F5F5F5';
+  const cardBackground = isDark ? '#1A1F3A' : '#FFFFFF';
+  const textColor = isDark ? '#FFFFFF' : '#1A1A1A';
+  const secondaryTextColor = isDark ? '#B0B0B0' : '#666666';
+
   useEffect(() => {
     loadGroup();
-    loadCurrencies();
   }, [groupId]);
 
   const loadGroup = async () => {
@@ -42,20 +50,13 @@ export function EditGroupScreen() {
       setName(data.name);
       setDescription(data.description || '');
       setCurrency(data.currency);
+      // Show description field if there's existing description, otherwise keep it collapsed
+      setShowDescription(!!data.description);
     } catch (error) {
       console.error('Failed to load group:', error);
       Alert.alert('Error', 'Failed to load group details');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const loadCurrencies = async () => {
-    try {
-      const data = await apiClient.getCurrencies();
-      setCurrencies(data);
-    } catch (error) {
-      console.error('Failed to load currencies:', error);
     }
   };
 
@@ -87,86 +88,103 @@ export function EditGroupScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.container, styles.centerContent, {backgroundColor: colors.background}]}>
-        <ActivityIndicator size="large" color={colors.primary} />
+      <View style={[styles.container, styles.centerContent, {backgroundColor}]}>
+        <ActivityIndicator size="large" color={primaryColor} />
       </View>
     );
   }
 
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, {backgroundColor: colors.background}]}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
-        <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, {color: colors.text}]}>Group Name *</Text>
+    <View style={[styles.container, {backgroundColor}]}>
+      <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}>
+          {/* Page Heading */}
+          <View style={styles.pageHeader}>
+            <Text style={[styles.pageTitle, {color: textColor}]}>Edit Group</Text>
+          </View>
+
+          {/* Group Name Section */}
+          <View style={[styles.section, {backgroundColor: cardBackground}]}>
+            <Text style={[styles.sectionLabel, {color: secondaryTextColor}]}>Group Name</Text>
             <TextInput
-              style={[
-                styles.input,
-                {backgroundColor: colors.surface, color: colors.text, borderColor: colors.border},
-              ]}
-              placeholder="Enter group name"
-              placeholderTextColor={colors.textSecondary}
+              style={[styles.input, {color: textColor, borderBottomColor: secondaryTextColor + '30'}]}
+              placeholder="e.g., Roommates, Vacation 2024"
+              placeholderTextColor={secondaryTextColor}
               value={name}
               onChangeText={setName}
             />
           </View>
 
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, {color: colors.text}]}>Description</Text>
-            <TextInput
-              style={[
-                styles.textArea,
-                {backgroundColor: colors.surface, color: colors.text, borderColor: colors.border},
-              ]}
-              placeholder="Enter description (optional)"
-              placeholderTextColor={colors.textSecondary}
-              value={description}
-              onChangeText={setDescription}
-              multiline
-              numberOfLines={4}
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, {color: colors.text}]}>Currency</Text>
-            <View style={styles.currencyContainer}>
-              {currencies.map(curr => (
-                <TouchableOpacity
-                  key={curr.code}
-                  style={[
-                    styles.currencyButton,
-                    {
-                      backgroundColor: currency === curr.code ? colors.primary : colors.surface,
-                      borderColor: colors.border,
-                    },
-                  ]}
-                  onPress={() => setCurrency(curr.code)}>
-                  <Text
-                    style={[
-                      styles.currencyButtonText,
-                      {color: currency === curr.code ? '#FFFFFF' : colors.text},
-                    ]}>
-                    {curr.code} - {curr.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          <TouchableOpacity
-            style={[styles.saveButton, {backgroundColor: colors.primary}]}
-            onPress={handleSave}
-            disabled={saving}>
-            {saving ? (
-              <ActivityIndicator color="#FFFFFF" />
+          {/* Description Section */}
+          <View style={[styles.section, {backgroundColor: cardBackground}]}>
+            {!showDescription ? (
+              <TouchableOpacity
+                style={styles.addDescriptionButton}
+                onPress={() => setShowDescription(true)}>
+                <MaterialIcons name="add" size={20} color={primaryColor} />
+                <Text style={[styles.addDescriptionText, {color: primaryColor}]}>
+                  Description (Optional)
+                </Text>
+              </TouchableOpacity>
             ) : (
-              <Text style={styles.saveButtonText}>Save Changes</Text>
+              <View>
+                <Text style={[styles.sectionLabel, {color: secondaryTextColor}]}>
+                  Description (Optional)
+                </Text>
+                <TextInput
+                  style={[styles.textArea, {color: textColor}]}
+                  placeholder="Add a description for this group"
+                  placeholderTextColor={secondaryTextColor}
+                  value={description}
+                  onChangeText={setDescription}
+                  multiline
+                  numberOfLines={4}
+                  textAlignVertical="top"
+                />
+              </View>
             )}
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+          </View>
+
+          {/* Currency Section */}
+          <View style={[styles.section, {backgroundColor: cardBackground}]}>
+            <Text style={[styles.sectionLabel, {color: secondaryTextColor}]}>Default Currency</Text>
+            <TouchableOpacity
+              style={[styles.currencyButton, {backgroundColor: backgroundColor}]}
+              onPress={() => setShowCurrencyModal(true)}>
+              <Text style={[styles.currencyText, {color: textColor}]}>{currency}</Text>
+              <MaterialIcons name="arrow-drop-down" size={20} color={textColor} />
+            </TouchableOpacity>
+          </View>
+
+          {/* Action Buttons */}
+          <View style={styles.actionButtons}>
+            <TouchableOpacity
+              style={[styles.cancelButton, {borderColor: secondaryTextColor}]}
+              onPress={() => navigation.goBack()}>
+              <Text style={[styles.cancelButtonText, {color: textColor}]}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.saveButton, {backgroundColor: primaryColor}]}
+              onPress={handleSave}
+              disabled={saving}>
+              {saving ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <Text style={styles.saveButtonText}>Save Changes</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+
+        {/* Currency Modal */}
+        <CurrencyModal
+          visible={showCurrencyModal}
+          selectedCurrency={currency}
+          onSelect={setCurrency}
+          onClose={() => setShowCurrencyModal(false)}
+        />
+    </View>
   );
 }

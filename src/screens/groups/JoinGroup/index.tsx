@@ -13,6 +13,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useTheme} from '../../../contexts/ThemeContext';
 import {apiClient} from '../../../services/apiClient';
 import {styles} from './styles';
+import MaterialIcons from '@react-native-vector-icons/material-icons';
 
 export function JoinGroupScreen() {
   const navigation = useNavigation();

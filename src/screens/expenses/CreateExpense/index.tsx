@@ -9,8 +9,12 @@ import {
   ActivityIndicator,
   FlatList,
   Image,
+  Platform,
+  ActionSheetIOS,
 } from 'react-native';
-import {useRoute, useNavigation} from '@react-navigation/native';
+import {launchCamera, launchImageLibrary, ImagePickerResponse, MediaType} from 'react-native-image-picker';
+import DocumentPicker from 'react-native-document-picker';
+import {useRoute, useNavigation, useFocusEffect} from '@react-navigation/native';
 import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useTheme} from '../../../contexts/ThemeContext';
 import {useBrand} from '../../../contexts/BrandContext';
@@ -55,6 +59,8 @@ export function CreateExpenseScreen() {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState(defaultCurrency);
+  const [groupCurrency, setGroupCurrency] = useState<string | null>(null);
+  const [numericGroupId, setNumericGroupId] = useState<number | undefined>(undefined);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [notes, setNotes] = useState('');
   const [categoryId, setCategoryId] = useState<number | undefined>();
@@ -73,19 +79,54 @@ export function CreateExpenseScreen() {
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [receiptUri, setReceiptUri] = useState<string | null>(null);
+  const [receiptType, setReceiptType] = useState<'image' | 'document' | null>(null);
+  const [receiptName, setReceiptName] = useState<string | null>(null);
 
   // Data state
   const [availableUsers, setAvailableUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<User[]>([]);
+  const [searchInputLayout, setSearchInputLayout] = useState<{x: number; y: number; width: number; height: number} | null>(null);
 
   // Loading state
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
 
-  useEffect(() => {
-    loadInitialData();
-  }, []);
+  // Reset form function
+  const resetForm = useCallback(() => {
+    setDescription('');
+    setAmount('');
+    setCurrency(defaultCurrency);
+    setGroupCurrency(null);
+    setDate(new Date().toISOString().split('T')[0]);
+    setNotes('');
+    setCategoryId(undefined);
+    setCategoryName(undefined);
+    setSplitType('equal');
+    setPaidBy(user?.id || 0);
+    setParticipants([]);
+    setReimbursedUserId(undefined);
+    setItems([]);
+    setSearchQuery('');
+    setSearchResults([]);
+    setReceiptUri(null);
+    setReceiptType(null);
+    setReceiptName(null);
+    setNumericGroupId(undefined);
+  }, [defaultCurrency, user?.id]);
+
+  // Reset form when screen loses focus (user navigates away)
+  useFocusEffect(
+    React.useCallback(() => {
+      // Load data when screen comes into focus
+      loadInitialData();
+      return () => {
+        // Cleanup: Reset form when screen loses focus
+        resetForm();
+      };
+    }, [resetForm, loadInitialData]),
+  );
 
   useEffect(() => {
     if (splitType === 'equal' && participants.length > 0 && amount) {
@@ -108,7 +149,7 @@ export function CreateExpenseScreen() {
     }
   }, [searchQuery]);
 
-  const loadInitialData = async () => {
+  const loadInitialData = useCallback(async () => {
     try {
       setLoadingData(true);
 
@@ -122,6 +163,13 @@ export function CreateExpenseScreen() {
         setAvailableUsers(uniqueMembers.filter(Boolean));
         // Select all group members by default
         setParticipants(uniqueMembers.map(m => ({user_id: m.id})));
+        // Store numeric group ID for API call (groupId from route might be hash)
+        setNumericGroupId(group.id);
+        // Set group currency as default
+        if (group.currency) {
+          setGroupCurrency(group.currency);
+          setCurrency(group.currency);
+        }
       } else if (friendId) {
         const friends = await apiClient.getFriends();
         const friend = friends.find(f => f.id === friendId);
@@ -133,8 +181,10 @@ export function CreateExpenseScreen() {
           setParticipants([{user_id: user!.id}]);
         }
       } else {
+        // No group or friend context - show friends list for participant selection
         const friends = await apiClient.getFriends();
         setAvailableUsers([user!, ...friends].filter(Boolean));
+        // Only select current user by default when no group/friend context
         setParticipants([{user_id: user!.id}]);
       }
     } catch (error) {
@@ -143,12 +193,24 @@ export function CreateExpenseScreen() {
     } finally {
       setLoadingData(false);
     }
-  };
+  }, [groupId, friendId, user]);
 
   const searchUsers = async (query: string) => {
     try {
-      const results = await apiClient.getFriends({search: query});
-      setSearchResults(results.filter(u => u.id !== user?.id));
+      if (groupId) {
+        // When in group context, search within group members
+        const filtered = availableUsers.filter(
+          u =>
+            u.id !== user?.id &&
+            (u.name.toLowerCase().includes(query.toLowerCase()) ||
+              u.email?.toLowerCase().includes(query.toLowerCase())),
+        );
+        setSearchResults(filtered);
+      } else {
+        // When not in group, search friends
+        const results = await apiClient.getFriends({search: query});
+        setSearchResults(results.filter(u => u.id !== user?.id));
+      }
     } catch (error) {
       console.error('Failed to search users:', error);
     }
@@ -220,6 +282,117 @@ export function CreateExpenseScreen() {
 
   const removeItem = (itemId: string) => {
     setItems(prev => prev.filter(item => item.id !== itemId));
+  };
+
+  const handleReceiptPicker = () => {
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ['Cancel', 'Take Photo', 'Choose from Library', 'Choose Document'],
+          cancelButtonIndex: 0,
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 1) {
+            handleTakePhoto();
+          } else if (buttonIndex === 2) {
+            handleChooseFromLibrary();
+          } else if (buttonIndex === 3) {
+            handleChooseDocument();
+          }
+        },
+      );
+    } else {
+      Alert.alert(
+        'Select Receipt',
+        'Choose an option',
+        [
+          {text: 'Cancel', style: 'cancel'},
+          {text: 'Take Photo', onPress: handleTakePhoto},
+          {text: 'Choose from Library', onPress: handleChooseFromLibrary},
+          {text: 'Choose Document', onPress: handleChooseDocument},
+        ],
+      );
+    }
+  };
+
+  const handleTakePhoto = () => {
+    launchCamera(
+      {
+        mediaType: 'photo' as MediaType,
+        quality: 0.8,
+        maxWidth: 2048,
+        maxHeight: 2048,
+      },
+      (response: ImagePickerResponse) => {
+        if (response.didCancel) {
+          return;
+        }
+        if (response.errorMessage) {
+          Alert.alert('Error', response.errorMessage);
+          return;
+        }
+        if (response.assets && response.assets[0]) {
+          const asset = response.assets[0];
+          setReceiptUri(asset.uri || null);
+          setReceiptType('image');
+          setReceiptName(asset.fileName || 'receipt.jpg');
+        }
+      },
+    );
+  };
+
+  const handleChooseFromLibrary = () => {
+    launchImageLibrary(
+      {
+        mediaType: 'photo' as MediaType,
+        quality: 0.8,
+        maxWidth: 2048,
+        maxHeight: 2048,
+      },
+      (response: ImagePickerResponse) => {
+        if (response.didCancel) {
+          return;
+        }
+        if (response.errorMessage) {
+          Alert.alert('Error', response.errorMessage);
+          return;
+        }
+        if (response.assets && response.assets[0]) {
+          const asset = response.assets[0];
+          setReceiptUri(asset.uri || null);
+          setReceiptType('image');
+          setReceiptName(asset.fileName || asset.uri?.split('/').pop() || 'receipt.jpg');
+        }
+      },
+    );
+  };
+
+  const handleChooseDocument = async () => {
+    try {
+      const result = await DocumentPicker.pick({
+        type: [DocumentPicker.types.pdf, DocumentPicker.types.images, DocumentPicker.types.allFiles],
+        copyTo: 'cachesDirectory',
+      });
+
+      if (result && result[0]) {
+        const file = result[0];
+        setReceiptUri(file.uri);
+        setReceiptType('document');
+        setReceiptName(file.name || 'document');
+      }
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        // User cancelled
+        return;
+      }
+      Alert.alert('Error', 'Failed to pick document');
+    }
+  };
+
+  const removeReceipt = () => {
+    setReceiptUri(null);
+    setReceiptType(null);
+    setReceiptName(null);
   };
 
   const getSelectedUser = (userId: number): User | undefined => {
@@ -326,8 +499,8 @@ export function CreateExpenseScreen() {
           }))
         : undefined;
 
-      await apiClient.createExpense({
-        group_id: groupId,
+      const expense = await apiClient.createExpense({
+        group_id: numericGroupId,
         description: description.trim(),
         amount: parseFloat(amount),
         currency,
@@ -340,6 +513,43 @@ export function CreateExpenseScreen() {
         items: expenseItems,
         category_id: categoryId,
       });
+
+      // Upload receipt if available
+      if (receiptUri && expense.id) {
+        try {
+          const formData = new FormData();
+          // Handle URI format for both platforms
+          const fileUri = Platform.OS === 'android' && !receiptUri.startsWith('file://') 
+            ? `file://${receiptUri}` 
+            : receiptUri;
+          
+          // Determine MIME type
+          let mimeType = 'image/jpeg';
+          if (receiptType === 'document') {
+            const extension = receiptName?.split('.').pop()?.toLowerCase();
+            if (extension === 'pdf') {
+              mimeType = 'application/pdf';
+            } else if (['png', 'jpg', 'jpeg'].includes(extension || '')) {
+              mimeType = `image/${extension === 'png' ? 'png' : 'jpeg'}`;
+            }
+          }
+
+          formData.append('file', {
+            uri: fileUri,
+            type: mimeType,
+            name: receiptName || (receiptType === 'image' ? 'receipt.jpg' : 'receipt.pdf'),
+          } as any);
+          
+          await apiClient.uploadExpenseAttachment(expense.id, formData);
+        } catch (error: any) {
+          console.error('Failed to upload receipt:', error);
+          // Don't block navigation if receipt upload fails
+          Alert.alert('Warning', 'Expense created but receipt upload failed');
+        }
+      }
+
+      // Reset form before navigating back
+      resetForm();
       navigation.goBack();
     } catch (error: any) {
       Alert.alert('Error', error.message || 'Failed to create expense');
@@ -374,27 +584,52 @@ export function CreateExpenseScreen() {
           </View>
 
           {/* Participants Section */}
-          <View style={[styles.section, {backgroundColor: cardBackground}]}>
-            <Text style={[styles.sectionLabel, {color: secondaryTextColor}]}>With you and:</Text>
+          <View style={[styles.section, styles.participantsSection, {backgroundColor: cardBackground}]}>
+            <Text style={[styles.sectionLabel, {color: secondaryTextColor}]}>
+              {groupId ? 'Group Members' : 'With you and:'}
+            </Text>
             <View style={styles.searchContainer}>
               <TextInput
                 style={[styles.searchInput, {backgroundColor: backgroundColor, color: textColor}]}
-                placeholder="Enter names or email addresses"
+                placeholder={groupId ? 'Search group members' : 'Search friends by name or email'}
                 placeholderTextColor={secondaryTextColor}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
+                onLayout={(event) => {
+                  const {x, y, width, height} = event.nativeEvent.layout;
+                  setSearchInputLayout({x, y, width, height});
+                }}
               />
               {searchResults.length > 0 && (
                 <View style={[styles.searchResults, {backgroundColor: cardBackground}]}>
-                  {searchResults.map(result => (
-                    <TouchableOpacity
-                      key={result.id}
-                      style={styles.searchResultItem}
-                      onPress={() => addParticipant(result)}>
-                      <Text style={[styles.searchResultText, {color: textColor}]}>{result.name}</Text>
-                      <Text style={[styles.searchResultEmail, {color: secondaryTextColor}]}>{result.email}</Text>
-                    </TouchableOpacity>
-                  ))}
+                  {searchResults.map(result => {
+                    const isAlreadyAdded = participants.some(p => p.user_id === result.id);
+                    return (
+                      <TouchableOpacity
+                        key={result.id}
+                        style={[
+                          styles.searchResultItem,
+                          isAlreadyAdded && {opacity: 0.5},
+                        ]}
+                        onPress={() => !isAlreadyAdded && addParticipant(result)}
+                        disabled={isAlreadyAdded}>
+                          <View>
+                            <Text style={[styles.searchResultText, {color: textColor}]}>{result.name}</Text>
+                            <Text style={[styles.searchResultEmail, {color: secondaryTextColor}]}>{result.email}</Text>
+                          </View>
+                        {isAlreadyAdded && (
+                          <MaterialIcons name="check-circle" size={20} color={primaryColor} />
+                        )}
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              )}
+              {!searchQuery && availableUsers.length > 1 && (
+                <View style={styles.availableFriendsContainer}>
+                  <Text style={[styles.availableFriendsLabel, {color: secondaryTextColor}]}>
+                    {groupId ? 'Group Members:' : 'Your Friends:'}
+                  </Text>
                 </View>
               )}
             </View>
@@ -429,12 +664,38 @@ export function CreateExpenseScreen() {
           <View style={[styles.section, {backgroundColor: cardBackground}]}>
             <View style={styles.expenseDetailsRow}>
               {/* Receipt Upload */}
-              <TouchableOpacity
-                style={[styles.receiptArea, {borderColor: colors.border}]}
-                onPress={() => setShowReceipt(!showReceipt)}>
-                <MaterialIcons name="receipt" size={32} color={secondaryTextColor} />
-                <Text style={[styles.receiptText, {color: secondaryTextColor}]}>Receipt</Text>
-              </TouchableOpacity>
+              {receiptUri ? (
+                <TouchableOpacity
+                  style={styles.receiptPreviewContainer}
+                  onPress={handleReceiptPicker}
+                  activeOpacity={0.8}>
+                  {receiptType === 'image' ? (
+                    <Image source={{uri: receiptUri}} style={styles.receiptPreview} />
+                  ) : (
+                    <View style={[styles.receiptPreview, styles.receiptDocumentPreview]}>
+                      <MaterialIcons name="description" size={32} color={primaryColor} />
+                      <Text style={[styles.receiptDocumentName, {color: textColor}]} numberOfLines={1}>
+                        {receiptName}
+                      </Text>
+                    </View>
+                  )}
+                  <TouchableOpacity
+                    style={[styles.removeReceiptButton, {backgroundColor: '#F44336'}]}
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      removeReceipt();
+                    }}>
+                    <MaterialIcons name="close" size={16} color="#FFFFFF" />
+                  </TouchableOpacity>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={[styles.receiptArea, {borderColor: colors.border}]}
+                  onPress={handleReceiptPicker}>
+                  <MaterialIcons name="receipt" size={32} color={secondaryTextColor} />
+                  <Text style={[styles.receiptText, {color: secondaryTextColor}]}>Receipt</Text>
+                </TouchableOpacity>
+              )}
 
               {/* Description and Amount */}
               <View style={styles.expenseInputs}>

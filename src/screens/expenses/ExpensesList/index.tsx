@@ -92,26 +92,33 @@ export function ExpensesListScreen() {
     } as never);
   };
 
-  const formatCurrency = (amount: number, currency: string) => {
-    return `${currency} ${amount.toFixed(2)}`;
+  const formatCurrency = (amount: number | undefined | null, currency: string = 'USD') => {
+    const numAmount = Number(amount) || 0;
+    return `${currency} ${numAmount.toFixed(2)}`;
   };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
   };
 
-  const renderExpense = ({item}: {item: Expense}) => (
-    <TouchableOpacity
-      style={[styles.expenseCard, {backgroundColor: colors.surface, borderColor: colors.border}]}
-      onPress={() => handleExpensePress(item)}>
-      <View style={styles.expenseHeader}>
-        <Text style={[styles.expenseDescription, {color: colors.text}]} numberOfLines={2}>
-          {item.description}
-        </Text>
-        <Text style={[styles.expenseAmount, {color: colors.text}]}>
-          {formatCurrency(item.amount, item.currency)}
-        </Text>
-      </View>
+  const renderExpense = ({item}: {item: Expense}) => {
+    // Early return if amount is invalid
+    if (item.amount === undefined || item.amount === null || isNaN(Number(item.amount))) {
+      return null;
+    }
+    
+    return (
+      <TouchableOpacity
+        style={[styles.expenseCard, {backgroundColor: colors.surface, borderColor: colors.border}]}
+        onPress={() => handleExpensePress(item)}>
+        <View style={styles.expenseHeader}>
+          <Text style={[styles.expenseDescription, {color: colors.text}]} numberOfLines={2}>
+            {item.description}
+          </Text>
+          <Text style={[styles.expenseAmount, {color: colors.text}]}>
+            {formatCurrency(item.amount, item.currency)}
+          </Text>
+        </View>
       <View style={styles.expenseFooter}>
         <Text style={[styles.expenseDate, {color: colors.textSecondary}]}>
           {formatDate(item.date)}
@@ -126,7 +133,8 @@ export function ExpensesListScreen() {
         </Text>
       )}
     </TouchableOpacity>
-  );
+    );
+  };
 
   if (loading && expenses.length === 0) {
     return (

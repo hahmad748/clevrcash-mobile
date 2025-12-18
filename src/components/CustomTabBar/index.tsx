@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {View, TouchableOpacity, Platform, Dimensions, Text} from 'react-native';
 import {BottomTabBarProps} from '@react-navigation/bottom-tabs';
+import {CommonActions} from '@react-navigation/native';
 import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import Animated, {
   useSharedValue,
@@ -35,15 +36,32 @@ export function CustomTabBar({
     Account: 'account-circle',
   };
 
-  const activeIndex = useSharedValue(state.index);
+  // Filter out hidden routes (like Expenses) - must be defined first
+  const visibleRoutes = state.routes.filter((route) => {
+    const descriptor = descriptors[route.key];
+    const options = descriptor?.options;
+    return options?.tabBarButton !== null && route.name !== 'Expenses';
+  });
+  const routesCount = visibleRoutes.length;
+
+  // Calculate the visible index from the actual state index
+  const getVisibleIndex = (actualIndex: number): number => {
+    const actualRoute = state.routes[actualIndex];
+    if (!actualRoute) return 0;
+    const visibleIdx = visibleRoutes.findIndex(r => r.key === actualRoute.key);
+    return visibleIdx >= 0 ? visibleIdx : 0;
+  };
+
+  const activeIndex = useSharedValue(getVisibleIndex(state.index));
   const tabPositions = useSharedValue<number[]>([]);
-  const [displayedIconIndex, setDisplayedIconIndex] = useState(state.index);
+  const [displayedIconIndex, setDisplayedIconIndex] = useState(getVisibleIndex(state.index));
 
   useEffect(() => {
-    activeIndex.value = withTiming(state.index, {duration: 300});
+    const visibleIdx = getVisibleIndex(state.index);
+    activeIndex.value = withTiming(visibleIdx, {duration: 300});
     // Delay icon change until after animation completes
     const timer = setTimeout(() => {
-      setDisplayedIconIndex(state.index);
+      setDisplayedIconIndex(visibleIdx);
     }, 400);
     return () => clearTimeout(timer);
   }, [state.index]);
@@ -57,8 +75,6 @@ export function CustomTabBar({
     tabPositions.value = newPositions;
   };
 
-  const routesCount = state.routes.length;
-
   // Animated style for the sliding circle
   const animatedCircleStyle = useAnimatedStyle(() => {
     const circleRadius = (ACTIVE_TAB_SIZE + 8 / 2);
@@ -69,7 +85,7 @@ export function CustomTabBar({
     const currentIndex = Math.round(activeIndex.value);
     if (positions.length === routesCount && positions[currentIndex] !== undefined && positions[currentIndex] > 0) {
       // Position is relative to tabBar, so use it directly
-      leftPosition = positions[currentIndex] - circleRadius;
+      leftPosition = positions[currentIndex] - (circleRadius -20);
     } else {
       // Fallback calculation: tabs use flex: 1, so each takes equal space
       // Tab bar has paddingHorizontal: 12, so available width is width - 24
@@ -102,23 +118,24 @@ export function CustomTabBar({
           <View style={styles.activeTabContent}>
             <View style={[styles.activeTabCircle, {backgroundColor: "#ffffff"}]}>
               <MaterialIcons
-                name={iconMap[state.routes[displayedIconIndex]?.name] || 'circle'}
+                name={iconMap[visibleRoutes[displayedIconIndex]?.name] || 'circle'}
                 size={26}
                 color={activeIconColor}
               />
             </View>
             <Text style={[styles.activeTabLabel, {color: primaryColor}]}>
-              {state.routes[displayedIconIndex]?.name || ''}
+              {visibleRoutes[displayedIconIndex]?.name || ''}
             </Text>
           </View>
         </Animated.View>
 
-        {state.routes.map((route, index) => {
-          const isFocused = state.index === index;
-          const iconName = iconMap[route.name] || 'circle';
+        {visibleRoutes.map((route, visibleIndex) => {
+            const actualStateIndex = state.routes.findIndex(r => r.key === route.key);
+            const isFocused = state.index === actualStateIndex;
+            const iconName = iconMap[route.name] || 'circle';
 
-          const animatedInactiveIconStyle = useAnimatedStyle(() => {
-            const isActive = activeIndex.value === index;
+            const animatedInactiveIconStyle = useAnimatedStyle(() => {
+              const isActive = activeIndex.value === visibleIndex;
             return {
               opacity: withTiming(isActive ? 0 : 1, {duration: 200}),
               transform: [
@@ -129,25 +146,77 @@ export function CustomTabBar({
             };
           });
 
-          const onPress = () => {
-            if (!isFocused) {
-              navigation.navigate(route.name);
-            }
-          };
+            const onPress = () => {
+              if (!isFocused) {
+                // When switching to Groups or Friends tab from another tab, reset to list if needed
+                if (route.name === 'Groups' || route.name === 'Friends') {
+                  const state = navigation.getState();
+                  const targetRoute = state.routes.find(r => r.name === route.name);
+                  if (targetRoute?.state && targetRoute.state.index > 0) {
+                    // Reset to list screen before navigating
+                    const listScreenName = route.name === 'Groups' ? 'GroupsList' : 'FriendsList';
+                    navigation.dispatch(
+                      CommonActions.reset({
+                        index: 0,
+                        routes: [
+                          {
+                            name: route.name,
+                            state: {
+                              routes: [{name: listScreenName}],
+                              index: 0,
+                            },
+                          },
+                        ],
+                      }),
+                    );
+                  } else {
+                    navigation.navigate(route.name);
+                  }
+                } else {
+                  navigation.navigate(route.name);
+                }
+              } else {
+                // If already focused, reset to root screen for Groups or Friends tab
+                if (route.name === 'Groups' || route.name === 'Friends') {
+                  const state = navigation.getState();
+                  const targetRoute = state.routes.find(r => r.name === route.name);
+                  if (targetRoute?.state && targetRoute.state.index > 0) {
+                    const listScreenName = route.name === 'Groups' ? 'GroupsList' : 'FriendsList';
+                    navigation.dispatch(
+                      CommonActions.reset({
+                        index: state.routes.findIndex(r => r.name === route.name),
+                        routes: state.routes.map((r: any) => {
+                          if (r.name === route.name) {
+                            return {
+                              ...r,
+                              state: {
+                                routes: [{name: listScreenName}],
+                                index: 0,
+                              },
+                            };
+                          }
+                          return r;
+                        }),
+                      }),
+                    );
+                  }
+                }
+              }
+            };
 
-          return (
-            <TouchableOpacity
-              key={route.key}
-              onPress={onPress}
-              style={styles.tabButton}
-              activeOpacity={0.8}
-              onLayout={event => handleTabLayout(index, event)}>
-              <Animated.View style={animatedInactiveIconStyle}>
-                <MaterialIcons name={iconName} size={24} color={inactiveColor} />
-              </Animated.View>
-            </TouchableOpacity>
-          );
-        })}
+            return (
+              <TouchableOpacity
+                key={route.key}
+                onPress={onPress}
+                style={styles.tabButton}
+                activeOpacity={0.8}
+                onLayout={event => handleTabLayout(visibleIndex, event)}>
+                <Animated.View style={animatedInactiveIconStyle}>
+                  <MaterialIcons name={iconName} size={24} color={inactiveColor} />
+                </Animated.View>
+              </TouchableOpacity>
+            );
+          })}
       </View>
     </View>
   );

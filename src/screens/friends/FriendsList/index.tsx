@@ -9,19 +9,33 @@ import {
   TextInput,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useTheme} from '../../../contexts/ThemeContext';
+import {useBrand} from '../../../contexts/BrandContext';
+import {useAuth} from '../../../contexts/AuthContext';
 import {apiClient} from '../../../services/apiClient';
 import {ScreenWrapper} from '../../../components/ScreenWrapper';
-import type {User} from '../../../types/api';
+import type {User, FriendBalance} from '../../../types/api';
 import {styles} from './styles';
 
 export function FriendsListScreen() {
   const navigation = useNavigation();
-  const {colors} = useTheme();
+  const {colors, isDark} = useTheme();
+  const {brand} = useBrand();
+  const {user} = useAuth();
   const [friends, setFriends] = useState<User[]>([]);
+  const [friendBalances, setFriendBalances] = useState<FriendBalance[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
+  const primaryColor = brand?.primary_color || colors.primary;
+  const defaultCurrency = user?.default_currency || 'USD';
+  const backgroundColor = isDark ? '#0A0E27' : '#F5F5F5';
+  const cardBackground = isDark ? '#1A1F3A' : '#FFFFFF';
+  const textColor = isDark ? '#FFFFFF' : '#1A1A1A';
+  const secondaryTextColor = isDark ? '#B0B0B0' : '#666666';
+  const searchBackground = isDark ? '#1A1F3A' : '#FFFFFF';
 
   useEffect(() => {
     loadFriends();
@@ -38,8 +52,12 @@ export function FriendsListScreen() {
   const loadFriends = async () => {
     try {
       setLoading(true);
-      const data = await apiClient.getFriends();
-      setFriends(data);
+      const [friendsData, balancesData] = await Promise.all([
+        apiClient.getFriends(),
+        apiClient.getFriendsBalances(),
+      ]);
+      setFriends(friendsData);
+      setFriendBalances(balancesData);
     } catch (error) {
       console.error('Failed to load friends:', error);
     } finally {
@@ -51,6 +69,9 @@ export function FriendsListScreen() {
     try {
       const data = await apiClient.searchFriends(searchQuery);
       setFriends(data);
+      // Also fetch balances for search results
+      const balancesData = await apiClient.getFriendsBalances();
+      setFriendBalances(balancesData);
     } catch (error) {
       console.error('Failed to search friends:', error);
     }
@@ -67,86 +88,142 @@ export function FriendsListScreen() {
   }, [searchQuery]);
 
   const handleFriendPress = (friend: User) => {
-    // Navigate within the Friends stack
     navigation.navigate('FriendDetail' as never, {friendId: friend.id} as never);
   };
 
-  const renderFriend = ({item}: {item: User}) => (
-    <TouchableOpacity
-      style={[styles.friendCard, {backgroundColor: colors.surface, borderColor: colors.border}]}
-      onPress={() => handleFriendPress(item)}>
-      <View style={styles.friendInfo}>
-        <View style={[styles.avatar, {backgroundColor: colors.primary}]}>
-          <Text style={styles.avatarText}>
-            {item.name.charAt(0).toUpperCase()}
-          </Text>
+  const getFriendBalance = (friendId: number): FriendBalance | null => {
+    return friendBalances.find(fb => fb.friend?.id === friendId) || null;
+  };
+
+  const formatCurrency = (amount: number, currency: string = defaultCurrency) => {
+    const sign = amount < 0 ? '-' : '';
+    return `${sign}${currency} ${Math.abs(amount).toFixed(2)}`;
+  };
+
+  const renderFriend = ({item}: {item: User}) => {
+    const balanceData = getFriendBalance(item.id);
+    const balanceValue = balanceData?.balance || 0;
+    const convertedBalance = balanceData?.converted_balance ?? balanceValue;
+    const convertedCurrency = balanceData?.converted_currency || defaultCurrency;
+    const isOwed = convertedBalance > 0;
+    const isOwe = convertedBalance < 0;
+    const isSettled = Math.abs(convertedBalance) < 0.01;
+
+    return (
+      <TouchableOpacity
+        style={[styles.friendCard, {backgroundColor: cardBackground}]}
+        onPress={() => handleFriendPress(item)}>
+        <View style={styles.friendContent}>
+          <View style={styles.friendLeft}>
+            <View style={[styles.friendAvatar, {backgroundColor: primaryColor + '30'}]}>
+              <Text style={[styles.friendAvatarText, {color: primaryColor}]}>
+                {item.name.charAt(0).toUpperCase()}
+              </Text>
+            </View>
+            <View style={styles.friendInfo}>
+              <Text style={[styles.friendName, {color: textColor}]} numberOfLines={1}>
+                {item.name}
+              </Text>
+              <Text style={[styles.friendEmail, {color: secondaryTextColor}]} numberOfLines={1}>
+                {item.email}
+              </Text>
+            </View>
+          </View>
+          <View style={styles.friendRight}>
+            {isSettled ? (
+              <View style={styles.balanceContainer}>
+                <MaterialIcons name="check-circle" size={16} color="#4CAF50" />
+                <Text style={[styles.balanceStatus, {color: '#4CAF50'}]}>Settled</Text>
+              </View>
+            ) : (
+              <View style={styles.balanceContainer}>
+                <Text style={[styles.balanceAmount, {color: isOwed ? '#4CAF50' : '#F44336'}]}>
+                  {formatCurrency(convertedBalance, convertedCurrency)}
+                </Text>
+                <Text style={[styles.balanceLabel, {color: secondaryTextColor}]}>
+                  {isOwed ? 'You are owed' : 'You owe'}
+                </Text>
+              </View>
+            )}
+          </View>
         </View>
-        <View style={styles.friendDetails}>
-          <Text style={[styles.friendName, {color: colors.text}]}>{item.name}</Text>
-          <Text style={[styles.friendEmail, {color: colors.textSecondary}]}>{item.email}</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   if (loading) {
     return (
-      <ScreenWrapper>
-        <View style={[styles.centerContent, {flex: 1}]}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-      </ScreenWrapper>
+      <View style={[styles.container, {backgroundColor}]}>
+        <ScreenWrapper>
+          <View style={[styles.centerContent, {flex: 1}]}>
+            <ActivityIndicator size="large" color={primaryColor} />
+          </View>
+        </ScreenWrapper>
+      </View>
     );
   }
 
   return (
-    <ScreenWrapper>
-      <View style={[styles.searchContainer, {backgroundColor: colors.surface}]}>
-        <TextInput
-          style={[styles.searchInput, {color: colors.text, borderColor: colors.border}]}
-          placeholder="Search friends..."
-          placeholderTextColor={colors.textSecondary}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
+    <View style={[styles.container, {backgroundColor}]}>
+      <ScreenWrapper>
+        {/* Screen Heading */}
+        <View style={styles.headingContainer}>
+          <Text style={[styles.heading, {color: textColor}]}>Friends</Text>
+        </View>
+
+        {/* Search Bar */}
+        <View style={[styles.searchContainer, {backgroundColor: searchBackground}]}>
+          <MaterialIcons name="search" size={20} color={secondaryTextColor} style={styles.searchIcon} />
+          <TextInput
+            style={[styles.searchInput, {color: textColor}]}
+            placeholder="Search friends..."
+            placeholderTextColor={secondaryTextColor}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              onPress={() => setSearchQuery('')}
+              style={styles.clearButton}>
+              <MaterialIcons name="close" size={20} color={secondaryTextColor} />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        <FlatList
+          data={friends}
+          renderItem={renderFriend}
+          keyExtractor={item => String(item.id)}
+          contentContainerStyle={styles.listContent}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={primaryColor} />
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <MaterialIcons name="people" size={48} color={secondaryTextColor} />
+              <Text style={[styles.emptyText, {color: secondaryTextColor}]}>
+                {searchQuery.trim()
+                  ? 'No friends found'
+                  : 'No friends yet. Add friends to split expenses!'}
+              </Text>
+              {!searchQuery.trim() && (
+                <TouchableOpacity
+                  style={[styles.createButton, {backgroundColor: primaryColor}]}
+                  onPress={() => navigation.navigate('SearchFriends' as never)}>
+                  <Text style={styles.createButtonText}>Add Friend</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          }
         />
-      </View>
-      <FlatList
-        data={friends}
-        renderItem={renderFriend}
-        keyExtractor={item => String(item.id)}
-        contentContainerStyle={styles.listContent}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
-        }
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={[styles.emptyText, {color: colors.textSecondary}]}>
-              {searchQuery.trim()
-                ? 'No friends found'
-                : 'No friends yet. Add friends to split expenses!'}
-            </Text>
-            {!searchQuery.trim() && (
-              <TouchableOpacity
-                style={[styles.addButton, {backgroundColor: colors.primary}]}
-                onPress={() => navigation.navigate('SearchFriends' as never)}>
-                <Text style={styles.addButtonText}>Add Friend</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        }
-      />
-      <View style={styles.fabContainer}>
-        <TouchableOpacity
-          style={[styles.fab, styles.fabSecondary, {backgroundColor: colors.secondary || colors.primary}]}
-          onPress={() => navigation.navigate('PendingRequests' as never)}>
-          <Text style={styles.fabText}>Requests</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.fab, {backgroundColor: colors.primary}]}
-          onPress={() => navigation.navigate('SearchFriends' as never)}>
-          <Text style={styles.fabText}>+</Text>
-        </TouchableOpacity>
-      </View>
-    </ScreenWrapper>
+        <View style={styles.fabContainer}>
+          <TouchableOpacity
+            style={[styles.fab, {backgroundColor: primaryColor}]}
+            onPress={() => navigation.navigate('SearchFriends' as never)}>
+            <MaterialIcons name="add" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
+      </ScreenWrapper>
+    </View>
   );
 }

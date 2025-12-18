@@ -15,7 +15,7 @@ export const defaultBrand: BrandConfig = {
   displayName: 'ClevrCash',
   primaryColor: '#4CAF50',
   secondaryColor: '#45a049',
-  fontFamily: 'System',
+  fontFamily: 'Montserrat',
   logoUrl: undefined,
   splashUrl: undefined,
 };

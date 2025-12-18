@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import {TOTAL_TAB_BAR_HEIGHT} from '../../../components/CustomTabBar/styles';
 
 export const styles = StyleSheet.create({
   container: {
@@ -8,32 +9,73 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  headingContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 16,
+  },
+  heading: {
+    fontSize: 28,
+    fontWeight: '700',
+  },
   searchContainer: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  searchInput: {
-    height: 44,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    fontSize: 16,
-  },
-  listContent: {
-    padding: 16,
-  },
-  friendCard: {
-    borderRadius: 12,
-    borderWidth: 1,
-    padding: 16,
-    marginBottom: 12,
-  },
-  friendInfo: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginHorizontal: 20,
+    marginBottom: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  avatar: {
+  searchIcon: {
+    marginRight: 12,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    padding: 0,
+  },
+  clearButton: {
+    padding: 4,
+    marginLeft: 8,
+  },
+  listContent: {
+    paddingHorizontal: 20,
+    paddingBottom: TOTAL_TAB_BAR_HEIGHT + 100,
+  },
+  friendCard: {
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  friendContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  friendLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 12,
+  },
+  friendAvatar: {
     width: 48,
     height: 48,
     borderRadius: 24,
@@ -41,12 +83,11 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 12,
   },
-  avatarText: {
-    color: '#FFFFFF',
+  friendAvatarText: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: '700',
   },
-  friendDetails: {
+  friendInfo: {
     flex: 1,
   },
   friendName: {
@@ -55,7 +96,29 @@ export const styles = StyleSheet.create({
     marginBottom: 4,
   },
   friendEmail: {
-    fontSize: 14,
+    fontSize: 12,
+    fontWeight: '400',
+  },
+  friendRight: {
+    alignItems: 'flex-end',
+    flexShrink: 0,
+  },
+  balanceContainer: {
+    alignItems: 'flex-end',
+  },
+  balanceAmount: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  balanceLabel: {
+    fontSize: 11,
+    fontWeight: '500',
+  },
+  balanceStatus: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 2,
   },
   emptyContainer: {
     flex: 1,
@@ -66,22 +129,31 @@ export const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     textAlign: 'center',
+    marginTop: 16,
     marginBottom: 24,
   },
-  addButton: {
+  createButton: {
     paddingHorizontal: 24,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  addButtonText: {
+  createButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },
   fabContainer: {
     position: 'absolute',
-    right: 16,
-    bottom: 16,
+    right: 20,
+    bottom: TOTAL_TAB_BAR_HEIGHT + 20,
     flexDirection: 'row',
     gap: 12,
   },
@@ -91,20 +163,13 @@ export const styles = StyleSheet.create({
     borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 4,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-  },
-  fabSecondary: {
-    width: 'auto',
-    paddingHorizontal: 20,
-    borderRadius: 28,
-  },
-  fabText: {
-    color: '#FFFFFF',
-    fontSize: 24,
-    fontWeight: 'bold',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
 });

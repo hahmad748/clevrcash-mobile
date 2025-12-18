@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useTheme} from '../../../contexts/ThemeContext';
 import {apiClient} from '../../../services/apiClient';
 import {styles} from './styles';
@@ -58,6 +59,11 @@ export function InviteFriendScreen() {
     <KeyboardAvoidingView
       style={[styles.container, {backgroundColor: colors.background}]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}>
+        <MaterialIcons name="arrow-back" size={24} color={colors.text} />
+      </TouchableOpacity>
       <View style={styles.content}>
         <Text style={[styles.title, {color: colors.text}]}>Invite Friend</Text>
         <Text style={[styles.subtitle, {color: colors.textSecondary}]}>

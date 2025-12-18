@@ -1,10 +1,18 @@
-import {StyleSheet} from 'react-native';
+import {StyleSheet, Platform} from 'react-native';
 
 export const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'flex-end',
+    ...Platform.select({
+      android: {
+        elevation: 5,
+      },
+      ios: {
+        zIndex: 1000,
+      },
+    }),
   },
   modalContent: {
     borderTopLeftRadius: 24,
@@ -29,17 +37,13 @@ export const styles = StyleSheet.create({
   datePickerContainer: {
     paddingHorizontal: 20,
     marginBottom: 16,
-  },
-  datePickerInput: {
-    height: 48,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    marginBottom: 12,
+    alignItems: 'center',
   },
   quickDateButtons: {
     flexDirection: 'row',
     gap: 12,
+    marginTop: 16,
+    width: '100%',
   },
   quickDateButton: {
     flex: 1,
@@ -51,6 +55,37 @@ export const styles = StyleSheet.create({
   quickDateText: {
     fontSize: 14,
     fontWeight: '600',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 16,
+    marginHorizontal: 20,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.1)',
+  },
+  modalCancelButton: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.05)',
+  },
+  modalCancelText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  modalConfirmButton: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  modalConfirmText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
   modalCloseButton: {
     marginTop: 16,

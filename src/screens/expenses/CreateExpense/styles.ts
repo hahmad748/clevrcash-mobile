@@ -32,16 +32,26 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
+    zIndex: 1,
+    overflow: 'visible',
   },
   sectionLabel: {
     fontSize: 14,
     fontWeight: '500',
     marginBottom: 12,
   },
+  // Participants Section - Higher z-index to ensure search results appear above
+  participantsSection: {
+    zIndex: 1000,
+    elevation: 5,
+  },
   // Participants Section
   searchContainer: {
     position: 'relative',
     marginBottom: 12,
+    zIndex: 9999,
+    elevation: 10,
+    overflow: 'visible',
   },
   searchInput: {
     height: 48,
@@ -56,18 +66,22 @@ export const styles = StyleSheet.create({
     right: 0,
     borderRadius: 12,
     borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.1)',
     maxHeight: 200,
-    zIndex: 1000,
+    zIndex: 99999,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 5,
+    elevation: 20,
   },
   searchResultItem: {
     padding: 12,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.1)',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems:'center',
   },
   searchResultText: {
     fontSize: 16,
@@ -76,6 +90,30 @@ export const styles = StyleSheet.create({
   },
   searchResultEmail: {
     fontSize: 14,
+  },
+  availableFriendsContainer: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.1)',
+  },
+  availableFriendsLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 8,
+  },
+  friendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 6,
+    backgroundColor: 'rgba(0,0,0,0.02)',
+  },
+  friendItemText: {
+    fontSize: 16,
+    fontWeight: '500',
   },
   chipsContainer: {
     flexDirection: 'row',
@@ -102,6 +140,7 @@ export const styles = StyleSheet.create({
   expenseDetailsRow: {
     flexDirection: 'row',
     gap: 12,
+    zIndex: 1,
   },
   receiptArea: {
     width: 100,
@@ -116,6 +155,46 @@ export const styles = StyleSheet.create({
   receiptText: {
     fontSize: 12,
     marginTop: 8,
+  },
+  receiptPreviewContainer: {
+    zIndex: 1,
+    width: 100,
+    height: 100,
+    borderRadius: 12,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  receiptPreview: {
+    width: 100,
+    height: 100,
+    borderRadius: 12,
+    resizeMode: 'cover',
+  },
+  receiptDocumentPreview: {
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 8,
+  },
+  receiptDocumentName: {
+    fontSize: 10,
+    marginTop: 4,
+    textAlign: 'center',
+  },
+  removeReceiptButton: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   expenseInputs: {
     flex: 1,
@@ -137,7 +216,6 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
-    borderWidth: 1,
   },
   currencyText: {
     fontSize: 14,
@@ -403,12 +481,13 @@ export const styles = StyleSheet.create({
     height: 50,
     borderRadius: 12,
     borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   cancelButtonText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
   },
   saveButton: {
     flex: 1,
@@ -420,7 +499,7 @@ export const styles = StyleSheet.create({
   saveButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
   },
   // Modals
   modalOverlay: {

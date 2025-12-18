@@ -14,7 +14,6 @@ import {useTheme} from '../../../contexts/ThemeContext';
 import {useBrand} from '../../../contexts/BrandContext';
 import {useAuth} from '../../../contexts/AuthContext';
 import {apiClient} from '../../../services/apiClient';
-import {ScreenWrapper} from '../../../components/ScreenWrapper';
 import type {Group, Balance, Transaction} from '../../../types/api';
 import {styles} from './styles';
 
@@ -120,10 +119,13 @@ export function GroupDetailScreen() {
   };
 
   const handleSettle = (memberId: number, memberName: string, balance: number) => {
-    navigation.navigate('SettleUpGroup' as never, {
-      groupId,
-      friendId: memberId,
-      amount: Math.abs(balance),
+    navigation.navigate('Groups' as never, {
+      screen: 'SettleUpGroup',
+      params: {
+        groupId,
+        friendId: memberId,
+        amount: Math.abs(balance),
+      },
     } as never);
   };
 
@@ -153,12 +155,11 @@ export function GroupDetailScreen() {
 
   return (
     <View style={[styles.container, {backgroundColor}]}>
-      <ScreenWrapper>
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={primaryColor} />}
-          showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={primaryColor} />}
+        showsVerticalScrollIndicator={false}>
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.headerLeft}>
@@ -469,7 +470,7 @@ export function GroupDetailScreen() {
                 <View style={styles.actionsList}>
                   <TouchableOpacity
                     style={[styles.actionButton, {backgroundColor: primaryColor}]}
-                    onPress={() => navigation.navigate('InviteFriend' as never, {groupId} as never)}>
+                    onPress={() => navigation.navigate('InviteMember' as never, {groupId} as never)}>
                     <Text style={styles.actionButtonText}>Invite to Group</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -498,8 +499,7 @@ export function GroupDetailScreen() {
               </View>
             </View>
           </View>
-        </ScrollView>
-      </ScreenWrapper>
+      </ScrollView>
     </View>
   );
 }

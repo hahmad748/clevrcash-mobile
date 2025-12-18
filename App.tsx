@@ -1,5 +1,5 @@
 /**
- * ClevrCash - Splitwise Alternative
+ * ClevrCash
  * Powered by devsfort
  *
  * @format

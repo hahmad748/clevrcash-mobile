@@ -62,7 +62,10 @@ export function useDeepLinking() {
         const id = path.split('/settle/')[1];
         if (isAuthenticated) {
           // Determine if it's a group or friend ID
-          navigation.navigate('SettleUpGroup' as never, {groupId: id} as never);
+          navigation.navigate('Groups' as never, {
+            screen: 'SettleUpGroup',
+            params: {groupId: id},
+          } as never);
         } else {
           await setPendingDeepLink(url);
           navigation.navigate('Auth' as never);

@@ -1,5 +1,6 @@
-import React from 'react';
-import {View, Text, Modal, TouchableOpacity, TextInput} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {View, Text, Modal, TouchableOpacity, Platform} from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useTheme} from '../../../contexts/ThemeContext';
 import {useBrand} from '../../../contexts/BrandContext';
@@ -19,46 +20,103 @@ export function DatePickerModal({visible, selectedDate, onSelect, onClose}: Date
   const cardBackground = isDark ? '#1A1F3A' : '#FFFFFF';
   const textColor = isDark ? '#FFFFFF' : '#1A1A1A';
   const secondaryTextColor = isDark ? '#B0B0B0' : '#666666';
-  const backgroundColor = isDark ? '#0A0E27' : '#F5F5F5';
 
-  const formatDateForDisplay = (dateStr: string): string => {
-    if (!dateStr) return 'Select date';
+  // Parse the selected date string to Date object
+  const getDateFromString = (dateStr: string): Date => {
+    if (!dateStr) return new Date();
     try {
-      const dateObj = new Date(dateStr);
-      if (isNaN(dateObj.getTime())) return dateStr;
-      return dateObj.toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      });
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return new Date();
+      return date;
     } catch {
-      return dateStr;
+      return new Date();
     }
+  };
+
+  const [currentDate, setCurrentDate] = useState<Date>(getDateFromString(selectedDate));
+
+  // Sync currentDate with selectedDate when modal opens
+  useEffect(() => {
+    if (visible) {
+      setCurrentDate(getDateFromString(selectedDate));
+    }
+  }, [visible, selectedDate]);
+
+  // Format date to YYYY-MM-DD string
+  const formatDateToString = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const handleDateChange = (event: any, date?: Date) => {
+    if (Platform.OS === 'android') {
+      onClose();
+      if (event.type === 'set' && date) {
+        onSelect(formatDateToString(date));
+      }
+    } else {
+      // iOS - update the date but keep modal open
+      if (date) {
+        setCurrentDate(date);
+      }
+    }
+  };
+
+  const handleConfirm = () => {
+    onSelect(formatDateToString(currentDate));
+    onClose();
   };
 
   const setToday = () => {
     const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    onSelect(`${year}-${month}-${day}`);
-    onClose();
+    setCurrentDate(today);
+    if (Platform.OS === 'android') {
+      onSelect(formatDateToString(today));
+      onClose();
+    }
   };
 
   const setYesterday = () => {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const year = yesterday.getFullYear();
-    const month = String(yesterday.getMonth() + 1).padStart(2, '0');
-    const day = String(yesterday.getDate()).padStart(2, '0');
-    onSelect(`${year}-${month}-${day}`);
-    onClose();
+    setCurrentDate(yesterday);
+    if (Platform.OS === 'android') {
+      onSelect(formatDateToString(yesterday));
+      onClose();
+    }
   };
 
+  // On Android, show the native picker directly
+  if (Platform.OS === 'android' && visible) {
+    return (
+      <DateTimePicker
+        value={getDateFromString(selectedDate)}
+        mode="date"
+        display="default"
+        onChange={handleDateChange}
+        maximumDate={new Date()}
+      />
+    );
+  }
+
+  // On iOS, show in a modal with controls
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.modalOverlay}>
-        <View style={[styles.modalContent, {backgroundColor: cardBackground}]}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+      statusBarTranslucent>
+      <TouchableOpacity
+        style={styles.modalOverlay}
+        activeOpacity={1}
+        onPress={onClose}>
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={(e) => e.stopPropagation()}
+          style={[styles.modalContent, {backgroundColor: cardBackground}]}>
           <View style={styles.modalHeader}>
             <Text style={[styles.modalTitle, {color: textColor}]}>Select Date</Text>
             <TouchableOpacity onPress={onClose}>
@@ -66,18 +124,14 @@ export function DatePickerModal({visible, selectedDate, onSelect, onClose}: Date
             </TouchableOpacity>
           </View>
           <View style={styles.datePickerContainer}>
-            <TextInput
-              style={[styles.datePickerInput, {backgroundColor: backgroundColor, color: textColor}]}
-              value={selectedDate}
-              onChangeText={(text) => {
-                const cleaned = text.replace(/[^\d-]/g, '');
-                if (cleaned.length <= 10) {
-                  onSelect(cleaned);
-                }
-              }}
-              placeholder="YYYY-MM-DD"
-              placeholderTextColor={secondaryTextColor}
-              keyboardType="numeric"
+            <DateTimePicker
+              value={currentDate}
+              mode="date"
+              display="spinner"
+              onChange={handleDateChange}
+              maximumDate={new Date()}
+              textColor={isDark ? '#FFFFFF' : '#000000'}
+              themeVariant={isDark ? 'dark' : 'light'}
             />
             <View style={styles.quickDateButtons}>
               <TouchableOpacity
@@ -92,11 +146,18 @@ export function DatePickerModal({visible, selectedDate, onSelect, onClose}: Date
               </TouchableOpacity>
             </View>
           </View>
-          <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
-            <Text style={[styles.modalCloseText, {color: textColor}]}>Done</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+          <View style={styles.modalActions}>
+            <TouchableOpacity style={styles.modalCancelButton} onPress={onClose}>
+              <Text style={[styles.modalCancelText, {color: secondaryTextColor}]}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.modalConfirmButton, {backgroundColor: primaryColor}]}
+              onPress={handleConfirm}>
+              <Text style={styles.modalConfirmText}>Done</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </TouchableOpacity>
     </Modal>
   );
 }

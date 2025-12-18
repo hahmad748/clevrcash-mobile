@@ -56,7 +56,7 @@ const defaultSpacing = {
 };
 
 const defaultTypography = {
-  fontFamily: 'System',
+  fontFamily: 'Montserrat',
   h1: {fontSize: 32, fontWeight: '700', lineHeight: 40},
   h2: {fontSize: 24, fontWeight: '600', lineHeight: 32},
   h3: {fontSize: 20, fontWeight: '600', lineHeight: 28},
@@ -118,7 +118,7 @@ export const createLightTheme = (brand?: Brand): Theme => {
     spacing: defaultSpacing,
     typography: {
       ...defaultTypography,
-      fontFamily: brand?.font_family || 'System',
+      fontFamily: brand?.font_family || 'Montserrat',
     },
     borderRadius: defaultBorderRadius,
     shadows: defaultShadows,
@@ -147,7 +147,7 @@ export const createDarkTheme = (brand?: Brand): Theme => {
     spacing: defaultSpacing,
     typography: {
       ...defaultTypography,
-      fontFamily: brand?.font_family || 'System',
+      fontFamily: brand?.font_family || 'Montserrat',
     },
     borderRadius: defaultBorderRadius,
     shadows: defaultShadows,

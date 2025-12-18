@@ -235,6 +235,9 @@ export const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 12,
   },
+  currencyGridView:{
+    marginTop:12
+  },
   currencyItem: {
     padding: 12,
     borderRadius: 12,

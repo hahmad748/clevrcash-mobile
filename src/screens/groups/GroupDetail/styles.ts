@@ -15,14 +15,14 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
     paddingBottom: TOTAL_TAB_BAR_HEIGHT + 20,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
     paddingBottom: 16,
     marginBottom: 20,
   },
