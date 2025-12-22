@@ -222,7 +222,7 @@ export function TransactionDetailScreen() {
                 </View>
                 
                 <View style={styles.paymentArrow}>
-                  <MaterialIcons name="arrow-forward" size={24} color={primaryColor} />
+                  <MaterialIcons name="arrow-forward" size={20} color={primaryColor} />
                 </View>
                 
                 <View style={styles.paymentParticipant}>
@@ -258,7 +258,7 @@ export function TransactionDetailScreen() {
                 </View>
                 <View style={styles.hashContainer}>
                   <Text style={[styles.hashLabel, {color: secondaryTextColor}]}>Blockchain Hash:</Text>
-                  <Text style={[styles.hashValue, {color: textColor}]} selectable>
+                  <Text style={[styles.hashValue, {color: textColor}]} selectable numberOfLines={1}>
                     {blockchainHash}
                   </Text>
                 </View>
@@ -338,6 +338,12 @@ export function TransactionDetailScreen() {
                       </Text>
                     </View>
                   </View>
+                  {payment.group && (
+                    <View style={styles.detailRow}>
+                      <Text style={[styles.detailLabel, {color: secondaryTextColor}]}>Group</Text>
+                      <Text style={[styles.detailValue, {color: textColor}]}>{payment.group.name}</Text>
+                    </View>
+                  )}
                   <View style={styles.detailRow}>
                     <Text style={[styles.detailLabel, {color: secondaryTextColor}]}>Status</Text>
                     <View style={[styles.statusBadge, {backgroundColor: payment.status === 'completed' ? '#4CAF50' + '20' : secondaryTextColor + '20'}]}>
@@ -346,12 +352,6 @@ export function TransactionDetailScreen() {
                       </Text>
                     </View>
                   </View>
-                  {payment.group && (
-                    <View style={styles.detailRow}>
-                      <Text style={[styles.detailLabel, {color: secondaryTextColor}]}>Group</Text>
-                      <Text style={[styles.detailValue, {color: textColor}]}>{payment.group.name}</Text>
-                    </View>
-                  )}
                   {payment.notes && (
                     <View style={styles.detailRow}>
                       <Text style={[styles.detailLabel, {color: secondaryTextColor}]}>Notes</Text>

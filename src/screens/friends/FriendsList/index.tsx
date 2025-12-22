@@ -42,8 +42,12 @@ export function FriendsListScreen() {
   }, []);
 
   useEffect(() => {
+    // Debounce search query
     if (searchQuery.trim()) {
-      searchFriends();
+      const debounceTimer = setTimeout(() => {
+        searchFriends();
+      }, 500);
+      return () => clearTimeout(debounceTimer);
     } else {
       loadFriends();
     }

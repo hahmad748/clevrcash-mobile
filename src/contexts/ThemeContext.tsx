@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useState, useEffect} from 'react';
+import React, {createContext, useContext, useState, useEffect, useCallback} from 'react';
 import {useColorScheme} from 'react-native';
 import {getTheme, setTheme as saveTheme} from '../services/storage';
 import {useBrand} from './BrandContext';
@@ -56,18 +56,26 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({children}: {children: React.ReactNode}) {
   const systemColorScheme = useColorScheme();
-  const {brand, theme: brandTheme} = useBrand();
+  const {brand} = useBrand();
   const [theme, setThemeState] = useState<ThemeMode>('system');
   const [isDark, setIsDark] = useState(false);
   const [themeObject, setThemeObject] = useState<Theme | null>(null);
+
+  const updateIsDark = useCallback((themeToCheck: ThemeMode) => {
+    if (themeToCheck === 'system') {
+      setIsDark(systemColorScheme === 'dark');
+    } else {
+      setIsDark(themeToCheck === 'dark');
+    }
+  }, [systemColorScheme]);
 
   useEffect(() => {
     loadTheme();
   }, []);
 
   useEffect(() => {
-    updateIsDark();
-  }, [theme, systemColorScheme]);
+    updateIsDark(theme);
+  }, [theme, updateIsDark]);
 
   useEffect(() => {
     if (brand) {
@@ -87,18 +95,13 @@ export function ThemeProvider({children}: {children: React.ReactNode}) {
     }
   };
 
-  const updateIsDark = () => {
-    if (theme === 'system') {
-      setIsDark(systemColorScheme === 'dark');
-    } else {
-      setIsDark(theme === 'dark');
-    }
-  };
-
   const setTheme = async (newTheme: ThemeMode) => {
+    // Update state first
     setThemeState(newTheme);
+    // Immediately update isDark based on the new theme (not the old one)
+    updateIsDark(newTheme);
+    // Save to storage
     await saveTheme(newTheme);
-    updateIsDark();
   };
 
   // Use brand theme if available, otherwise use defaults

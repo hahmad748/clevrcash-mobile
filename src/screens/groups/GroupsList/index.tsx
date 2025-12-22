@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
+  TextInput,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {MaterialIcons} from '@react-native-vector-icons/material-icons';
@@ -26,6 +27,7 @@ export function GroupsListScreen() {
   const [groupBalances, setGroupBalances] = useState<GroupBalance[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const primaryColor = brand?.primary_color || colors.primary;
   const defaultCurrency = user?.default_currency || 'USD';
@@ -33,10 +35,23 @@ export function GroupsListScreen() {
   const cardBackground = isDark ? '#1A1F3A' : '#FFFFFF';
   const textColor = isDark ? '#FFFFFF' : '#1A1A1A';
   const secondaryTextColor = isDark ? '#B0B0B0' : '#666666';
+  const searchBackground = isDark ? '#1A1F3A' : '#FFFFFF';
 
   useEffect(() => {
     loadGroups();
   }, []);
+
+  useEffect(() => {
+    // Debounce search query
+    if (searchQuery.trim()) {
+      const debounceTimer = setTimeout(() => {
+        searchGroups();
+      }, 500);
+      return () => clearTimeout(debounceTimer);
+    } else {
+      loadGroups();
+    }
+  }, [searchQuery]);
 
   const loadGroups = async () => {
     try {
@@ -54,11 +69,30 @@ export function GroupsListScreen() {
     }
   };
 
+  const searchGroups = async () => {
+    try {
+      setLoading(true);
+      const groupsData = await apiClient.getGroups({search: searchQuery});
+      setGroups(groupsData);
+      // Also fetch balances for search results
+      const balancesData = await apiClient.getGroupsBalances();
+      setGroupBalances(balancesData);
+    } catch (error) {
+      console.error('Failed to search groups:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await loadGroups();
+    if (searchQuery.trim()) {
+      await searchGroups();
+    } else {
+      await loadGroups();
+    }
     setRefreshing(false);
-  }, []);
+  }, [searchQuery]);
 
   const handleGroupPress = (group: Group) => {
     // Navigate within the Groups stack
@@ -168,6 +202,25 @@ export function GroupsListScreen() {
           <Text style={[styles.heading, {color: textColor}]}>Groups</Text>
         </View>
 
+        {/* Search Bar */}
+        <View style={[styles.searchContainer, {backgroundColor: searchBackground}]}>
+          <MaterialIcons name="search" size={20} color={secondaryTextColor} style={styles.searchIcon} />
+          <TextInput
+            style={[styles.searchInput, {color: textColor}]}
+            placeholder="Search groups..."
+            placeholderTextColor={secondaryTextColor}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              onPress={() => setSearchQuery('')}
+              style={styles.clearButton}>
+              <MaterialIcons name="close" size={20} color={secondaryTextColor} />
+            </TouchableOpacity>
+          )}
+        </View>
+
         <FlatList
           data={groups}
           renderItem={renderGroup}
@@ -180,13 +233,17 @@ export function GroupsListScreen() {
             <View style={styles.emptyContainer}>
               <MaterialIcons name="groups" size={48} color={secondaryTextColor} />
               <Text style={[styles.emptyText, {color: secondaryTextColor}]}>
-                No groups yet. Create one to get started!
+                {searchQuery.trim()
+                  ? 'No groups found'
+                  : 'No groups yet. Create one to get started!'}
               </Text>
-              <TouchableOpacity
-                style={[styles.createButton, {backgroundColor: primaryColor}]}
-                onPress={() => navigation.navigate('CreateGroup' as never)}>
-                <Text style={styles.createButtonText}>Create Group</Text>
-              </TouchableOpacity>
+              {!searchQuery.trim() && (
+                <TouchableOpacity
+                  style={[styles.createButton, {backgroundColor: primaryColor}]}
+                  onPress={() => navigation.navigate('CreateGroup' as never)}>
+                  <Text style={styles.createButtonText}>Create Group</Text>
+                </TouchableOpacity>
+              )}
             </View>
           }
         />

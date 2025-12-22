@@ -34,9 +34,16 @@ export type RootStackParamList = {
   PrivacySettings: undefined;
   DevicesSettings: undefined;
   TwoFactorSettings: undefined;
+  ProfileSettings: undefined;
+  DisplaySettings: undefined;
+  ResetPassword: undefined;
+  NotificationPreferences: undefined;
+  Privacy: undefined;
+  Devices: undefined;
+  TwoFactorAuth: undefined;
+  UpgradeToPro: undefined;
   Verify2FA: undefined;
   ForgotPassword: undefined;
-  ResetPassword: {token?: string};
   Help: undefined;
 };
 

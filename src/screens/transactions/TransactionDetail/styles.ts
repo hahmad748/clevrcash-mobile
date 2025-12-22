@@ -105,40 +105,22 @@ export const styles = StyleSheet.create({
   paymentArrow: {
     paddingHorizontal: 12,
   },
-  participantAvatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  participantAvatarText: {
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  participantInfo: {
-    flex: 1,
-  },
   participantLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 4,
+    fontSize: 10,
+    fontWeight: '500',
   },
   participantName: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '500',
   },
   // Verification Card
   cardTitle: {
     fontSize: 16,
     fontWeight: '600',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   verificationContainer: {
-    gap: 12,
+    gap: 8,
   },
   verificationStatus: {
     flexDirection: 'row',
@@ -157,24 +139,23 @@ export const styles = StyleSheet.create({
     fontWeight: '500',
   },
   hashValue: {
-    fontSize: 11,
+    fontSize: 9,
     fontFamily: 'monospace',
-    lineHeight: 16,
+    lineHeight: 12,
   },
-  // Details Card
   detailsList: {
-    gap: 12,
+    gap: 2,
   },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
-    minHeight: 44,
+    paddingVertical: 4,
+    minHeight: 32,
   },
   detailLabel: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 12,
+    fontWeight: '400',
     flex: 1,
   },
   detailValueContainer: {
@@ -187,20 +168,19 @@ export const styles = StyleSheet.create({
     marginRight: 6,
   },
   detailValue: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '500',
     textAlign: 'right',
   },
   statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
   statusText: {
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: 10,
+    fontWeight: '500',
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
   },
   // Splits Card
   splitsList: {
@@ -210,33 +190,35 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
   splitRowBorder: {
     borderBottomWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.08)',
   },
   splitLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+    gap: 4,
   },
   splitAvatar: {
-    width: 40,
-    height: 40,
+    width: 32,
+    height: 32,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
   splitAvatarText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '700',
   },
   splitInfo: {
     flex: 1,
   },
   splitUserName: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
     marginBottom: 2,
   },
@@ -247,8 +229,8 @@ export const styles = StyleSheet.create({
     fontSize: 12,
   },
   splitAmount: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 14,
+    fontWeight: '600',
   },
   // Participants Card
   participantsList: {
@@ -257,7 +239,7 @@ export const styles = StyleSheet.create({
   participantRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
   participantRowBorder: {
     borderBottomWidth: 1,
@@ -277,13 +259,9 @@ export const styles = StyleSheet.create({
   participantInfo: {
     flex: 1,
   },
-  participantName: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
   participantEmail: {
-    fontSize: 12,
+    fontSize: 10,
+    fontWeight: '400',
   },
   paidByBadge: {
     paddingHorizontal: 8,
@@ -327,7 +305,7 @@ export const styles = StyleSheet.create({
   attachmentRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
   attachmentRowBorder: {
     borderBottomWidth: 1,

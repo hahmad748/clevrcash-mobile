@@ -8,10 +8,77 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
+    paddingTop: 16,
     paddingBottom: 20,
   },
-  section: {
+  // Profile Card
+  profileCard: {
     marginHorizontal: 16,
+    marginBottom: 24,
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  profileContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatarContainer: {
+    marginRight: 12,
+  },
+  avatar: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    borderWidth: 2,
+    borderColor: '#E0E0E0',
+  },
+  avatarPlaceholder: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+  },
+  avatarText: {
+    fontSize: 24,
+    fontWeight: '700',
+  },
+  userInfo: {
+    flex: 1,
+  },
+  userName: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  userEmail: {
+    fontSize: 14,
+    fontWeight: '400',
+  },
+  editButton: {
+    padding: 8,
+  },
+  // Section Header
+  sectionHeader: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginHorizontal: 16,
+    marginBottom: 12,
+    marginTop: 8,
+  },
+  // Settings Card
+  settingsCard: {
+    marginHorizontal: 16,
+    marginBottom: 24,
     borderRadius: 16,
     overflow: 'hidden',
     shadowColor: '#000',
@@ -19,8 +86,8 @@ export const styles = StyleSheet.create({
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
     elevation: 3,
   },
   settingItem: {
@@ -28,11 +95,11 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 16,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
+    minHeight: 56,
   },
   settingItemBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
   },
   settingLeft: {
     flexDirection: 'row',
@@ -40,26 +107,25 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   settingTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '500',
-    color: '#1A1A1A',
-    marginLeft: 16,
+    marginLeft: 12,
   },
   settingRight: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
-  premiumStatus: {
+  settingRightText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '400',
   },
-  referralBanner: {
+  // PRO Banner
+  proBanner: {
     marginHorizontal: 16,
-    marginTop: 16,
-    borderRadius: 20,
+    marginTop: 8,
+    borderRadius: 16,
     padding: 20,
-    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -69,65 +135,29 @@ export const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
-  referralContent: {
+  proBannerContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  referralLeft: {
+  proBannerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
   },
-  referralTextContainer: {
+  proBannerTextContainer: {
     marginLeft: 16,
   },
-  referralTitle: {
+  proBannerTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: '#FFFFFF',
     marginBottom: 4,
   },
-  referralSubtitle: {
+  proBannerSubtitle: {
     fontSize: 14,
-    color: '#FFD700',
-    fontWeight: '600',
-  },
-  referralIllustration: {
-    width: 80,
-    height: 80,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logoutButton: {
-    marginHorizontal: 16,
-    marginTop: 16,
-    borderRadius: 16,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  logoutText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#F44336',
-    marginLeft: 12,
-  },
-  footer: {
-    paddingVertical: 24,
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: 12,
-    color: '#999',
+    color: '#FFFFFF',
+    opacity: 0.9,
+    fontWeight: '400',
   },
 });

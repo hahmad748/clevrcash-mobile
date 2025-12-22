@@ -2,6 +2,7 @@ import React, {createContext, useContext, useState, useEffect} from 'react';
 import type {User} from '../types/api';
 import {getToken, getUser, setUser, removeUser, setToken, removeToken} from '../services/storage';
 import {apiClient} from '../services/apiClient';
+import {authHandler} from '../services/authHandler';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -67,18 +68,33 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
   };
 
   const login = async (email: string, password: string) => {
-    const data = await apiClient.login(email, password);
-    await setToken(data.token);
-    await setUser(data.user);
-    setUserState(data.user);
-    setIsAuthenticated(true);
-    
-    // Register device token for push notifications
     try {
-      const {pushNotificationService} = await import('../services/pushNotifications');
-      await pushNotificationService.registerDeviceToken();
-    } catch (error) {
-      console.error('Failed to register device token:', error);
+      const data = await apiClient.login(email, password);
+      
+      // Check if 2FA is required (shouldn't happen here as apiClient throws error, but just in case)
+      if (data.requires_2fa) {
+        throw new Error('2FA_REQUIRED');
+      }
+      
+      await setToken(data.token);
+      await setUser(data.user);
+      setUserState(data.user);
+      setIsAuthenticated(true);
+      
+      // Register device token for push notifications
+      try {
+        const {pushNotificationService} = await import('../services/pushNotifications');
+        await pushNotificationService.registerDeviceToken();
+      } catch (error) {
+        console.error('Failed to register device token:', error);
+      }
+    } catch (error: any) {
+      // Re-throw 2FA_REQUIRED error so Login screen can handle it
+      if (error.message === '2FA_REQUIRED') {
+        throw error;
+      }
+      // For other errors, throw with original message
+      throw new Error(error.message || 'Login failed');
     }
   };
 
@@ -147,6 +163,16 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
     setUserState(null);
     setIsAuthenticated(false);
   };
+
+  // Register logout handler for global 401 handling
+  useEffect(() => {
+    authHandler.setUnauthenticatedHandler(async () => {
+      // Clear user state without calling API (to avoid circular calls)
+      await removeUser();
+      setUserState(null);
+      setIsAuthenticated(false);
+    });
+  }, []);
 
   const logoutAll = async () => {
     try {

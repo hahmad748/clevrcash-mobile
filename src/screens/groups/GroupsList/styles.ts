@@ -16,8 +16,37 @@ export const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   heading: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '700',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 20,
+    marginBottom: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  searchIcon: {
+    marginRight: 12,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    padding: 0,
+  },
+  clearButton: {
+    padding: 4,
+    marginLeft: 8,
   },
   listContent: {
     paddingHorizontal: 20,

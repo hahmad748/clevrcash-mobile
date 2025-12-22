@@ -90,6 +90,10 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: TOTAL_TAB_BAR_HEIGHT + 20,
   },
+  emptyListContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
   transactionCard: {
     borderRadius: 16,
     padding: 16,
@@ -187,5 +191,10 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     marginTop: 16,
+  },
+  footerLoader: {
+    paddingVertical: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

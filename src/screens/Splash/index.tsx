@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {View, Text, Image, ActivityIndicator, ImageBackground, StatusBar} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {useAuth} from '../../contexts/AuthContext';
@@ -9,16 +9,19 @@ export function SplashScreen() {
   const navigation = useNavigation();
   const {isAuthenticated, loading: authLoading, user} = useAuth();
   const {loading: brandLoading, loadBrand, brand} = useBrand();
+  const hasNavigatedRef = useRef(false);
 
   useEffect(() => {
     initializeApp();
   }, []);
 
   useEffect(() => {
-    if (!authLoading && !brandLoading) {
+    // Only navigate once on initial load, not when isAuthenticated changes
+    if (!authLoading && !brandLoading && !hasNavigatedRef.current) {
+      hasNavigatedRef.current = true;
       navigateToNextScreen();
     }
-  }, [authLoading, brandLoading, isAuthenticated, navigation]);
+  }, [authLoading, brandLoading]);
 
   const initializeApp = async () => {
     await loadBrand();

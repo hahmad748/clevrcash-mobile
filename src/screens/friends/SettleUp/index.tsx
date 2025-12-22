@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -7,34 +7,259 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  Image,
+  Platform,
+  ActionSheetIOS,
 } from 'react-native';
-import {useRoute, useNavigation} from '@react-navigation/native';
+import {launchCamera, launchImageLibrary, ImagePickerResponse, MediaType} from 'react-native-image-picker';
+import DocumentPicker from 'react-native-document-picker';
+import {useRoute, useNavigation, useFocusEffect} from '@react-navigation/native';
+import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useTheme} from '../../../contexts/ThemeContext';
+import {useBrand} from '../../../contexts/BrandContext';
 import {useAuth} from '../../../contexts/AuthContext';
 import {apiClient} from '../../../services/apiClient';
+import {CurrencyModal} from '../../../components/modals/CurrencyModal';
+import {PaymentMethodModal} from '../../../components/modals/PaymentMethodModal';
+import type {FriendBalance, User} from '../../../types/api';
 import {styles} from './styles';
 
 export function SettleUpFriendScreen() {
   const route = useRoute();
   const navigation = useNavigation();
-  const {colors} = useTheme();
+  const {colors, isDark} = useTheme();
+  const {brand} = useBrand();
   const {user} = useAuth();
-  const {friendId} = route.params as {friendId: number};
-  const [amount, setAmount] = useState('');
-  const [currency, setCurrency] = useState(user?.default_currency || 'USD');
+  const {friendId, amount: prefillAmount} = (route.params as any) || {};
+
+  const primaryColor = brand?.primary_color || colors.primary;
+  const defaultCurrency = user?.default_currency || 'USD';
+
+  // Form state
+  const [fromUserId, setFromUserId] = useState<number | null>(null);
+  const [toUserId, setToUserId] = useState<number | null>(null);
+  const [amount, setAmount] = useState(prefillAmount ? String(prefillAmount) : '');
+  const [currency, setCurrency] = useState(defaultCurrency);
   const [method, setMethod] = useState('cash');
   const [notes, setNotes] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [showNotes, setShowNotes] = useState(false);
+  const [receiptUri, setReceiptUri] = useState<string | null>(null);
+  const [receiptType, setReceiptType] = useState<'image' | 'document' | null>(null);
+  const [receiptName, setReceiptName] = useState<string | null>(null);
 
-  const methods = ['cash', 'bank_transfer', 'stripe', 'paypal', 'manual', 'other'];
+  // UI state
+  const [showCurrencyModal, setShowCurrencyModal] = useState(false);
+  const [showMethodModal, setShowMethodModal] = useState(false);
 
-  const handleSubmit = async () => {
+  // Data state
+  const [friend, setFriend] = useState<User | null>(null);
+  const [balance, setBalance] = useState<FriendBalance | null>(null);
+
+  // Loading state
+  const [loading, setLoading] = useState(true);
+  const [settling, setSettling] = useState(false);
+
+  // Reset form function
+  const resetForm = useCallback(() => {
+    setFromUserId(null);
+    setToUserId(null);
+    setAmount(prefillAmount ? String(prefillAmount) : '');
+    setCurrency(defaultCurrency);
+    setMethod('cash');
+    setNotes('');
+    setShowNotes(false);
+    setReceiptUri(null);
+    setReceiptType(null);
+    setReceiptName(null);
+  }, [defaultCurrency, prefillAmount]);
+
+  useEffect(() => {
+    loadFriendData();
+  }, [friendId]);
+
+  // Reset form when screen loses focus
+  useFocusEffect(
+    React.useCallback(() => {
+      loadFriendData();
+      return () => {
+        resetForm();
+      };
+    }, [resetForm]),
+  );
+
+  const loadFriendData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const balanceData = await apiClient.getFriendBalance(friendId);
+      setFriend(balanceData.friend);
+      setBalance(balanceData);
+
+      // Pre-select users based on balance logic
+      // balance > 0: Friend owes user (user is owed) → Friend pays user
+      // balance < 0: User owes friend (user owes) → User pays friend
+      const balanceValue = balanceData.converted_balance ?? balanceData.balance ?? 0;
+      if (balanceValue > 0) {
+        // Friend owes user → Friend pays user
+        setFromUserId(friendId);
+        setToUserId(user?.id || null);
+      } else if (balanceValue < 0) {
+        // User owes friend → User pays friend
+        setFromUserId(user?.id || null);
+        setToUserId(friendId);
+      }
+
+      // Set currency from balance if available
+      if (balanceData.converted_currency) {
+        setCurrency(balanceData.converted_currency);
+      }
+    } catch (error) {
+      console.error('Failed to load friend data:', error);
+      Alert.alert('Error', 'Failed to load friend data');
+    } finally {
+      setLoading(false);
+    }
+  }, [friendId, user?.id]);
+
+  const handleReceiptPicker = () => {
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ['Cancel', 'Take Photo', 'Choose from Library', 'Choose Document'],
+          cancelButtonIndex: 0,
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 1) {
+            handleTakePhoto();
+          } else if (buttonIndex === 2) {
+            handleChooseFromLibrary();
+          } else if (buttonIndex === 3) {
+            handleChooseDocument();
+          }
+        },
+      );
+    } else {
+      Alert.alert(
+        'Select Receipt',
+        'Choose an option',
+        [
+          {text: 'Cancel', style: 'cancel'},
+          {text: 'Take Photo', onPress: handleTakePhoto},
+          {text: 'Choose from Library', onPress: handleChooseFromLibrary},
+          {text: 'Choose Document', onPress: handleChooseDocument},
+        ],
+      );
+    }
+  };
+
+  const handleTakePhoto = () => {
+    launchCamera(
+      {
+        mediaType: 'photo' as MediaType,
+        quality: 0.8,
+        maxWidth: 2048,
+        maxHeight: 2048,
+      },
+      (response: ImagePickerResponse) => {
+        if (response.didCancel) return;
+        if (response.errorMessage) {
+          Alert.alert('Error', response.errorMessage);
+          return;
+        }
+        if (response.assets && response.assets[0]) {
+          const asset = response.assets[0];
+          setReceiptUri(asset.uri || null);
+          setReceiptType('image');
+          setReceiptName(asset.fileName || 'receipt.jpg');
+        }
+      },
+    );
+  };
+
+  const handleChooseFromLibrary = () => {
+    launchImageLibrary(
+      {
+        mediaType: 'photo' as MediaType,
+        quality: 0.8,
+        maxWidth: 2048,
+        maxHeight: 2048,
+      },
+      (response: ImagePickerResponse) => {
+        if (response.didCancel) return;
+        if (response.errorMessage) {
+          Alert.alert('Error', response.errorMessage);
+          return;
+        }
+        if (response.assets && response.assets[0]) {
+          const asset = response.assets[0];
+          setReceiptUri(asset.uri || null);
+          setReceiptType('image');
+          setReceiptName(asset.fileName || asset.uri?.split('/').pop() || 'receipt.jpg');
+        }
+      },
+    );
+  };
+
+  const handleChooseDocument = async () => {
+    try {
+      const result = await DocumentPicker.pick({
+        type: [DocumentPicker.types.pdf, DocumentPicker.types.images, DocumentPicker.types.allFiles],
+        copyTo: 'cachesDirectory',
+      });
+
+      if (result && result[0]) {
+        const file = result[0];
+        setReceiptUri(file.uri);
+        setReceiptType('document');
+        setReceiptName(file.name || 'document');
+      }
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        return;
+      }
+      Alert.alert('Error', 'Failed to pick document');
+    }
+  };
+
+  const removeReceipt = () => {
+    setReceiptUri(null);
+    setReceiptType(null);
+    setReceiptName(null);
+  };
+
+  const getUserName = (userId: number | null): string => {
+    if (!userId) return 'Select';
+    if (userId === user?.id) return 'You';
+    if (userId === friendId) return friend?.name || 'Friend';
+    return 'Unknown';
+  };
+
+  const getMethodLabel = (methodValue: string): string => {
+    const methodMap: Record<string, string> = {
+      cash: 'Cash',
+      bank_transfer: 'Bank Transfer',
+      stripe: 'Stripe',
+      paypal: 'PayPal',
+      manual: 'Manual',
+      other: 'Other',
+    };
+    return methodMap[methodValue] || methodValue;
+  };
+
+  const handleSettle = async () => {
+    if (!fromUserId || !toUserId) {
+      Alert.alert('Error', 'Please select who paid and who received');
+      return;
+    }
     if (!amount || parseFloat(amount) <= 0) {
       Alert.alert('Error', 'Please enter a valid amount');
       return;
     }
+    if (fromUserId === toUserId) {
+      Alert.alert('Error', 'From and To users must be different');
+      return;
+    }
 
-    setLoading(true);
+    setSettling(true);
     try {
       await apiClient.settleUpWithFriend(friendId, {
         amount: parseFloat(amount),
@@ -42,105 +267,214 @@ export function SettleUpFriendScreen() {
         method,
         notes: notes.trim() || undefined,
       });
-      Alert.alert('Success', 'Payment recorded successfully', [
-        {
-          text: 'OK',
-          onPress: () => navigation.goBack(),
-        },
-      ]);
+
+      // TODO: Upload receipt if API endpoint is available
+      // For now, receipt is stored but not uploaded
+
+      resetForm();
+      navigation.goBack();
+      Alert.alert('Success', 'Payment recorded successfully');
     } catch (error: any) {
       Alert.alert('Error', error.message || 'Failed to record payment');
     } finally {
-      setLoading(false);
+      setSettling(false);
     }
   };
 
-  return (
-    <ScrollView style={[styles.container, {backgroundColor: colors.background}]}>
-      <View style={styles.content}>
-        <Text style={[styles.title, {color: colors.text}]}>Settle Up</Text>
-        <Text style={[styles.subtitle, {color: colors.textSecondary}]}>
-          Record a payment to settle the balance
-        </Text>
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.centerContent, {backgroundColor: colors.background}]}>
+        <ActivityIndicator size="large" color={primaryColor} />
+      </View>
+    );
+  }
 
-        <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, {color: colors.text}]}>Amount *</Text>
+  const backgroundColor = isDark ? '#0A0E27' : '#F5F5F5';
+  const cardBackground = isDark ? '#1A1F3A' : '#FFFFFF';
+  const textColor = isDark ? '#FFFFFF' : '#1A1A1A';
+  const secondaryTextColor = isDark ? '#B0B0B0' : '#666666';
+
+  return (
+    <View style={[styles.container, {backgroundColor}]}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}>
+        {/* Page Heading */}
+        <View style={styles.pageHeader}>
+          <Text style={[styles.pageTitle, {color: textColor}]}>Settle Payment</Text>
+        </View>
+
+        {/* Paid By and To Section */}
+        <View style={[styles.section, styles.paidBySection, {backgroundColor: cardBackground}]}>
+          <View style={styles.paidByRow}>
+            <Text style={[styles.paidByText, {color: textColor}]}>Paid by</Text>
+            <TouchableOpacity
+              style={[styles.paidByButton, {backgroundColor: backgroundColor}]}
+              onPress={() => {
+                // Toggle between user and friend
+                if (fromUserId === user?.id) {
+                  setFromUserId(friendId);
+                  setToUserId(user?.id);
+                } else {
+                  setFromUserId(user?.id);
+                  setToUserId(friendId);
+                }
+              }}>
+              <Text style={[styles.paidByButtonText, {color: textColor}]}>{getUserName(fromUserId)}</Text>
+              <MaterialIcons name="swap-horiz" size={20} color={textColor} />
+            </TouchableOpacity>
+            <Text style={[styles.paidByText, {color: textColor}]}>to</Text>
+            <TouchableOpacity
+              style={[styles.paidByButton, {backgroundColor: backgroundColor}]}
+              onPress={() => {
+                // Toggle between user and friend
+                if (toUserId === user?.id) {
+                  setToUserId(friendId);
+                  setFromUserId(user?.id);
+                } else {
+                  setToUserId(user?.id);
+                  setFromUserId(friendId);
+                }
+              }}>
+              <Text style={[styles.paidByButtonText, {color: textColor}]}>{getUserName(toUserId)}</Text>
+              <MaterialIcons name="swap-horiz" size={20} color={textColor} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Amount and Currency Section */}
+        <View style={[styles.section, {backgroundColor: cardBackground}]}>
+          <Text style={[styles.sectionLabel, {color: secondaryTextColor}]}>Amount</Text>
+          <View style={styles.amountRow}>
+            <TouchableOpacity
+              style={[styles.currencyButton, {backgroundColor: backgroundColor}]}
+              onPress={() => setShowCurrencyModal(true)}>
+              <Text style={[styles.currencyText, {color: textColor}]}>{currency}</Text>
+              <MaterialIcons name="arrow-drop-down" size={20} color={textColor} />
+            </TouchableOpacity>
             <TextInput
-              style={[styles.input, {backgroundColor: colors.surface, color: colors.text, borderColor: colors.border}]}
+              style={[styles.amountInput, {color: textColor, borderBottomColor: secondaryTextColor + '30'}]}
               placeholder="0.00"
-              placeholderTextColor={colors.textSecondary}
+              placeholderTextColor={secondaryTextColor}
               value={amount}
               onChangeText={setAmount}
               keyboardType="decimal-pad"
             />
           </View>
+        </View>
 
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, {color: colors.text}]}>Currency</Text>
-            <TextInput
-              style={[styles.input, {backgroundColor: colors.surface, color: colors.text, borderColor: colors.border}]}
-              value={currency}
-              onChangeText={setCurrency}
-              maxLength={3}
-              autoCapitalize="characters"
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, {color: colors.text}]}>Payment Method</Text>
-            <View style={styles.methodContainer}>
-              {methods.map(m => (
-                <TouchableOpacity
-                  key={m}
-                  style={[
-                    styles.methodButton,
-                    {
-                      backgroundColor: method === m ? colors.primary : colors.surface,
-                      borderColor: colors.border,
-                    },
-                  ]}
-                  onPress={() => setMethod(m)}>
-                  <Text
-                    style={[
-                      styles.methodButtonText,
-                      {color: method === m ? '#FFFFFF' : colors.text},
-                    ]}>
-                    {m.charAt(0).toUpperCase() + m.slice(1).replace('_', ' ')}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, {color: colors.text}]}>Notes</Text>
-            <TextInput
-              style={[
-                styles.textArea,
-                {backgroundColor: colors.surface, color: colors.text, borderColor: colors.border},
-              ]}
-              placeholder="Add a note (optional)"
-              placeholderTextColor={colors.textSecondary}
-              value={notes}
-              onChangeText={setNotes}
-              multiline
-              numberOfLines={3}
-            />
-          </View>
-
+        {/* Payment Method Section */}
+        <View style={[styles.section, {backgroundColor: cardBackground}]}>
+          <Text style={[styles.sectionLabel, {color: secondaryTextColor}]}>Payment Method</Text>
           <TouchableOpacity
-            style={[styles.submitButton, {backgroundColor: colors.primary}]}
-            onPress={handleSubmit}
-            disabled={loading}>
-            {loading ? (
+            style={[styles.selectButton, {backgroundColor: backgroundColor}]}
+            onPress={() => setShowMethodModal(true)}>
+            <Text style={[styles.selectButtonText, {color: textColor}]}>{getMethodLabel(method)}</Text>
+            <MaterialIcons name="arrow-drop-down" size={20} color={textColor} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Receipt Section */}
+        <View style={[styles.section, {backgroundColor: cardBackground}]}>
+          <Text style={[styles.sectionLabel, {color: secondaryTextColor}]}>Receipt/Invoice (Optional)</Text>
+          {receiptUri ? (
+            <TouchableOpacity
+              style={styles.receiptPreviewContainer}
+              onPress={handleReceiptPicker}
+              activeOpacity={0.8}>
+              {receiptType === 'image' ? (
+                <Image source={{uri: receiptUri}} style={styles.receiptPreview} />
+              ) : (
+                <View style={[styles.receiptPreview, styles.receiptDocumentPreview]}>
+                  <MaterialIcons name="description" size={32} color={primaryColor} />
+                  <Text style={[styles.receiptDocumentName, {color: textColor}]} numberOfLines={1}>
+                    {receiptName}
+                  </Text>
+                </View>
+              )}
+              <TouchableOpacity
+                style={[styles.removeReceiptButton, {backgroundColor: '#F44336'}]}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  removeReceipt();
+                }}>
+                <MaterialIcons name="close" size={16} color="#FFFFFF" />
+              </TouchableOpacity>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={[styles.receiptArea, {borderColor: colors.border}]}
+              onPress={handleReceiptPicker}>
+              <MaterialIcons name="receipt" size={32} color={secondaryTextColor} />
+              <Text style={[styles.receiptText, {color: secondaryTextColor}]}>Choose File</Text>
+              <Text style={[styles.receiptHint, {color: secondaryTextColor}]}>
+                JPG, PNG, or PDF (max 10MB)
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Description Section */}
+        <View style={[styles.section, {backgroundColor: cardBackground}]}>
+          {!showNotes ? (
+            <TouchableOpacity
+              style={styles.addNotesButton}
+              onPress={() => setShowNotes(true)}>
+              <MaterialIcons name="add" size={20} color={primaryColor} />
+              <Text style={[styles.addNotesText, {color: primaryColor}]}>Description (Optional)</Text>
+            </TouchableOpacity>
+          ) : (
+            <View>
+              <Text style={[styles.sectionLabel, {color: secondaryTextColor}]}>Description (Optional)</Text>
+              <TextInput
+                style={[styles.notesInput, {color: textColor}]}
+                placeholder="Add a note about this payment"
+                placeholderTextColor={secondaryTextColor}
+                value={notes}
+                onChangeText={setNotes}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+              />
+            </View>
+          )}
+        </View>
+
+        {/* Action Buttons */}
+        <View style={styles.actionButtons}>
+          <TouchableOpacity
+            style={[styles.cancelButton, {borderColor: secondaryTextColor}]}
+            onPress={() => navigation.goBack()}>
+            <Text style={[styles.cancelButtonText, {color: textColor}]}>Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.saveButton, {backgroundColor: primaryColor}]}
+            onPress={handleSettle}
+            disabled={settling}>
+            {settling ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text style={styles.submitButtonText}>Record Payment</Text>
+              <Text style={styles.saveButtonText}>Record Payment</Text>
             )}
           </TouchableOpacity>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+
+      {/* Modal Components */}
+      <CurrencyModal
+        visible={showCurrencyModal}
+        selectedCurrency={currency}
+        onSelect={setCurrency}
+        onClose={() => setShowCurrencyModal(false)}
+      />
+
+      <PaymentMethodModal
+        visible={showMethodModal}
+        selectedMethod={method}
+        onSelect={setMethod}
+        onClose={() => setShowMethodModal(false)}
+      />
+    </View>
   );
 }

@@ -11,11 +11,10 @@ export const styles = StyleSheet.create({
   },
   headingContainer: {
     paddingHorizontal: 20,
-    paddingTop: 8,
     paddingBottom: 16,
   },
   heading: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '700',
   },
   searchContainer: {

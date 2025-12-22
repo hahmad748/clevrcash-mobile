@@ -10,19 +10,15 @@ import type {
   Expense,
   Payment,
   Transaction,
-  Balance,
   FriendBalance,
   GroupBalance,
   Category,
   Currency,
-  Notification,
   CategoryExpense,
   MonthlyExpense,
   DailyExpense,
   SpendingSummary,
   DashboardSummary,
-  RecurringExpense,
-  Import,
   Device,
   Timezone,
   Language,
@@ -30,8 +26,6 @@ import type {
   PaymentFilters,
   TransactionFilters,
   PaginatedResponse,
-  ExpenseSplit,
-  ExpenseItem,
   Attachment,
 } from '../types/api';
 
@@ -52,12 +46,19 @@ class ApiClient {
     return response.data;
   }
 
-  async login(email: string, password: string): Promise<{user: User; token: string}> {
-    const response = await apiService.post<ApiResponse<{user: User; token: string}>>(
+  async login(email: string, password: string): Promise<{user: User; token: string; requires_2fa?: boolean}> {
+    const response = await apiService.post<ApiResponse<{user: User; token: string; requires_2fa?: boolean} | {requires_2fa: boolean; message: string}>>(
       '/login',
       {email, password},
     );
-    return response.data;
+    const data = response.data;
+    
+    // Check if 2FA is required
+    if ('requires_2fa' in data && data.requires_2fa) {
+      throw new Error('2FA_REQUIRED');
+    }
+    
+    return data as {user: User; token: string; requires_2fa?: boolean};
   }
 
   async socialLogin(data: {
@@ -116,15 +117,19 @@ class ApiClient {
   }
 
   // ==================== 2FA ====================
-  async enable2FA(): Promise<{backup_code: string; message: string}> {
-    const response = await apiService.post<ApiResponse<{backup_code: string; message: string}>>(
+  async enable2FA(): Promise<{secret: string; qr_code_url: string; message: string}> {
+    const response = await apiService.post<ApiResponse<{secret: string; qr_code_url: string; message: string}>>(
       '/2fa/enable',
     );
     return response.data;
   }
 
-  async verify2FA(code: string): Promise<void> {
-    await apiService.post('/2fa/verify', {code});
+  async verify2FA(code: string): Promise<{backup_codes: string[]; message: string}> {
+    const response = await apiService.post<ApiResponse<{backup_codes: string[]; message: string}>>(
+      '/2fa/verify',
+      {code},
+    );
+    return response.data;
   }
 
   async disable2FA(password: string): Promise<void> {
@@ -204,6 +209,20 @@ class ApiClient {
 
   async revokeAllDevices(): Promise<void> {
     await apiService.delete('/user/devices');
+  }
+
+  async getCheckoutUrl(): Promise<string> {
+    // TODO: Create API endpoint that returns Stripe checkout URL
+    // For now, return the subscriptions page URL
+    // Backend should create: GET /api/v1/subscriptions/checkout-url
+    const response = await apiService.get<ApiResponse<{checkout_url: string}>>('/subscriptions/checkout-url');
+    return response.data.checkout_url;
+  }
+
+  async requestDataRemoval(): Promise<void> {
+    // TODO: Create API endpoint for data removal request
+    // Backend should create: POST /api/v1/user/request-data-removal
+    await apiService.post('/user/request-data-removal');
   }
 
   async registerDevice(data: {

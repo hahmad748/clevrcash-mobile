@@ -43,14 +43,16 @@ export function LoginScreen() {
       const loginEmail = email.trim();
       const loginPassword = password.trim();
       
-      try {
-        await login(loginEmail, loginPassword);
-      } catch (error: any) {
-        throw error;
-      }
+      await login(loginEmail, loginPassword);
+      // Login successful, navigation handled by AuthContext
     } catch (error: any) {
-      if (error.message?.includes('2FA') || error.message?.includes('two factor')) {
-        navigation.navigate('Verify2FA' as never, {email: email.trim(), password: password.trim()} as never);
+      // Check if 2FA is required
+      if (error.message === '2FA_REQUIRED' || error.message?.includes('2FA') || error.message?.includes('two factor')) {
+        // Navigate to 2FA verification screen
+        navigation.navigate('Verify2FA' as never, {
+          email: email.trim(),
+          password: password.trim(),
+        } as never);
       } else {
         Alert.alert('Login Failed', error.message || 'Invalid credentials');
       }

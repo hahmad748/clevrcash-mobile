@@ -15,7 +15,6 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: TOTAL_TAB_BAR_HEIGHT + 20,
   },
@@ -25,6 +24,8 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingBottom: 16,
     marginBottom: 20,
+    paddingHorizontal: 16,
+    paddingTop: 16,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -33,15 +34,15 @@ export const styles = StyleSheet.create({
     marginRight: 12,
   },
   groupAvatar: {
-    width: 56,
-    height: 56,
+    width: 48,
+    height: 48,
     borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
   groupAvatarText: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '700',
   },
   headerInfo: {

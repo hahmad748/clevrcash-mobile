@@ -9,6 +9,7 @@ import {useAuth} from '../contexts/AuthContext';
 import {useTheme} from '../contexts/ThemeContext';
 import {useBrand} from '../contexts/BrandContext';
 import {useDeepLinking} from './DeepLinkHandler';
+import {navigationService} from '../services/navigationService';
 import {SplashScreen} from '../screens/Splash';
 import {WelcomeScreen} from '../screens/auth/Welcome';
 import {LoginScreen} from '../screens/auth/Login';
@@ -44,6 +45,14 @@ import {NotificationSettingsScreen} from '../screens/settings/NotificationSettin
 import {PrivacySettingsScreen} from '../screens/settings/PrivacySettings';
 import {DevicesSettingsScreen} from '../screens/settings/DevicesSettings';
 import {TwoFactorSettingsScreen} from '../screens/settings/TwoFactorSettings';
+import {ProfileSettingsScreen} from '../screens/settings/ProfileSettings';
+import {DisplaySettingsScreen} from '../screens/settings/DisplaySettings';
+import {ResetPasswordScreen as SettingsResetPasswordScreen} from '../screens/settings/ResetPassword';
+import {NotificationPreferencesScreen} from '../screens/settings/NotificationPreferences';
+import {PrivacyScreen} from '../screens/settings/Privacy';
+import {DevicesScreen} from '../screens/settings/Devices';
+import {TwoFactorAuthScreen} from '../screens/settings/TwoFactorAuth';
+import {UpgradeToProScreen} from '../screens/settings/UpgradeToPro';
 import {DrawerContent} from '../components/DrawerContent/index';
 import {CustomTabBar} from '../components/CustomTabBar';
 import {CustomHeader} from '../components/CustomHeader';
@@ -284,12 +293,12 @@ function DrawerNavigator() {
           />
         ),
         drawerStyle: {
-          backgroundColor: colors.surface,
-          width: 280,
+          backgroundColor: 'transparent',
+          width: 320,
         },
         drawerActiveTintColor: brand?.primary_color || colors.primary,
         drawerInactiveTintColor: colors.textSecondary,
-        overlayColor: 'rgba(0, 0, 0, 0.5)',
+        overlayColor: 'rgba(0, 0, 0, 0.4)',
       }}>
       <Drawer.Screen
         name="MainTabs"
@@ -364,6 +373,13 @@ export default function AppNavigator() {
   const {isAuthenticated, loading} = useAuth();
   const {loading: brandLoading} = useBrand();
   const navigationRef = React.useRef<NavigationContainerRef<any>>(null);
+  
+  // Set navigation ref in navigation service for global access
+  useEffect(() => {
+    if (navigationRef.current) {
+      navigationService.setNavigationRef(navigationRef.current);
+    }
+  }, []);
   
   // Component to handle deep linking inside NavigationContainer
   function DeepLinkHandler() {
@@ -522,72 +538,112 @@ export default function AppNavigator() {
               name="AccountSettings"
               component={AccountSettingsScreen}
               options={{
-                header: ({options}) => (
-                  <CustomHeader
-                    title={options.title || 'Account Settings'}
-                    showNotifications={true}
-                  />
-                ),
+                header: () => <CustomDetailHeader />,
+                headerShown: true
               }}
             />
             <RootStack.Screen
               name="PasswordSettings"
               component={PasswordSettingsScreen}
               options={{
-                header: ({options}) => (
-                  <CustomHeader
-                    title={options.title || 'Change Password'}
-                    showNotifications={true}
-                  />
-                ),
+                header: () => <CustomDetailHeader />,
+                headerShown: true
               }}
             />
             <RootStack.Screen
               name="NotificationSettings"
               component={NotificationSettingsScreen}
               options={{
-                header: ({options}) => (
-                  <CustomHeader
-                    title={options.title || 'Notification Settings'}
-                    showNotifications={true}
-                  />
-                ),
+                header: () => <CustomDetailHeader />,
+                headerShown: true
               }}
             />
             <RootStack.Screen
               name="PrivacySettings"
               component={PrivacySettingsScreen}
               options={{
-                header: ({options}) => (
-                  <CustomHeader
-                    title={options.title || 'Privacy Settings'}
-                    showNotifications={true}
-                  />
-                ),
+                header: () => <CustomDetailHeader />,
+                headerShown: true
               }}
             />
             <RootStack.Screen
               name="DevicesSettings"
               component={DevicesSettingsScreen}
               options={{
-                header: ({options}) => (
-                  <CustomHeader
-                    title={options.title || 'Devices'}
-                    showNotifications={true}
-                  />
-                ),
+                header: () => <CustomDetailHeader />,
+                headerShown: true
               }}
             />
             <RootStack.Screen
               name="TwoFactorSettings"
               component={TwoFactorSettingsScreen}
               options={{
-                header: ({options}) => (
-                  <CustomHeader
-                    title={options.title || 'Two-Factor Authentication'}
-                    showNotifications={true}
-                  />
-                ),
+                header: () => <CustomDetailHeader />,
+                headerShown: true
+              }}
+            />
+            <RootStack.Screen
+              name="ProfileSettings"
+              component={ProfileSettingsScreen}
+              options={{
+                header: () => <CustomDetailHeader />,
+                headerShown: true
+              }}
+            />
+            <RootStack.Screen
+              name="DisplaySettings"
+              component={DisplaySettingsScreen}
+              options={{
+                header: () => <CustomDetailHeader />,
+                headerShown: true
+              }}
+            />
+            <RootStack.Screen
+              name="ResetPassword"
+              component={SettingsResetPasswordScreen}
+              options={{
+                header: () => <CustomDetailHeader />,
+                headerShown: true
+              }}
+            />
+            <RootStack.Screen
+              name="NotificationPreferences"
+              component={NotificationPreferencesScreen}
+              options={{
+                header: () => <CustomDetailHeader />,
+                headerShown: true
+              }}
+            />
+            <RootStack.Screen
+              name="Privacy"
+              component={PrivacyScreen}
+              options={{
+                header: () => <CustomDetailHeader />,
+                headerShown: true
+              }}
+            />
+            <RootStack.Screen
+              name="Devices"
+              component={DevicesScreen}
+              options={{
+                header: () => <CustomDetailHeader />,
+                headerShown: true
+              }}
+            />
+            <RootStack.Screen
+              name="TwoFactorAuth"
+              component={TwoFactorAuthScreen}
+              options={{
+                header: () => <CustomDetailHeader />,
+                headerShown: true
+              }}
+            />
+            <RootStack.Screen
+              name="UpgradeToPro"
+              component={UpgradeToProScreen}
+              options={{
+                header: () => <CustomDetailHeader />,
+                headerShown: true
               }}
             />
             {/* Add more modal screens here */}

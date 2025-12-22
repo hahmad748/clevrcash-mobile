@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect, useCallback, useRef} from 'react';
 import {
   View,
   Text,
@@ -28,12 +28,15 @@ export function TransactionsListScreen() {
   const {user} = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<TransactionFilters>({});
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const isLoadingRef = useRef(false);
 
   const primaryColor = brand?.primary_color || colors.primary;
   const defaultCurrency = user?.default_currency || 'USD';
@@ -43,24 +46,45 @@ export function TransactionsListScreen() {
   const secondaryTextColor = isDark ? '#B0B0B0' : '#666666';
   const searchBackground = isDark ? '#1A1F3A' : '#FFFFFF';
 
+  // Combined effect for filters and search query
   useEffect(() => {
-    loadTransactions();
-  }, [filters]);
+    // Skip initial load if already loaded
+    if (isInitialLoad) {
+      setIsInitialLoad(false);
+      loadTransactions(1);
+      return;
+    }
 
-  useEffect(() => {
+    // Debounce search query
     if (searchQuery.trim()) {
       const debounceTimer = setTimeout(() => {
-        loadTransactions();
+        loadTransactions(1);
       }, 500);
       return () => clearTimeout(debounceTimer);
     } else {
-      loadTransactions();
+      // Reset to page 1 when filters change or search is cleared
+      loadTransactions(1);
     }
-  }, [searchQuery]);
+  }, [filters, searchQuery]);
 
   const loadTransactions = async (pageNum = 1) => {
+    // Prevent loading if already loading (for page 1)
+    if (pageNum === 1 && isLoadingRef.current) {
+      return;
+    }
+
+    // Prevent loading more if already loading more
+    if (pageNum > 1 && loadingMore) {
+      return;
+    }
+
     try {
-      setLoading(true);
+      if (pageNum === 1) {
+        isLoadingRef.current = true;
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
       const filtersWithSearch: TransactionFilters = {
         ...filters,
         page: pageNum,
@@ -71,28 +95,40 @@ export function TransactionsListScreen() {
       }
       const response = await apiClient.getTransactions(filtersWithSearch);
       if (pageNum === 1) {
-        setTransactions(response.data);
+        setTransactions(response.data || []);
       } else {
-        setTransactions(prev => [...prev, ...response.data]);
+        setTransactions(prev => [...prev, ...(response.data || [])]);
       }
       setHasMore(response.current_page < response.last_page);
       setPage(pageNum);
     } catch (error) {
       console.error('Failed to load transactions:', error);
+      // On error, set empty array to show empty state
+      if (pageNum === 1) {
+        setTransactions([]);
+        setHasMore(false);
+      }
     } finally {
-      setLoading(false);
+      if (pageNum === 1) {
+        isLoadingRef.current = false;
+        setLoading(false);
+      } else {
+        setLoadingMore(false);
+      }
     }
   };
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     setPage(1);
+    setHasMore(true);
     await loadTransactions(1);
     setRefreshing(false);
   }, [filters, searchQuery]);
 
   const loadMore = () => {
-    if (!loading && hasMore) {
+    // Only load more if we have more pages, not loading (initial or more), and have transactions
+    if (!loading && !loadingMore && hasMore && transactions.length > 0) {
       const nextPage = page + 1;
       loadTransactions(nextPage);
     }
@@ -337,21 +373,34 @@ export function TransactionsListScreen() {
           data={transactions}
           renderItem={renderTransaction}
           keyExtractor={(item, index) => `${item.type}-${item.id}-${index}`}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={
+            transactions.length === 0
+              ? [styles.listContent, styles.emptyListContent]
+              : styles.listContent
+          }
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={primaryColor} />
           }
           onEndReached={loadMore}
           onEndReachedThreshold={0.5}
           ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <MaterialIcons name="receipt-long" size={48} color={secondaryTextColor} />
-              <Text style={[styles.emptyText, {color: secondaryTextColor}]}>
-                {searchQuery.trim() || activeFiltersCount > 0
-                  ? 'No transactions found'
-                  : 'No transactions yet'}
-              </Text>
-            </View>
+            !loading ? (
+              <View style={styles.emptyContainer}>
+                <MaterialIcons name="receipt-long" size={48} color={secondaryTextColor} />
+                <Text style={[styles.emptyText, {color: secondaryTextColor}]}>
+                  {searchQuery.trim() || activeFiltersCount > 0
+                    ? 'No transactions found'
+                    : 'No transactions yet'}
+                </Text>
+              </View>
+            ) : null
+          }
+          ListFooterComponent={
+            loadingMore ? (
+              <View style={styles.footerLoader}>
+                <ActivityIndicator size="small" color={primaryColor} />
+              </View>
+            ) : null
           }
         />
 

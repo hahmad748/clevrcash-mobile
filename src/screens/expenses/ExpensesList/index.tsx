@@ -29,8 +29,12 @@ export function ExpensesListScreen() {
   }, []);
 
   useEffect(() => {
+    // Debounce search query
     if (searchQuery.trim()) {
-      searchExpenses();
+      const debounceTimer = setTimeout(() => {
+        searchExpenses();
+      }, 500);
+      return () => clearTimeout(debounceTimer);
     } else {
       loadExpenses();
     }

@@ -19,6 +19,7 @@ export const styles = StyleSheet.create({
     zIndex: 1000,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
+    overflow: 'hidden',
   },
   content: {
     flex: 1,

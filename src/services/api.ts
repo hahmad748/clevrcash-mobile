@@ -1,6 +1,8 @@
 import {API_BASE_URL, API_TIMEOUT} from '../config/api';
 import {getToken, removeToken, setToken} from './storage';
 import type {ApiResponse} from '../types/api';
+import {navigationService} from './navigationService';
+import {authHandler} from './authHandler';
 
 interface RequestOptions extends RequestInit {
   timeout?: number;
@@ -69,6 +71,27 @@ class ApiService {
       }
 
       if (!response.ok) {
+        // Handle 401 Unauthorized - User is not authenticated
+        if (response.status === 401) {
+          // Clear token immediately
+          await removeToken();
+          
+          // Trigger logout handler (clears user state in AuthContext)
+          await authHandler.handleUnauthenticated();
+          
+          // Navigate to Welcome screen
+          navigationService.navigateToAuth();
+          
+          // Try to get error message from response
+          const error = await response.json().catch(() => ({
+            success: false,
+            message: 'Session expired. Please login again.',
+            errors: {},
+          }));
+          
+          throw new Error(error.message || 'Session expired. Please login again.');
+        }
+        
         // Check if response is HTML (404 page) instead of JSON
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('text/html')) {

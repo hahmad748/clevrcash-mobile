@@ -1,159 +1,168 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, ScrollView, Image} from 'react-native';
+import {View, Text, TouchableOpacity, ScrollView, Image, Platform} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useAuth} from '../../../contexts/AuthContext';
 import {useTheme} from '../../../contexts/ThemeContext';
 import {useBrand} from '../../../contexts/BrandContext';
-import {ScreenWrapper} from '../../../components/ScreenWrapper';
 import {styles} from './styles';
 
 export function AccountScreen() {
   const navigation = useNavigation();
-  const {user, logout} = useAuth();
-  const {colors, isDark} = useTheme();
+  const {user} = useAuth();
+  const {colors, isDark, theme} = useTheme();
   const {brand} = useBrand();
 
   const primaryColor = brand?.primary_color || colors.primary;
+  const isPremium = user?.subscription_status === 'active';
 
-  const generalSettings = [
+  // Mask email for privacy
+  const maskEmail = (email: string) => {
+    if (!email) return '';
+    const [localPart, domain] = email.split('@');
+    if (!domain) return email;
+    const maskedLocal = localPart.length > 2 
+      ? localPart.substring(0, 2) + '*'.repeat(Math.min(localPart.length - 2, 3))
+      : localPart;
+    return `${maskedLocal}@${domain}`;
+  };
+
+  const settingsOptions = [
     {
-      title: 'Email',
-      icon: 'email',
-      onPress: () => navigation.navigate('AccountSettings' as never),
-    },
-    {
-      title: 'Username',
+      title: 'Profile Settings',
       icon: 'person',
-      onPress: () => navigation.navigate('AccountSettings' as never),
+      onPress: () => navigation.navigate('ProfileSettings' as never),
     },
     {
-      title: 'Step data source',
-      icon: 'people',
-      onPress: () => navigation.navigate('Settings' as never),
+      title: 'Reset Password',
+      icon: 'lock-reset',
+      onPress: () => navigation.navigate('ResetPassword' as never),
     },
     {
-      title: 'Language',
-      icon: 'language',
-      onPress: () => navigation.navigate('Settings' as never),
+      title: 'Notification Preferences',
+      icon: 'notifications',
+      onPress: () => navigation.navigate('NotificationPreferences' as never),
     },
     {
       title: 'Privacy',
-      icon: 'lock',
-      onPress: () => navigation.navigate('PrivacySettings' as never),
-    },
-  ];
-
-  const appCustomization = [
-    {
-      title: 'App Icon',
-      icon: 'apps',
-      onPress: () => {},
+      icon: 'privacy-tip',
+      onPress: () => navigation.navigate('Privacy' as never),
     },
     {
-      title: 'Widget',
-      icon: 'widgets',
-      onPress: () => {},
+      title: 'Devices',
+      icon: 'devices',
+      onPress: () => navigation.navigate('Devices' as never),
+    },
+    {
+      title: 'Two Factor Authentication',
+      icon: 'security',
+      onPress: () => navigation.navigate('TwoFactorAuth' as never),
+    },
+    {
+      title: 'Display settings',
+      icon: 'brightness-6',
+      onPress: () => navigation.navigate('DisplaySettings' as never),
+      rightText: theme === 'system' ? 'System Default' : theme === 'dark' ? 'Dark Mode' : 'Light Mode',
     },
   ];
-
-  const isPremium = user?.subscription_status === 'active';
 
   return (
-    <ScreenWrapper backgroundColor={isDark ? colors.background : '#F5F5F5'}>
+    <SafeAreaView 
+      style={[styles.container, {backgroundColor: isDark ? colors.background : '#F5F5F5'}]}
+      edges={['top']}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
-      {/* General Settings Section */}
-      <View style={[styles.section, {backgroundColor: '#FFFFFF'}]}>
-        {generalSettings.map((item, index) => (
-          <TouchableOpacity
-            key={index}
-            style={[
-              styles.settingItem,
-              index < generalSettings.length - 1 && styles.settingItemBorder,
-            ]}
-            onPress={item.onPress}>
-            <View style={styles.settingLeft}>
-              <MaterialIcons name={item.icon} size={24} color="#666" />
-              <Text style={styles.settingTitle}>{item.title}</Text>
+        
+        {/* Profile Card */}
+        <View style={[styles.profileCard, {backgroundColor: isDark ? colors.surface : '#FFFFFF'}]}>
+          <View style={styles.profileContent}>
+            <View style={styles.avatarContainer}>
+              {user?.avatar ? (
+                <Image source={{uri: user.avatar}} style={styles.avatar} />
+              ) : (
+                <View style={[styles.avatarPlaceholder, {backgroundColor: primaryColor + '20', borderColor: primaryColor}]}>
+                  <Text style={[styles.avatarText, {color: primaryColor}]}>
+                    {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                  </Text>
+                </View>
+              )}
             </View>
-            <MaterialIcons name="chevron-right" size={24} color="#999" />
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* Premium Status Section */}
-      <View style={[styles.section, {backgroundColor: '#FFFFFF', marginTop: 16}]}>
-        <TouchableOpacity style={styles.settingItem} onPress={() => {}}>
-          <View style={styles.settingLeft}>
-            <MaterialIcons name="diamond" size={24} color="#2196F3" />
-            <Text style={styles.settingTitle}>Premium Status</Text>
-          </View>
-          <View style={styles.settingRight}>
-            <Text
-              style={[
-                styles.premiumStatus,
-                {color: isPremium ? '#4CAF50' : '#FF6B35'},
-              ]}>
-              {isPremium ? 'Active' : 'Inactive'}
-            </Text>
-            <MaterialIcons name="chevron-right" size={24} color="#999" />
-          </View>
-        </TouchableOpacity>
-      </View>
-
-      {/* Referral Banner */}
-      <TouchableOpacity
-        style={[styles.referralBanner, {backgroundColor: '#FF6B35'}]}
-        onPress={() => {}}>
-        <View style={styles.referralContent}>
-          <View style={styles.referralLeft}>
-            <MaterialIcons name="card-giftcard" size={32} color="#FFD700" />
-            <View style={styles.referralTextContainer}>
-              <Text style={styles.referralTitle}>Refer a friend</Text>
-              <Text style={styles.referralSubtitle}>$50/referral</Text>
+            <View style={styles.userInfo}>
+              <Text style={[styles.userName, {color: isDark ? colors.text : '#1A1A1A'}]}>
+                {user?.name || 'User'}
+              </Text>
+              <Text style={[styles.userEmail, {color: isDark ? colors.textSecondary : '#666666'}]}>
+                {maskEmail(user?.email || '')}
+              </Text>
             </View>
-          </View>
-          <View style={styles.referralIllustration}>
-            <MaterialIcons name="people" size={40} color="rgba(255,255,255,0.3)" />
+            <TouchableOpacity
+              onPress={() => navigation.navigate('ProfileSettings' as never)}
+              style={styles.editButton}>
+              <MaterialIcons name="edit" size={20} color={isDark ? colors.textSecondary : '#666666'} />
+            </TouchableOpacity>
           </View>
         </View>
-      </TouchableOpacity>
 
-      {/* App Customization Section */}
-      <View style={[styles.section, {backgroundColor: '#FFFFFF', marginTop: 16}]}>
-        {appCustomization.map((item, index) => (
+        {/* Settings Section */}
+        <Text style={[styles.sectionHeader, {color: isDark ? colors.text : '#1A1A1A'}]}>Settings</Text>
+        <View style={[styles.settingsCard, {backgroundColor: isDark ? colors.surface : '#FFFFFF'}]}>
+          {settingsOptions.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.settingItem,
+                index < settingsOptions.length - 1 && styles.settingItemBorder,
+                {borderBottomColor: isDark ? colors.border : '#F0F0F0'},
+              ]}
+              onPress={item.onPress}>
+              <View style={styles.settingLeft}>
+                <MaterialIcons 
+                  name={item.icon as any} 
+                  size={22} 
+                  color={isDark ? colors.textSecondary : '#666666'} 
+                />
+                <Text style={[styles.settingTitle, {color: isDark ? colors.text : '#1A1A1A'}]}>
+                  {item.title}
+                </Text>
+              </View>
+              <View style={styles.settingRight}>
+                {item.rightText && (
+                  <Text style={[styles.settingRightText, {color: isDark ? colors.textSecondary : '#666666'}]}>
+                    {item.rightText}
+                  </Text>
+                )}
+                <MaterialIcons 
+                  name="chevron-right" 
+                  size={24} 
+                  color={isDark ? colors.textSecondary : '#999999'} 
+                />
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Upgrade to PRO Banner */}
+        {!isPremium && (
           <TouchableOpacity
-            key={index}
-            style={[
-              styles.settingItem,
-              index < appCustomization.length - 1 && styles.settingItemBorder,
-            ]}
-            onPress={item.onPress}>
-            <View style={styles.settingLeft}>
-              <MaterialIcons name={item.icon} size={24} color="#666" />
-              <Text style={styles.settingTitle}>{item.title}</Text>
+            style={[styles.proBanner, {backgroundColor: primaryColor}]}
+            onPress={() => navigation.navigate('UpgradeToPro' as never)}>
+            <View style={styles.proBannerContent}>
+              <View style={styles.proBannerLeft}>
+                <MaterialIcons name="diamond" size={28} color="#FFFFFF" />
+                <View style={styles.proBannerTextContainer}>
+                  <Text style={styles.proBannerTitle}>Upgrade to PRO</Text>
+                  <Text style={styles.proBannerSubtitle}>Unlock premium features</Text>
+                </View>
+              </View>
+              <MaterialIcons name="arrow-forward" size={24} color="#FFFFFF" />
             </View>
-            <MaterialIcons name="chevron-right" size={24} color="#999" />
           </TouchableOpacity>
-        ))}
-      </View>
+        )}
 
-      {/* Logout Button */}
-      <TouchableOpacity
-        style={[styles.logoutButton, {backgroundColor: '#FFFFFF', marginTop: 16}]}
-        onPress={logout}>
-        <MaterialIcons name="logout" size={24} color="#F44336" />
-        <Text style={styles.logoutText}>Logout</Text>
-      </TouchableOpacity>
-
-      {/* Footer */}
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Powered by devsfort</Text>
-      </View>
       </ScrollView>
-    </ScreenWrapper>
+    </SafeAreaView>
   );
 }
