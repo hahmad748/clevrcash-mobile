@@ -11,7 +11,8 @@ export const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(46, 125, 50, 0.7)', // Dark green overlay
+    // backgroundColor will be set dynamically based on brand colors
+    backgroundColor: 'rgba(46, 125, 50, 0.7)', // Fallback: Dark green overlay
   },
   fallbackBackground: {
     backgroundColor: '#FFFFFF',

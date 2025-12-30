@@ -11,6 +11,7 @@
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		8433D8752EF2013B00EFEE12 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8433D8742EF2013B00EFEE12 /* GoogleService-Info.plist */; };
+		847D28052EF9A2ED0046D880 /* welcome-background.png in Resources */ = {isa = PBXBuildFile; fileRef = 847D28042EF9A2ED0046D880 /* welcome-background.png */; };
 		84AFB9902EF2C824000C53CF /* splash.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 84AFB98F2EF2C824000C53CF /* splash.jpg */; };
 		AAE18A372CB90C2647227343 /* Pods_clevrcash.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93BED876C7001CEB978F999B /* Pods_clevrcash.framework */; };
 		F8A991EE5DD8DDAA6503B5A6 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
@@ -25,6 +26,7 @@
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = clevrcash/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = clevrcash/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8433D8742EF2013B00EFEE12 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		847D28042EF9A2ED0046D880 /* welcome-background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "welcome-background.png"; sourceTree = "<group>"; };
 		84AFB98F2EF2C824000C53CF /* splash.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = splash.jpg; sourceTree = "<group>"; };
 		93BED876C7001CEB978F999B /* Pods_clevrcash.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_clevrcash.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -49,6 +51,7 @@
 				8433D8742EF2013B00EFEE12 /* GoogleService-Info.plist */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				84AFB98F2EF2C824000C53CF /* splash.jpg */,
+				847D28042EF9A2ED0046D880 /* welcome-background.png */,
 				761780EC2CA45674006654EE /* AppDelegate.swift */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
@@ -170,6 +173,7 @@
 				8433D8752EF2013B00EFEE12 /* GoogleService-Info.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				F8A991EE5DD8DDAA6503B5A6 /* PrivacyInfo.xcprivacy in Resources */,
+				847D28052EF9A2ED0046D880 /* welcome-background.png in Resources */,
 				84AFB9902EF2C824000C53CF /* splash.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -303,8 +307,11 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.devsfort.clevrcash;
 				PRODUCT_NAME = clevrcash;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -335,7 +342,10 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.devsfort.clevrcash;
 				PRODUCT_NAME = clevrcash;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;

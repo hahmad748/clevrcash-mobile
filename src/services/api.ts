@@ -1,4 +1,4 @@
-import {API_BASE_URL, API_TIMEOUT} from '../config/api';
+import {API_BASE_URL, getAPIBaseURL, API_TIMEOUT} from '../config/api';
 import {getToken, removeToken, setToken} from './storage';
 import type {ApiResponse} from '../types/api';
 import {navigationService} from './navigationService';
@@ -9,18 +9,44 @@ interface RequestOptions extends RequestInit {
 }
 
 class ApiService {
-  private baseUrl: string;
+  private baseUrl: string | null = null;
+  private baseUrlPromise: Promise<string> | null = null;
+  private readonly defaultBaseUrl = API_BASE_URL;
 
   constructor() {
-    this.baseUrl = API_BASE_URL;
+    // Initialize base URL asynchronously
+    this.baseUrlPromise = getAPIBaseURL().then(url => {
+      this.baseUrl = url;
+      if (__DEV__) {
+        console.log(`[API] Base URL initialized: ${url}`);
+      }
+      return url;
+    }).catch(err => {
+      console.error('[API] Failed to get base URL:', err);
+      // Fallback to default
+      this.baseUrl = this.defaultBaseUrl;
+      return this.defaultBaseUrl;
+    });
+  }
+
+  private async getBaseUrl(): Promise<string> {
+    // Wait for initialization if not complete
+    if (this.baseUrlPromise) {
+      await this.baseUrlPromise;
+      this.baseUrlPromise = null; // Clear after first use
+    }
+    return this.baseUrl || this.defaultBaseUrl;
   }
 
   private async request<T>(
     endpoint: string,
     options: RequestOptions = {},
   ): Promise<T> {
+    // Always ensure base URL is initialized before making request
+    const baseUrl = await this.getBaseUrl();
+    
     const token = await getToken();
-    const url = `${this.baseUrl}${endpoint}`;
+    const url = `${baseUrl}${endpoint}`;
 
     // Build headers - don't set Content-Type for FormData
     const isFormData = options.body instanceof FormData;
@@ -49,6 +75,8 @@ class ApiService {
       // Log request for debugging (only in dev)
       if (__DEV__) {
         console.log(`[API] ${options.method || 'GET'} ${url}`, {
+          baseUrl,
+          endpoint,
           headers: Object.keys(headers),
           hasBody: !!options.body,
         });
@@ -97,13 +125,15 @@ class ApiService {
         if (contentType && contentType.includes('text/html')) {
           const htmlText = await response.text().catch(() => '');
           console.error(`[API] HTML response received (404): ${url}`, htmlText.substring(0, 200));
+          const currentBaseUrl = await this.getBaseUrl();
           throw new Error(
             `API endpoint not found (404): ${url}\n` +
-            `Expected: ${this.baseUrl}${endpoint}\n` +
+            `Expected: ${currentBaseUrl}${endpoint}\n` +
             `Please verify:\n` +
-            `1. Laravel server is running on ${this.baseUrl}\n` +
+            `1. Laravel server is running on ${currentBaseUrl.replace('/api/v1', '')}\n` +
             `2. Route exists in routes/api.php\n` +
-            `3. API middleware is configured correctly`
+            `3. API middleware is configured correctly\n` +
+            `4. Device and server are on the same network (for real device)`
           );
         }
         
@@ -119,6 +149,19 @@ class ApiService {
       return data as T;
     } catch (error: any) {
       clearTimeout(timeoutId);
+      
+      // Enhanced error logging for network failures
+      if (__DEV__) {
+        if (error.message?.includes('Network request failed') || error.message?.includes('Failed to fetch')) {
+          console.error(`[API] Network error for ${url}`, {
+            baseUrl,
+            endpoint,
+            error: error.message,
+            suggestion: 'Check if Laravel server is running and accessible from device',
+          });
+        }
+      }
+      
       if (error.name === 'AbortError') {
         throw new Error('Request timeout');
       }

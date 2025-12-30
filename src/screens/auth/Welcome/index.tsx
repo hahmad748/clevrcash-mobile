@@ -7,119 +7,106 @@ import {
   ImageBackground,
   Platform,
   StatusBar,
+  StyleSheet,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useBrand} from '../../../contexts/BrandContext';
-import {styles} from './styles';
+import {getBrandOverlayColor, getBrandColor} from '../../../utils/colorUtils';
+import {styles as baseStyles} from './styles';
+import {Icon, WelcomeBackground as WelcomeBg, SplashImage as SplashImg} from '../../../assets/images';
 
 export function WelcomeScreen() {
   const navigation = useNavigation();
   const {brand} = useBrand();
 
-  const primaryColor = brand?.primary_color || '#4CAF50'; // Green default
+  const primaryColor = getBrandColor(brand?.primary_color);
+  const overlayColor = getBrandOverlayColor(brand?.primary_color, 0.7);
+  
+  // Dynamic styles with brand colors
+  const dynamicStyles = StyleSheet.create({
+    overlay: {
+      ...baseStyles.overlay,
+      backgroundColor: overlayColor,
+    },
+    getStartedButton: {
+      ...baseStyles.getStartedButton,
+      backgroundColor: primaryColor,
+    },
+  });
 
-  const handleLogin = () => {
-    navigation.navigate('Login' as never);
-  };
-
-  const handleGoogleLogin = () => {
-    // TODO: Implement Google login
-    console.log('Google login');
-  };
-
-  const handleAppleLogin = () => {
-    // TODO: Implement Apple login
-    console.log('Apple login');
-  };
-
-  const handleEmailLogin = () => {
+  const handleGetStarted = () => {
     navigation.navigate('Login' as never);
   };
 
   // Try to load background image, fallback to solid color
   let backgroundSource;
   try {
-    backgroundSource = require('../../../assets/images/welcome-background.png');
+    backgroundSource = WelcomeBg;
   } catch {
     try {
-      backgroundSource = require('../../../assets/images/splash.jpg');
+      backgroundSource = SplashImg;
     } catch {
       backgroundSource = null;
     }
   }
 
   const renderContent = () => (
-    <View style={styles.content}>
+    <View style={baseStyles.content}>
       {/* Logo and Tagline */}
-      <View style={styles.headerSection}>
+      <View style={baseStyles.headerSection}>
         {brand?.logo_url ? (
-          <Image source={{uri: brand.logo_url}} style={styles.logo} resizeMode="contain" />
+          <Image 
+            source={{uri: brand.logo_url}} 
+            style={baseStyles.logo} 
+            resizeMode="contain"
+            onError={(error) => {
+              console.warn('Failed to load brand logo from URL:', error);
+            }}
+          />
         ) : (
-          <View style={styles.logoContainer}>
-            <Image source={require('../../../assets/images/icon.png')} style={styles.logo} resizeMode="contain" />
-            <Text style={styles.logoText}>{brand?.display_name || 'CLEVRCASH'}</Text>
+          <View style={baseStyles.logoContainer}>
+            <Image 
+              source={Icon} 
+              style={baseStyles.logo} 
+              resizeMode="contain"
+              onError={(error) => {
+                console.warn('Failed to load local logo image:', error);
+              }}
+            />
+            <Text style={baseStyles.logoText}>{brand?.display_name || 'CLEVRCASH'}</Text>
           </View>
         )}
-        <Text style={styles.tagline}>Split Bills Like a Boss.</Text>
-        <Text style={styles.tagline}>No More Awkward Maths.</Text>
+        <Text style={baseStyles.tagline}>Split Bills Like a Boss.</Text>
+        <Text style={baseStyles.tagline}>No More Awkward Maths.</Text>
       </View>
 
-      {/* Login Buttons */}
-      <View style={styles.buttonsContainer}>
-        {/* Primary Login Button */}
+      {/* Get Started Button at Bottom */}
+      <View style={baseStyles.buttonContainer}>
         <TouchableOpacity
-          style={[styles.primaryButton, {backgroundColor: primaryColor}]}
-          onPress={handleLogin}
+          style={dynamicStyles.getStartedButton}
+          onPress={handleGetStarted}
           activeOpacity={0.8}>
-          <Text style={styles.primaryButtonText}>Login</Text>
-        </TouchableOpacity>
-
-        {/* Social Login Buttons */}
-        <TouchableOpacity
-          style={styles.socialButton}
-          onPress={handleGoogleLogin}
-          activeOpacity={0.8}>
-          <View style={styles.googleIconContainer}>
-            <MaterialIcons name="mail" size={24} color="#000000"/>
-          </View>
-          <Text style={styles.socialButtonText}>Continue with Google</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.socialButton}
-          onPress={handleAppleLogin}
-          activeOpacity={0.8}>
-          <MaterialIcons name="apple" size={24} color="#000000" />
-          <Text style={styles.socialButtonText}>Continue with Apple</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.socialButton}
-          onPress={handleEmailLogin}
-          activeOpacity={0.8}>
-          <MaterialIcons name="email" size={24} color="#000000" />
-          <Text style={styles.socialButtonText}>Continue with Email</Text>
+          <Text style={baseStyles.getStartedButtonText}>Get Started</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 
   return (
-    <View style={styles.container}>
+    <View style={baseStyles.container}>
       <StatusBar barStyle="light-content" />
       {/* Background Image with Overlay */}
       {backgroundSource ? (
         <ImageBackground
           source={backgroundSource}
-          style={styles.backgroundImage}
+          style={baseStyles.backgroundImage}
           resizeMode="cover">
-          <View style={styles.overlay} />
+          <View style={dynamicStyles.overlay} />
           {renderContent()}
         </ImageBackground>
       ) : (
-        <View style={[styles.backgroundImage, styles.fallbackBackground]}>
-          <View style={styles.overlay} />
+        <View style={[baseStyles.backgroundImage, baseStyles.fallbackBackground]}>
+          <View style={dynamicStyles.overlay} />
           {renderContent()}
         </View>
       )}

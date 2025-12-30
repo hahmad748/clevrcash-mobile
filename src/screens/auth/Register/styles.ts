@@ -11,7 +11,8 @@ export const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(46, 125, 50, 0.7)', // Dark green overlay
+    // backgroundColor will be set dynamically based on brand colors
+    backgroundColor: 'rgba(46, 125, 50, 0.7)', // Fallback: Dark green overlay
   },
   fallbackBackground: {
     backgroundColor: '#FFFFFF',
@@ -156,5 +157,43 @@ export const styles = StyleSheet.create({
   signInLink: {
     fontSize: 14,
     fontWeight: '700',
+  },
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 24,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#E0E0E0',
+  },
+  dividerText: {
+    marginHorizontal: 16,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#999999',
+  },
+  socialButtonsContainer: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 24,
+  },
+  socialButton: {
+    flex: 1,
+    height: 56,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    gap: 8,
+  },
+  socialButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333333',
   },
 });

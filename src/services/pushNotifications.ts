@@ -117,56 +117,39 @@ class PushNotificationService {
 
   /**
    * Get FCM token
+   * On iOS, this requires APNS token to be set first
+   * Note: This method assumes registerDeviceForRemoteMessages() has already been called
    */
   async getToken(): Promise<string | null> {
-    // On iOS, try to get token first (React Native Firebase may auto-register)
-    // Only register manually if we get an unregistered error
-    if (Platform.OS === 'ios' && !this.hasRegisteredForRemoteMessages) {
-      // Try to get token without registering first
-      try {
-        const token = await messaging().getToken();
-        this.deviceToken = token;
-        console.log('FCM Token retrieved successfully (auto-registered):', token);
-        this.hasRegisteredForRemoteMessages = true; // Mark as registered since it worked
-        return token;
-      } catch (error: any) {
-        // If we get unregistered error, then register and retry
-        if (
-          error?.code === 'messaging/unregistered' ||
-          error?.message?.includes('registered') ||
-          error?.message?.includes('registerDeviceForRemoteMessages')
-        ) {
-          console.log('Token requires manual registration, registering now...');
-          // Fall through to registration logic below
-        } else {
-          // Some other error, throw it
-          console.error('Error getting FCM token:', {
-            code: error?.code,
-            message: error?.message,
-            error: error,
-          });
-          return null;
-        }
-      }
-    }
-
-    // On iOS, ensure device is registered for remote messages before getting token
+    // On iOS, ensure device is registered for remote messages first
     if (Platform.OS === 'ios') {
+      // Ensure device is registered (this should already be done by PushBootstrap)
       const isRegistered = await this.ensureRegisteredForRemoteMessages();
       if (!isRegistered) {
         console.error('Failed to register for remote messages. Cannot get FCM token.');
         return null;
       }
-      // Additional delay to ensure registration is fully processed
-      await new Promise(resolve => setTimeout(resolve, 500));
     }
 
+    // Try to get FCM token
+    // On iOS, if APNS token isn't ready, this will fail gracefully
     try {
       const token = await messaging().getToken();
       this.deviceToken = token;
       console.log('FCM Token retrieved successfully:', token);
       return token;
     } catch (error: any) {
+      // On iOS, if error is about APNS token, return null (PushBootstrap will handle retries)
+      if (
+        Platform.OS === 'ios' &&
+        error?.code === 'messaging/unknown' &&
+        (error?.message?.includes('APNS') || error?.message?.includes('No APNS token'))
+      ) {
+        console.warn('FCM token requires APNS token, which is not yet available');
+        return null;
+      }
+      
+      // Other errors
       console.error('Error getting FCM token:', {
         code: error?.code,
         message: error?.message,
@@ -213,19 +196,38 @@ class PushNotificationService {
 
   /**
    * Register device token with server
+   * @param fcmToken Optional FCM token. If not provided, will attempt to get it via getToken()
    */
-  async registerDeviceToken(): Promise<boolean> {
+  private isRegistering = false;
+  private lastRegisteredToken: string | null = null;
+
+  async registerDeviceToken(fcmToken?: string | null): Promise<boolean> {
+    // Prevent duplicate concurrent registrations
+    if (this.isRegistering) {
+      console.log('Device token registration already in progress, skipping...');
+      return false;
+    }
+
     try {
+      this.isRegistering = true;
+
       const token = await getToken();
       if (!token) {
         console.log('User not authenticated, skipping device registration');
         return false;
       }
 
-      const fcmToken = await this.getToken();
-      if (!fcmToken) {
+      // Use provided token or try to get it
+      const tokenToRegister = fcmToken || await this.getToken();
+      if (!tokenToRegister) {
         console.log('No FCM token available');
         return false;
+      }
+
+      // Skip if we're trying to register the same token again
+      if (this.lastRegisteredToken === tokenToRegister) {
+        console.log('Device token already registered, skipping duplicate registration');
+        return true;
       }
 
       const deviceInfo = await this.getDeviceInfo();
@@ -233,16 +235,20 @@ class PushNotificationService {
       // Register device with server
       try {
         await apiClient.registerDevice({
-          token: fcmToken,
+          token: tokenToRegister,
           device_id: deviceInfo.device_id,
           device_name: deviceInfo.device_name,
           platform: deviceInfo.platform,
           os_version: deviceInfo.os_version,
           app_version: deviceInfo.app_version,
         });
+        // Mark as successfully registered
+        this.lastRegisteredToken = tokenToRegister;
       } catch (error: any) {
         // If endpoint doesn't exist yet, log but don't fail
         console.warn('Device registration endpoint not available:', error.message);
+        // Still mark as registered to prevent retries for the same token
+        this.lastRegisteredToken = tokenToRegister;
       }
 
       console.log('Device token registered successfully');
@@ -250,6 +256,8 @@ class PushNotificationService {
     } catch (error) {
       console.error('Error registering device token:', error);
       return false;
+    } finally {
+      this.isRegistering = false;
     }
   }
 
@@ -306,6 +314,8 @@ class PushNotificationService {
 
   /**
    * Initialize push notifications
+   * NOTE: This only sets up handlers and permissions.
+   * Token registration is handled by PushBootstrap component based on auth state.
    */
   async initialize(): Promise<void> {
     try {
@@ -328,8 +338,9 @@ class PushNotificationService {
       this.setupMessageHandlers();
       this.setupTokenRefreshHandler();
 
-      // Get and register token
-      await this.registerDeviceToken();
+      // NOTE: Token registration is handled by PushBootstrap component
+      // based on authentication state. Do NOT call registerDeviceToken() here
+      // to avoid duplicate registrations.
     } catch (error) {
       console.error('Error initializing push notifications:', error);
     }

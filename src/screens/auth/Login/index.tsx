@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -18,19 +18,50 @@ import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useAuth} from '../../../contexts/AuthContext';
 import {useTheme} from '../../../contexts/ThemeContext';
 import {useBrand} from '../../../contexts/BrandContext';
-import {styles} from './styles';
+import {getBrandOverlayColor, getBrandColor} from '../../../utils/colorUtils';
+import {socialLoginService} from '../../../services/socialLogin';
+import {apiClient} from '../../../services/apiClient';
+import {styles as baseStyles} from './styles';
+import {StyleSheet} from 'react-native';
 
 export function LoginScreen() {
   const navigation = useNavigation();
-  const {login, user} = useAuth();
+  const {login, user, socialLogin} = useAuth();
   const {colors} = useTheme();
-  const {brand} = useBrand();
+  const {brand, loadBrand} = useBrand();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [enabledProviders, setEnabledProviders] = useState<string[]>([]);
+  const [socialLoading, setSocialLoading] = useState<string | null>(null);
 
-  const primaryColor = brand?.primary_color || '#4CAF50';
+  const primaryColor = getBrandColor(brand?.primary_color);
+  const overlayColor = getBrandOverlayColor(brand?.primary_color, 0.7);
+  
+  // Dynamic styles with brand colors
+  const dynamicStyles = StyleSheet.create({
+    overlay: {
+      ...baseStyles.overlay,
+      backgroundColor: overlayColor,
+    },
+  });
+
+  // Check enabled social providers on mount
+  useEffect(() => {
+    checkEnabledProviders();
+  }, []);
+
+  const checkEnabledProviders = async () => {
+    try {
+      const response = await apiClient.getEnabledSocialProviders();
+      setEnabledProviders(response.providers || []);
+    } catch (error) {
+      console.error('Failed to check enabled providers:', error);
+      // Don't show any providers if we can't check (security: only show if explicitly enabled)
+      setEnabledProviders([]);
+    }
+  };
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -44,6 +75,8 @@ export function LoginScreen() {
       const loginPassword = password.trim();
       
       await login(loginEmail, loginPassword);
+      // Reload brand after successful login
+      await loadBrand();
       // Login successful, navigation handled by AuthContext
     } catch (error: any) {
       // Check if 2FA is required
@@ -61,6 +94,36 @@ export function LoginScreen() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    setSocialLoading('google');
+    try {
+      const result = await socialLoginService.signInWithGoogle();
+      if (result) {
+        await socialLogin(result);
+        await loadBrand();
+      }
+    } catch (error: any) {
+      Alert.alert('Google Sign-In Failed', error.message || 'Unable to sign in with Google');
+    } finally {
+      setSocialLoading(null);
+    }
+  };
+
+  const handleAppleLogin = async () => {
+    setSocialLoading('apple');
+    try {
+      const result = await socialLoginService.signInWithApple();
+      if (result) {
+        await socialLogin(result);
+        await loadBrand();
+      }
+    } catch (error: any) {
+      Alert.alert('Apple Sign-In Failed', error.message || 'Unable to sign in with Apple');
+    } finally {
+      setSocialLoading(null);
+    }
+  };
+
   // Try to load background image, fallback to solid color
   let backgroundSource;
   try {
@@ -74,58 +137,58 @@ export function LoginScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={baseStyles.container}>
       <StatusBar barStyle="light-content" />
       {/* Background Image with Overlay */}
       {backgroundSource ? (
         <ImageBackground
           source={backgroundSource}
-          style={styles.backgroundImage}
+          style={baseStyles.backgroundImage}
           resizeMode="cover">
-          <View style={styles.overlay} />
+          <View style={dynamicStyles.overlay} />
         </ImageBackground>
       ) : (
-        <View style={[styles.backgroundImage, styles.fallbackBackground]}>
-          <View style={styles.overlay} />
+        <View style={[baseStyles.backgroundImage, baseStyles.fallbackBackground]}>
+          <View style={dynamicStyles.overlay} />
         </View>
       )}
 
       <KeyboardAvoidingView
-        style={styles.keyboardView}
+        style={baseStyles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={baseStyles.scrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
           {/* Logo Section */}
-          <View style={styles.logoSection}>
+          <View style={baseStyles.logoSection}>
             {brand?.logo_url ? (
-              <Image source={{uri: brand.logo_url}} style={styles.logo} resizeMode="contain" />
+              <Image source={{uri: brand.logo_url}} style={baseStyles.logo} resizeMode="contain" />
             ) : (
-              <View style={styles.logoContainer}>
+              <View style={baseStyles.logoContainer}>
                 <Image
                   source={require('../../../assets/images/icon.png')}
-                  style={styles.logo}
+                  style={baseStyles.logo}
                   resizeMode="contain"
                 />
-                <Text style={styles.logoText}>{brand?.display_name || 'CLEVRCASH'}</Text>
+                <Text style={baseStyles.logoText}>{brand?.display_name || 'CLEVRCASH'}</Text>
               </View>
             )}
-            <Text style={styles.welcomeText}>Welcome Back</Text>
-            <Text style={styles.subtitleText}>Sign in to continue</Text>
+            <Text style={baseStyles.welcomeText}>Welcome Back</Text>
+            <Text style={baseStyles.subtitleText}>Sign in to continue</Text>
           </View>
 
           {/* Form Card */}
-          <View style={styles.formCard}>
-            <View style={styles.form}>
+          <View style={baseStyles.formCard}>
+            <View style={baseStyles.form}>
               {/* Email Input */}
-              <View style={styles.inputContainer}>
-                <View style={styles.inputLabelContainer}>
-                  <MaterialIcons name="email" size={20} color="#666666" style={styles.inputIcon} />
-                  <Text style={styles.label}>Email</Text>
+              <View style={baseStyles.inputContainer}>
+                <View style={baseStyles.inputLabelContainer}>
+                  <MaterialIcons name="email" size={20} color="#666666" style={baseStyles.inputIcon} />
+                  <Text style={baseStyles.label}>Email</Text>
                 </View>
                 <TextInput
-                  style={styles.input}
+                  style={baseStyles.input}
                   placeholder="Enter your email"
                   placeholderTextColor="#999999"
                   value={email}
@@ -138,14 +201,14 @@ export function LoginScreen() {
               </View>
 
               {/* Password Input */}
-              <View style={styles.inputContainer}>
-                <View style={styles.inputLabelContainer}>
-                  <MaterialIcons name="lock" size={20} color="#666666" style={styles.inputIcon} />
-                  <Text style={styles.label}>Password</Text>
+              <View style={baseStyles.inputContainer}>
+                <View style={baseStyles.inputLabelContainer}>
+                  <MaterialIcons name="lock" size={20} color="#666666" style={baseStyles.inputIcon} />
+                  <Text style={baseStyles.label}>Password</Text>
                 </View>
-                <View style={styles.passwordWrapper}>
+                <View style={baseStyles.passwordWrapper}>
                   <TextInput
-                    style={styles.passwordInput}
+                    style={baseStyles.passwordInput}
                     placeholder="Enter your password"
                     placeholderTextColor="#999999"
                     value={password}
@@ -156,7 +219,7 @@ export function LoginScreen() {
                   />
                   <TouchableOpacity
                     onPress={() => setShowPassword(!showPassword)}
-                    style={styles.eyeButton}>
+                    style={baseStyles.eyeButton}>
                     <MaterialIcons
                       name={showPassword ? 'visibility' : 'visibility-off'}
                       size={22}
@@ -169,60 +232,72 @@ export function LoginScreen() {
               {/* Forgot Password */}
               <TouchableOpacity
                 onPress={() => navigation.navigate('ForgotPassword' as never)}
-                style={styles.forgotPassword}>
-                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+                style={baseStyles.forgotPassword}>
+                <Text style={[baseStyles.forgotPasswordText, {color: primaryColor}]}>Forgot Password?</Text>
               </TouchableOpacity>
 
               {/* Login Button */}
               <TouchableOpacity
-                style={[styles.primaryButton, {backgroundColor: primaryColor}]}
+                style={[baseStyles.primaryButton, {backgroundColor: primaryColor}]}
                 onPress={handleLogin}
                 disabled={loading}
                 activeOpacity={0.8}>
                 {loading ? (
                   <ActivityIndicator color="#FFFFFF" />
                 ) : (
-                  <Text style={styles.primaryButtonText}>Sign In</Text>
+                  <Text style={baseStyles.primaryButtonText}>Sign In</Text>
                 )}
               </TouchableOpacity>
 
-              {/* Divider */}
-              <View style={styles.divider}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>OR</Text>
-                <View style={styles.dividerLine} />
-              </View>
+              {/* Divider - Only show if social login is available */}
+              {(enabledProviders.includes('google') || enabledProviders.includes('apple')) && (
+                <View style={baseStyles.divider}>
+                  <View style={baseStyles.dividerLine} />
+                  <Text style={baseStyles.dividerText}>OR</Text>
+                  <View style={baseStyles.dividerLine} />
+                </View>
+              )}
 
               {/* Social Login Buttons */}
-              <View style={styles.socialButtonsContainer}>
-                <TouchableOpacity
-                  style={styles.socialButton}
-                  onPress={() => {
-                    Alert.alert('Coming Soon', 'Google login will be available soon');
-                  }}
-                  activeOpacity={0.8}>
-                  <MaterialIcons name="mail" size={20} color="#000000" />
-                  <Text style={styles.socialButtonText}>Google</Text>
-                </TouchableOpacity>
+              {(enabledProviders.includes('google') || enabledProviders.includes('apple')) && (
+                <View style={baseStyles.socialButtonsContainer}>
+                  {enabledProviders.includes('google') && (
+                    <TouchableOpacity
+                      style={baseStyles.socialButton}
+                      onPress={handleGoogleLogin}
+                      disabled={socialLoading !== null}
+                      activeOpacity={0.8}>
+                      {socialLoading === 'google' ? (
+                        <ActivityIndicator color="#000000" size="small" />
+                      ) : (
+                        <MaterialIcons name="mail" size={20} color="#000000" />
+                      )}
+                      <Text style={baseStyles.socialButtonText}>Google</Text>
+                    </TouchableOpacity>
+                  )}
 
-                {Platform.OS === 'ios' && (
-                  <TouchableOpacity
-                    style={styles.socialButton}
-                    onPress={() => {
-                      Alert.alert('Coming Soon', 'Apple login will be available soon');
-                    }}
-                    activeOpacity={0.8}>
-                    <MaterialIcons name="apple" size={20} color="#000000" />
-                    <Text style={styles.socialButtonText}>Apple</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
+                  {Platform.OS === 'ios' && enabledProviders.includes('apple') && (
+                    <TouchableOpacity
+                      style={baseStyles.socialButton}
+                      onPress={handleAppleLogin}
+                      disabled={socialLoading !== null}
+                      activeOpacity={0.8}>
+                      {socialLoading === 'apple' ? (
+                        <ActivityIndicator color="#000000" size="small" />
+                      ) : (
+                        <MaterialIcons name="apple" size={20} color="#000000" />
+                      )}
+                      <Text style={baseStyles.socialButtonText}>Apple</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              )}
 
               {/* Sign Up Link */}
-              <View style={styles.signUpContainer}>
-                <Text style={styles.signUpText}>Don't have an account? </Text>
+              <View style={baseStyles.signUpContainer}>
+                <Text style={baseStyles.signUpText}>Don't have an account? </Text>
                 <TouchableOpacity onPress={() => navigation.navigate('Register' as never)}>
-                  <Text style={[styles.signUpLink, {color: primaryColor}]}>Sign Up</Text>
+                  <Text style={[baseStyles.signUpLink, {color: primaryColor}]}>Sign Up</Text>
                 </TouchableOpacity>
               </View>
             </View>

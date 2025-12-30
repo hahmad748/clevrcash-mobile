@@ -52,12 +52,12 @@ class ApiClient {
       {email, password},
     );
     const data = response.data;
-    
+
     // Check if 2FA is required
     if ('requires_2fa' in data && data.requires_2fa) {
       throw new Error('2FA_REQUIRED');
     }
-    
+
     return data as {user: User; token: string; requires_2fa?: boolean};
   }
 
@@ -145,6 +145,23 @@ class ApiClient {
   async getBrand(): Promise<Brand> {
     const response = await apiService.get<ApiResponse<Brand>>('/user/brand');
     return response.data;
+  }
+
+  async getEnabledSocialProviders(): Promise<{
+    providers: string[];
+    configs?: Record<string, any>;
+  }> {
+    try {
+      const response = await apiService.get<ApiResponse<{
+        providers: string[];
+        configs?: Record<string, any>;
+      }>>('/utilities/social-providers');
+      return response.data;
+    } catch (error) {
+      // If endpoint doesn't exist, return empty array (graceful degradation)
+      console.warn('Failed to fetch enabled social providers:', error);
+      return {providers: []};
+    }
   }
 
   async updateUser(data: Partial<User>): Promise<User> {

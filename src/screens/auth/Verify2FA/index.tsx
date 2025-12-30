@@ -18,20 +18,31 @@ import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useTheme} from '../../../contexts/ThemeContext';
 import {useAuth} from '../../../contexts/AuthContext';
 import {useBrand} from '../../../contexts/BrandContext';
-import {styles} from './styles';
+import {getBrandOverlayColor, getBrandColor} from '../../../utils/colorUtils';
+import {styles as baseStyles} from './styles';
+import {StyleSheet} from 'react-native';
 
 export function Verify2FAScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const {colors} = useTheme();
-  const {brand} = useBrand();
+  const {brand, loadBrand} = useBrand();
   const {loginWith2FA} = useAuth();
   const {email, password} = (route.params as any) || {};
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
   const inputRefs = useRef<(TextInput | null)[]>([]);
 
-  const primaryColor = brand?.primary_color || '#4CAF50';
+  const primaryColor = getBrandColor(brand?.primary_color);
+  const overlayColor = getBrandOverlayColor(brand?.primary_color, 0.7);
+  
+  // Dynamic styles with brand colors
+  const dynamicStyles = StyleSheet.create({
+    overlay: {
+      ...baseStyles.overlay,
+      backgroundColor: overlayColor,
+    },
+  });
 
   const handleCodeChange = (text: string, index: number) => {
     // Only allow numbers
@@ -89,6 +100,8 @@ export function Verify2FAScreen() {
     setLoading(true);
     try {
       await loginWith2FA(email, password, fullCode);
+      // Reload brand after successful login
+      await loadBrand();
     } catch (error: any) {
       Alert.alert('Verification Failed', error.message || 'Invalid code');
       // Clear code on error
@@ -114,7 +127,7 @@ export function Verify2FAScreen() {
   const fullCode = code.join('');
 
   return (
-    <View style={styles.container}>
+    <View style={baseStyles.container}>
       <StatusBar barStyle="light-content" />
       {/* Background Image with Overlay */}
       {backgroundSource ? (
@@ -131,49 +144,49 @@ export function Verify2FAScreen() {
       )}
 
       <KeyboardAvoidingView
-        style={styles.keyboardView}
+        style={baseStyles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={baseStyles.scrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
           {/* Logo Section */}
-          <View style={styles.logoSection}>
+          <View style={baseStyles.logoSection}>
             {brand?.logo_url ? (
-              <Image source={{uri: brand.logo_url}} style={styles.logo} resizeMode="contain" />
+              <Image source={{uri: brand.logo_url}} style={baseStyles.logo} resizeMode="contain" />
             ) : (
-              <View style={styles.logoContainer}>
+              <View style={baseStyles.logoContainer}>
                 <Image
                   source={require('../../../assets/images/icon.png')}
-                  style={styles.logo}
+                  style={baseStyles.logo}
                   resizeMode="contain"
                 />
-                <Text style={styles.logoText}>{brand?.display_name || 'CLEVRCASH'}</Text>
+                <Text style={baseStyles.logoText}>{brand?.display_name || 'CLEVRCASH'}</Text>
               </View>
             )}
-            <Text style={styles.welcomeText}>Two-Factor Authentication</Text>
-            <Text style={styles.subtitleText}>Enter the 6-digit code from your authenticator app</Text>
+            <Text style={baseStyles.welcomeText}>Two-Factor Authentication</Text>
+            <Text style={baseStyles.subtitleText}>Enter the 6-digit code from your authenticator app</Text>
           </View>
 
           {/* Form Card */}
-          <View style={styles.formCard}>
-            <View style={styles.form}>
+          <View style={baseStyles.formCard}>
+            <View style={baseStyles.form}>
               {/* Shield Icon */}
-              <View style={styles.shieldContainer}>
+              <View style={baseStyles.shieldContainer}>
                 <MaterialIcons name="verified" size={48} color={primaryColor} />
               </View>
 
               {/* Verification Code Label */}
-              <Text style={styles.codeLabel}>Verification Code</Text>
+              <Text style={baseStyles.codeLabel}>Verification Code</Text>
 
               {/* Segmented Code Input */}
-              <View style={styles.codeInputContainer}>
+              <View style={baseStyles.codeInputContainer}>
                 {code.map((digit, index) => (
                   <TextInput
                     key={index}
                     ref={ref => (inputRefs.current[index] = ref)}
                     style={[
-                      styles.codeDigitInput,
+                      baseStyles.codeDigitInput,
                       {
                         borderColor: digit ? primaryColor : 'rgba(255, 255, 255, 0.3)',
                         backgroundColor: 'rgba(255, 255, 255, 0.5)',
@@ -193,22 +206,22 @@ export function Verify2FAScreen() {
 
               {/* Verify Button */}
               <TouchableOpacity
-                style={[styles.primaryButton, {backgroundColor: primaryColor}]}
+                style={[baseStyles.primaryButton, {backgroundColor: primaryColor}]}
                 onPress={handleVerify}
                 disabled={loading || fullCode.length !== 6}
                 activeOpacity={0.8}>
                 {loading ? (
                   <ActivityIndicator color="#FFFFFF" />
                 ) : (
-                  <Text style={styles.primaryButtonText}>Verify</Text>
+                  <Text style={baseStyles.primaryButtonText}>Verify</Text>
                 )}
               </TouchableOpacity>
 
               {/* Back to Login */}
               <TouchableOpacity
-                style={styles.backButton}
+                style={baseStyles.backButton}
                 onPress={() => navigation.goBack()}>
-                <Text style={[styles.backButtonText, {color: primaryColor}]}>Back to Login</Text>
+                <Text style={[baseStyles.backButtonText, {color: primaryColor}]}>Back to Login</Text>
               </TouchableOpacity>
             </View>
           </View>

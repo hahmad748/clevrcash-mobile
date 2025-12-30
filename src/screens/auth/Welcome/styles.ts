@@ -13,7 +13,8 @@ export const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(46, 125, 50, 0.7)', // Dark green overlay (Green 800 with 70% opacity)
+    // backgroundColor will be set dynamically based on brand colors
+    backgroundColor: 'rgba(46, 125, 50, 0.7)', // Fallback: Dark green overlay (Green 800 with 70% opacity)
   },
   fallbackBackground: {
     backgroundColor: '#ffffff', // Dark green solid color as fallback (Green 800)
@@ -28,6 +29,8 @@ export const styles = StyleSheet.create({
   headerSection: {
     alignItems: 'center',
     marginTop: 60,
+    flex: 1,
+    justifyContent: 'center',
   },
   logoContainer: {
     alignItems: 'center',
@@ -56,18 +59,16 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
     lineHeight: 20,
   },
-  buttonsContainer: {
+  buttonContainer: {
     width: '100%',
-    alignItems: 'center',
-    marginBottom: 40,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 30,
   },
-  primaryButton: {
+  getStartedButton: {
     width: '100%',
     height: 56,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -77,47 +78,10 @@ export const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
   },
-  primaryButtonText: {
+  getStartedButtonText: {
     fontSize: 18,
     fontWeight: '700',
     color: '#FFFFFF',
     letterSpacing: 0.5,
-  },
-  socialButton: {
-    width: '100%',
-    height: 56,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-    paddingHorizontal: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  socialIcon: {
-    width: 24,
-    height: 24,
-    marginRight: 12,
-  },
-  googleIconContainer: {
-    width: 24,
-    height: 24,
-    marginRight: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  socialButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#000000',
-    letterSpacing: 0.3,
   },
 });

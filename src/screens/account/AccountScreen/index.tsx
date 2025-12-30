@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, ScrollView, Image, Platform} from 'react-native';
+import {View, Text, TouchableOpacity, ScrollView, Image, Platform, Alert} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 import {MaterialIcons} from '@react-native-vector-icons/material-icons';
@@ -10,7 +10,7 @@ import {styles} from './styles';
 
 export function AccountScreen() {
   const navigation = useNavigation();
-  const {user} = useAuth();
+  const {user, logout} = useAuth();
   const {colors, isDark, theme} = useTheme();
   const {brand} = useBrand();
 
@@ -65,6 +65,31 @@ export function AccountScreen() {
       onPress: () => navigation.navigate('DisplaySettings' as never),
       rightText: theme === 'system' ? 'System Default' : theme === 'dark' ? 'Dark Mode' : 'Light Mode',
     },
+    {
+      title: 'Logout',
+      icon: 'logout',
+      onPress: () => {
+        Alert.alert(
+          'Logout',
+          'Are you sure you want to logout?',
+          [
+            {
+              text: 'Cancel',
+              style: 'cancel',
+            },
+            {
+              text: 'Logout',
+              style: 'destructive',
+              onPress: async () => {
+                await logout();
+              },
+            },
+          ],
+          {cancelable: true}
+        );
+      },
+      isDestructive: true,
+    },
   ];
 
   return (
@@ -109,39 +134,49 @@ export function AccountScreen() {
         {/* Settings Section */}
         <Text style={[styles.sectionHeader, {color: isDark ? colors.text : '#1A1A1A'}]}>Settings</Text>
         <View style={[styles.settingsCard, {backgroundColor: isDark ? colors.surface : '#FFFFFF'}]}>
-          {settingsOptions.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.settingItem,
-                index < settingsOptions.length - 1 && styles.settingItemBorder,
-                {borderBottomColor: isDark ? colors.border : '#F0F0F0'},
-              ]}
-              onPress={item.onPress}>
-              <View style={styles.settingLeft}>
-                <MaterialIcons 
-                  name={item.icon as any} 
-                  size={22} 
-                  color={isDark ? colors.textSecondary : '#666666'} 
-                />
-                <Text style={[styles.settingTitle, {color: isDark ? colors.text : '#1A1A1A'}]}>
-                  {item.title}
-                </Text>
-              </View>
-              <View style={styles.settingRight}>
-                {item.rightText && (
-                  <Text style={[styles.settingRightText, {color: isDark ? colors.textSecondary : '#666666'}]}>
-                    {item.rightText}
+          {settingsOptions.map((item, index) => {
+            const isDestructive = (item as any).isDestructive;
+            const destructiveColor = '#FF3B30'; // iOS red color
+            
+            return (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.settingItem,
+                  index < settingsOptions.length - 1 && styles.settingItemBorder,
+                  {borderBottomColor: isDark ? colors.border : '#F0F0F0'},
+                ]}
+                onPress={item.onPress}>
+                <View style={styles.settingLeft}>
+                  <MaterialIcons 
+                    name={item.icon as any} 
+                    size={22} 
+                    color={isDestructive ? destructiveColor : (isDark ? colors.textSecondary : '#666666')} 
+                  />
+                  <Text style={[
+                    styles.settingTitle, 
+                    {color: isDestructive ? destructiveColor : (isDark ? colors.text : '#1A1A1A')}
+                  ]}>
+                    {item.title}
                   </Text>
-                )}
-                <MaterialIcons 
-                  name="chevron-right" 
-                  size={24} 
-                  color={isDark ? colors.textSecondary : '#999999'} 
-                />
-              </View>
-            </TouchableOpacity>
-          ))}
+                </View>
+                <View style={styles.settingRight}>
+                  {item.rightText && (
+                    <Text style={[styles.settingRightText, {color: isDark ? colors.textSecondary : '#666666'}]}>
+                      {item.rightText}
+                    </Text>
+                  )}
+                  {!isDestructive && (
+                    <MaterialIcons 
+                      name="chevron-right" 
+                      size={24} 
+                      color={isDark ? colors.textSecondary : '#999999'} 
+                    />
+                  )}
+                </View>
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
         {/* Upgrade to PRO Banner */}

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -18,13 +18,17 @@ import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useAuth} from '../../../contexts/AuthContext';
 import {useTheme} from '../../../contexts/ThemeContext';
 import {useBrand} from '../../../contexts/BrandContext';
-import {styles} from './styles';
+import {getBrandOverlayColor, getBrandColor} from '../../../utils/colorUtils';
+import {styles as baseStyles} from './styles';
+import {StyleSheet} from 'react-native';
+import { apiClient } from '../../../services/apiClient';
+import { socialLoginService } from '../../../services/socialLogin';
 
 export function RegisterScreen() {
   const navigation = useNavigation();
-  const {register} = useAuth();
+  const {register, socialLogin} = useAuth();
   const {colors} = useTheme();
-  const {brand} = useBrand();
+  const {brand, loadBrand} = useBrand();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,8 +36,35 @@ export function RegisterScreen() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false);
+  const [enabledProviders, setEnabledProviders] = useState<string[]>([]);
+  const [socialLoading, setSocialLoading] = useState<string | null>(null);
 
-  const primaryColor = brand?.primary_color || '#4CAF50';
+  const primaryColor = getBrandColor(brand?.primary_color);
+  const overlayColor = getBrandOverlayColor(brand?.primary_color, 0.7);
+  
+  // Dynamic styles with brand colors
+  const dynamicStyles = StyleSheet.create({
+    overlay: {
+      ...baseStyles.overlay,
+      backgroundColor: overlayColor,
+    },
+  });
+
+  // Check enabled social providers on mount
+  useEffect(() => {
+    checkEnabledProviders();
+  }, []);
+
+  const checkEnabledProviders = async () => {
+    try {
+      const response = await apiClient.getEnabledSocialProviders();
+      setEnabledProviders(response.providers || []);
+    } catch (error) {
+      console.error('Failed to check enabled providers:', error);
+      // Don't show any providers if we can't check (security: only show if explicitly enabled)
+      setEnabledProviders([]);
+    }
+  };
 
   const handleRegister = async () => {
     if (!name.trim() || !email.trim() || !password.trim() || !passwordConfirmation.trim()) {
@@ -61,10 +92,42 @@ export function RegisterScreen() {
         default_currency: 'USD',
         language: 'en',
       });
+      // Reload brand after successful registration
+      await loadBrand();
     } catch (error: any) {
       Alert.alert('Registration Failed', error.message || 'Failed to create account');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setSocialLoading('google');
+    try {
+      const result = await socialLoginService.signInWithGoogle();
+      if (result) {
+        await socialLogin(result);
+        await loadBrand();
+      }
+    } catch (error: any) {
+      Alert.alert('Google Sign-In Failed', error.message || 'Unable to sign in with Google');
+    } finally {
+      setSocialLoading(null);
+    }
+  };
+
+  const handleAppleLogin = async () => {
+    setSocialLoading('apple');
+    try {
+      const result = await socialLoginService.signInWithApple();
+      if (result) {
+        await socialLogin(result);
+        await loadBrand();
+      }
+    } catch (error: any) {
+      Alert.alert('Apple Sign-In Failed', error.message || 'Unable to sign in with Apple');
+    } finally {
+      setSocialLoading(null);
     }
   };
 
@@ -81,58 +144,58 @@ export function RegisterScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={baseStyles.container}>
       <StatusBar barStyle="light-content" />
       {/* Background Image with Overlay */}
       {backgroundSource ? (
         <ImageBackground
           source={backgroundSource}
-          style={styles.backgroundImage}
+          style={baseStyles.backgroundImage}
           resizeMode="cover">
-          <View style={styles.overlay} />
+          <View style={dynamicStyles.overlay} />
         </ImageBackground>
       ) : (
-        <View style={[styles.backgroundImage, styles.fallbackBackground]}>
-          <View style={styles.overlay} />
+        <View style={[baseStyles.backgroundImage, baseStyles.fallbackBackground]}>
+          <View style={dynamicStyles.overlay} />
         </View>
       )}
 
       <KeyboardAvoidingView
-        style={styles.keyboardView}
+        style={baseStyles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={baseStyles.scrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
           {/* Logo Section */}
-          <View style={styles.logoSection}>
+          <View style={baseStyles.logoSection}>
             {brand?.logo_url ? (
-              <Image source={{uri: brand.logo_url}} style={styles.logo} resizeMode="contain" />
+              <Image source={{uri: brand.logo_url}} style={baseStyles.logo} resizeMode="contain" />
             ) : (
-              <View style={styles.logoContainer}>
+              <View style={baseStyles.logoContainer}>
                 <Image
                   source={require('../../../assets/images/icon.png')}
-                  style={styles.logo}
+                  style={baseStyles.logo}
                   resizeMode="contain"
                 />
-                <Text style={styles.logoText}>{brand?.display_name || 'CLEVRCASH'}</Text>
+                <Text style={baseStyles.logoText}>{brand?.display_name || 'CLEVRCASH'}</Text>
               </View>
             )}
-            <Text style={styles.welcomeText}>Create Account</Text>
-            <Text style={styles.subtitleText}>Sign up to get started</Text>
+            <Text style={baseStyles.welcomeText}>Create Account</Text>
+            <Text style={baseStyles.subtitleText}>Sign up to get started</Text>
           </View>
 
           {/* Form Card */}
-          <View style={styles.formCard}>
-            <View style={styles.form}>
+          <View style={baseStyles.formCard}>
+            <View style={baseStyles.form}>
               {/* Name Input */}
-              <View style={styles.inputContainer}>
-                <View style={styles.inputLabelContainer}>
-                  <MaterialIcons name="person" size={20} color="#666666" style={styles.inputIcon} />
-                  <Text style={styles.label}>Full Name</Text>
+              <View style={baseStyles.inputContainer}>
+                <View style={baseStyles.inputLabelContainer}>
+                  <MaterialIcons name="person" size={20} color="#666666" style={baseStyles.inputIcon} />
+                  <Text style={baseStyles.label}>Full Name</Text>
                 </View>
                 <TextInput
-                  style={styles.input}
+                  style={baseStyles.input}
                   placeholder="Enter your name"
                   placeholderTextColor="#999999"
                   value={name}
@@ -142,13 +205,13 @@ export function RegisterScreen() {
               </View>
 
               {/* Email Input */}
-              <View style={styles.inputContainer}>
-                <View style={styles.inputLabelContainer}>
-                  <MaterialIcons name="email" size={20} color="#666666" style={styles.inputIcon} />
-                  <Text style={styles.label}>Email</Text>
+              <View style={baseStyles.inputContainer}>
+                <View style={baseStyles.inputLabelContainer}>
+                  <MaterialIcons name="email" size={20} color="#666666" style={baseStyles.inputIcon} />
+                  <Text style={baseStyles.label}>Email</Text>
                 </View>
                 <TextInput
-                  style={styles.input}
+                  style={baseStyles.input}
                   placeholder="Enter your email"
                   placeholderTextColor="#999999"
                   value={email}
@@ -161,14 +224,14 @@ export function RegisterScreen() {
               </View>
 
               {/* Password Input */}
-              <View style={styles.inputContainer}>
-                <View style={styles.inputLabelContainer}>
-                  <MaterialIcons name="lock" size={20} color="#666666" style={styles.inputIcon} />
-                  <Text style={styles.label}>Password</Text>
+              <View style={baseStyles.inputContainer}>
+                <View style={baseStyles.inputLabelContainer}>
+                  <MaterialIcons name="lock" size={20} color="#666666" style={baseStyles.inputIcon} />
+                  <Text style={baseStyles.label}>Password</Text>
                 </View>
-                <View style={styles.passwordWrapper}>
+                <View style={baseStyles.passwordWrapper}>
                   <TextInput
-                    style={styles.passwordInput}
+                    style={baseStyles.passwordInput}
                     placeholder="Enter your password"
                     placeholderTextColor="#999999"
                     value={password}
@@ -179,7 +242,7 @@ export function RegisterScreen() {
                   />
                   <TouchableOpacity
                     onPress={() => setShowPassword(!showPassword)}
-                    style={styles.eyeButton}>
+                    style={baseStyles.eyeButton}>
                     <MaterialIcons
                       name={showPassword ? 'visibility' : 'visibility-off'}
                       size={22}
@@ -190,14 +253,14 @@ export function RegisterScreen() {
               </View>
 
               {/* Confirm Password Input */}
-              <View style={styles.inputContainer}>
-                <View style={styles.inputLabelContainer}>
-                  <MaterialIcons name="lock-outline" size={20} color="#666666" style={styles.inputIcon} />
-                  <Text style={styles.label}>Confirm Password</Text>
+              <View style={baseStyles.inputContainer}>
+                <View style={baseStyles.inputLabelContainer}>
+                  <MaterialIcons name="lock-outline" size={20} color="#666666" style={baseStyles.inputIcon} />
+                  <Text style={baseStyles.label}>Confirm Password</Text>
                 </View>
-                <View style={styles.passwordWrapper}>
+                <View style={baseStyles.passwordWrapper}>
                   <TextInput
-                    style={styles.passwordInput}
+                    style={baseStyles.passwordInput}
                     placeholder="Confirm your password"
                     placeholderTextColor="#999999"
                     value={passwordConfirmation}
@@ -208,7 +271,7 @@ export function RegisterScreen() {
                   />
                   <TouchableOpacity
                     onPress={() => setShowPasswordConfirmation(!showPasswordConfirmation)}
-                    style={styles.eyeButton}>
+                    style={baseStyles.eyeButton}>
                     <MaterialIcons
                       name={showPasswordConfirmation ? 'visibility' : 'visibility-off'}
                       size={22}
@@ -220,22 +283,76 @@ export function RegisterScreen() {
 
               {/* Sign Up Button */}
               <TouchableOpacity
-                style={[styles.primaryButton, {backgroundColor: primaryColor}]}
+                style={[baseStyles.primaryButton, {backgroundColor: primaryColor}]}
                 onPress={handleRegister}
                 disabled={loading}
                 activeOpacity={0.8}>
                 {loading ? (
                   <ActivityIndicator color="#FFFFFF" />
                 ) : (
-                  <Text style={styles.primaryButtonText}>Sign Up</Text>
+                  <Text style={baseStyles.primaryButtonText}>Sign Up</Text>
                 )}
               </TouchableOpacity>
 
+              {/* Divider */}
+              {(enabledProviders.includes('google') || enabledProviders.includes('apple')) && (
+                <>
+                  <View style={baseStyles.divider}>
+                    <View style={baseStyles.dividerLine} />
+                    <Text style={baseStyles.dividerText}>OR</Text>
+                    <View style={baseStyles.dividerLine} />
+                  </View>
+
+                  {/* Social Login Buttons */}
+                  <View style={baseStyles.socialButtonsContainer}>
+                    {enabledProviders.includes('google') && (
+                      <TouchableOpacity
+                        style={[
+                          baseStyles.socialButton,
+                          socialLoading === 'google' && {opacity: 0.6},
+                        ]}
+                        onPress={handleGoogleLogin}
+                        disabled={socialLoading !== null}
+                        activeOpacity={0.8}>
+                        {socialLoading === 'google' ? (
+                          <ActivityIndicator size="small" color="#333333" />
+                        ) : (
+                          <>
+                            <MaterialIcons name="mail" size={20} color="#000000" />
+                            <Text style={baseStyles.socialButtonText}>Google</Text>
+                          </>
+                        )}
+                      </TouchableOpacity>
+                    )}
+
+                    {Platform.OS === 'ios' && enabledProviders.includes('apple') && (
+                      <TouchableOpacity
+                        style={[
+                          baseStyles.socialButton,
+                          socialLoading === 'apple' && {opacity: 0.6},
+                        ]}
+                        onPress={handleAppleLogin}
+                        disabled={socialLoading !== null}
+                        activeOpacity={0.8}>
+                        {socialLoading === 'apple' ? (
+                          <ActivityIndicator size="small" color="#333333" />
+                        ) : (
+                          <>
+                            <MaterialIcons name="apple" size={20} color="#000000" />
+                            <Text style={baseStyles.socialButtonText}>Apple</Text>
+                          </>
+                        )}
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </>
+              )}
+
               {/* Sign In Link */}
-              <View style={styles.signInContainer}>
-                <Text style={styles.signInText}>Already have an account? </Text>
+              <View style={baseStyles.signInContainer}>
+                <Text style={baseStyles.signInText}>Already have an account? </Text>
                 <TouchableOpacity onPress={() => navigation.navigate('Login' as never)}>
-                  <Text style={[styles.signInLink, {color: primaryColor}]}>Sign In</Text>
+                  <Text style={[baseStyles.signInLink, {color: primaryColor}]}>Sign In</Text>
                 </TouchableOpacity>
               </View>
             </View>

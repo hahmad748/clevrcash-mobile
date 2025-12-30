@@ -4,6 +4,7 @@ const TOKEN_KEY = '@clevrcash:token';
 const USER_KEY = '@clevrcash:user';
 const THEME_KEY = '@clevrcash:theme';
 const PENDING_DEEP_LINK_KEY = '@clevrcash:pending_deep_link';
+const BRAND_KEY = '@clevrcash:brand';
 
 export const getToken = async (): Promise<string | null> => {
   try {
@@ -91,6 +92,31 @@ export const clearPendingDeepLink = async (): Promise<void> => {
     await AsyncStorage.removeItem(PENDING_DEEP_LINK_KEY);
   } catch (error) {
     console.error('Error clearing pending deep link:', error);
+  }
+};
+
+export const getBrand = async (): Promise<any | null> => {
+  try {
+    const brandJson = await AsyncStorage.getItem(BRAND_KEY);
+    return brandJson ? JSON.parse(brandJson) : null;
+  } catch (error) {
+    return null;
+  }
+};
+
+export const setBrand = async (brand: any): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(BRAND_KEY, JSON.stringify(brand));
+  } catch (error) {
+    console.error('Error saving brand:', error);
+  }
+};
+
+export const removeBrand = async (): Promise<void> => {
+  try {
+    await AsyncStorage.removeItem(BRAND_KEY);
+  } catch (error) {
+    console.error('Error removing brand:', error);
   }
 };
 

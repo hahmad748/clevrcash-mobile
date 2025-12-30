@@ -2,7 +2,7 @@ import React, {createContext, useContext, useState, useEffect} from 'react';
 import type {Brand} from '../types/api';
 import {apiClient} from '../services/apiClient';
 import {defaultBrand} from '../config/brand';
-import {getToken} from '../services/storage';
+import {getToken, getBrand, setBrand as saveBrand, removeBrand} from '../services/storage';
 
 interface BrandContextType {
   brand: Brand | null;
@@ -36,27 +36,64 @@ export function BrandProvider({children}: {children: React.ReactNode}) {
     loadBrand();
   }, []);
 
+  // Reload brand when app comes to foreground (user might have logged in)
+  useEffect(() => {
+    const {AppState} = require('react-native');
+    
+    const handleAppStateChange = (nextAppState: string) => {
+      if (nextAppState === 'active') {
+        // Reload brand when app becomes active (user might have logged in)
+        loadBrand();
+      }
+    };
+    
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    
+    return () => {
+      subscription?.remove();
+    };
+  }, []);
+
   const loadBrand = async () => {
     try {
       setLoading(true);
+      
+      // First, try to load from storage (for faster initial load)
+      const cachedBrand = await getBrand();
+      if (cachedBrand) {
+        setBrand(cachedBrand);
+      }
+      
       // Check if user is authenticated
       const token = await getToken();
       if (token) {
         try {
           const brandData = await apiClient.getBrand();
           setBrand(brandData);
+          // Save to storage for future use
+          await saveBrand(brandData);
         } catch (error) {
           console.error('Failed to load brand from API:', error);
-          // Fallback to default brand
-          setBrand(defaultBrandData);
+          // If we have cached brand, use it, otherwise fallback to default
+          if (cachedBrand) {
+            setBrand(cachedBrand);
+          } else {
+            setBrand(defaultBrandData);
+          }
         }
       } else {
-        // Use default brand when not authenticated
-        setBrand(defaultBrandData);
+        // Use cached brand if available, otherwise default
+        if (cachedBrand) {
+          setBrand(cachedBrand);
+        } else {
+          setBrand(defaultBrandData);
+        }
       }
     } catch (error) {
       console.error('Failed to load brand:', error);
-      setBrand(defaultBrandData);
+      // Try to load from cache as last resort
+      const cachedBrand = await getBrand();
+      setBrand(cachedBrand || defaultBrandData);
     } finally {
       setLoading(false);
     }

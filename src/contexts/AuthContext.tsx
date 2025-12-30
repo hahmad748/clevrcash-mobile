@@ -80,14 +80,6 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
       await setUser(data.user);
       setUserState(data.user);
       setIsAuthenticated(true);
-      
-      // Register device token for push notifications
-      try {
-        const {pushNotificationService} = await import('../services/pushNotifications');
-        await pushNotificationService.registerDeviceToken();
-      } catch (error) {
-        console.error('Failed to register device token:', error);
-      }
     } catch (error: any) {
       // Re-throw 2FA_REQUIRED error so Login screen can handle it
       if (error.message === '2FA_REQUIRED') {
@@ -119,14 +111,6 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
     await setUser(result.user);
     setUserState(result.user);
     setIsAuthenticated(true);
-    
-    // Register device token for push notifications
-    try {
-      const {pushNotificationService} = await import('../services/pushNotifications');
-      await pushNotificationService.registerDeviceToken();
-    } catch (error) {
-      console.error('Failed to register device token:', error);
-    }
   };
 
   const socialLogin = async (data: {
@@ -148,14 +132,6 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
       await apiClient.logout();
     } catch (error) {
       console.error('Logout error:', error);
-    }
-    
-    // Delete device token
-    try {
-      const {pushNotificationService} = await import('../services/pushNotifications');
-      await pushNotificationService.deleteToken();
-    } catch (error) {
-      console.error('Failed to delete device token:', error);
     }
     
     await removeToken();

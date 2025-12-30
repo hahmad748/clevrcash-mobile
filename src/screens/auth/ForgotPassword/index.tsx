@@ -18,7 +18,9 @@ import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useTheme} from '../../../contexts/ThemeContext';
 import {useBrand} from '../../../contexts/BrandContext';
 import {apiClient} from '../../../services/apiClient';
-import {styles} from './styles';
+import {getBrandOverlayColor, getBrandColor} from '../../../utils/colorUtils';
+import {styles as baseStyles} from './styles';
+import {StyleSheet} from 'react-native';
 
 export function ForgotPasswordScreen() {
   const navigation = useNavigation();
@@ -27,7 +29,16 @@ export function ForgotPasswordScreen() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const primaryColor = brand?.primary_color || '#4CAF50';
+  const primaryColor = getBrandColor(brand?.primary_color);
+  const overlayColor = getBrandOverlayColor(brand?.primary_color, 0.7);
+  
+  // Dynamic styles with brand colors
+  const dynamicStyles = StyleSheet.create({
+    overlay: {
+      ...baseStyles.overlay,
+      backgroundColor: overlayColor,
+    },
+  });
 
   const handleSubmit = async () => {
     if (!email.trim()) {
@@ -68,60 +79,60 @@ export function ForgotPasswordScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={baseStyles.container}>
       <StatusBar barStyle="light-content" />
       {/* Background Image with Overlay */}
       {backgroundSource ? (
         <ImageBackground
           source={backgroundSource}
-          style={styles.backgroundImage}
+          style={baseStyles.backgroundImage}
           resizeMode="cover">
-          <View style={styles.overlay} />
+          <View style={dynamicStyles.overlay} />
         </ImageBackground>
       ) : (
-        <View style={[styles.backgroundImage, styles.fallbackBackground]}>
-          <View style={styles.overlay} />
+        <View style={[baseStyles.backgroundImage, baseStyles.fallbackBackground]}>
+          <View style={dynamicStyles.overlay} />
         </View>
       )}
 
       <KeyboardAvoidingView
-        style={styles.keyboardView}
+        style={baseStyles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={baseStyles.scrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
           {/* Logo Section */}
-          <View style={styles.logoSection}>
+          <View style={baseStyles.logoSection}>
             {brand?.logo_url ? (
-              <Image source={{uri: brand.logo_url}} style={styles.logo} resizeMode="contain" />
+              <Image source={{uri: brand.logo_url}} style={baseStyles.logo} resizeMode="contain" />
             ) : (
-              <View style={styles.logoContainer}>
+              <View style={baseStyles.logoContainer}>
                 <Image
                   source={require('../../../assets/images/icon.png')}
-                  style={styles.logo}
+                  style={baseStyles.logo}
                   resizeMode="contain"
                 />
-                <Text style={styles.logoText}>{brand?.display_name || 'CLEVRCASH'}</Text>
+                <Text style={baseStyles.logoText}>{brand?.display_name || 'CLEVRCASH'}</Text>
               </View>
             )}
-            <Text style={styles.welcomeText}>Forgot Password</Text>
-            <Text style={styles.subtitleText}>
+            <Text style={baseStyles.welcomeText}>Forgot Password</Text>
+            <Text style={baseStyles.subtitleText}>
               Enter your email address and we'll send you a link to reset your password.
             </Text>
           </View>
 
           {/* Form Card */}
-          <View style={styles.formCard}>
-            <View style={styles.form}>
+          <View style={baseStyles.formCard}>
+            <View style={baseStyles.form}>
               {/* Email Input */}
-              <View style={styles.inputContainer}>
-                <View style={styles.inputLabelContainer}>
-                  <MaterialIcons name="email" size={20} color="#666666" style={styles.inputIcon} />
-                  <Text style={styles.label}>Email</Text>
+              <View style={baseStyles.inputContainer}>
+                <View style={baseStyles.inputLabelContainer}>
+                  <MaterialIcons name="email" size={20} color="#666666" style={baseStyles.inputIcon} />
+                  <Text style={baseStyles.label}>Email</Text>
                 </View>
                 <TextInput
-                  style={styles.input}
+                  style={baseStyles.input}
                   placeholder="Enter your email"
                   placeholderTextColor="#999999"
                   value={email}
@@ -135,23 +146,23 @@ export function ForgotPasswordScreen() {
 
               {/* Submit Button */}
               <TouchableOpacity
-                style={[styles.primaryButton, {backgroundColor: primaryColor}]}
+                style={[baseStyles.primaryButton, {backgroundColor: primaryColor}]}
                 onPress={handleSubmit}
                 disabled={loading}
                 activeOpacity={0.8}>
                 {loading ? (
                   <ActivityIndicator color="#FFFFFF" />
                 ) : (
-                  <Text style={styles.primaryButtonText}>Send Reset Link</Text>
+                  <Text style={baseStyles.primaryButtonText}>Send Reset Link</Text>
                 )}
               </TouchableOpacity>
 
               {/* Back to Login */}
               <TouchableOpacity
-                style={styles.backButton}
+                style={baseStyles.backButton}
                 onPress={() => navigation.goBack()}>
                 <MaterialIcons name="arrow-back" size={20} color={primaryColor} />
-                <Text style={[styles.backButtonText, {color: primaryColor}]}>
+                <Text style={[baseStyles.backButtonText, {color: primaryColor}]}>
                   Back to Login
                 </Text>
               </TouchableOpacity>

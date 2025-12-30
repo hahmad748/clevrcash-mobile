@@ -11,7 +11,8 @@ export const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(46, 125, 50, 0.7)', // Dark green overlay
+    // backgroundColor will be set dynamically based on brand colors
+    backgroundColor: 'rgba(46, 125, 50, 0.7)', // Fallback: Dark green overlay
   },
   fallbackBackground: {
     backgroundColor: '#FFFFFF',
@@ -130,13 +131,15 @@ export const styles = StyleSheet.create({
   forgotPasswordText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#4CAF50',
+    // color will be set dynamically based on brand colors
+    color: '#4CAF50', // Fallback color
   },
   primaryButton: {
     height: 56,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
