@@ -104,7 +104,7 @@ export function DevicesScreen() {
 
   return (
     <ScrollView
-      style={styles.scrollView}
+      style={[styles.scrollView, {backgroundColor: isDark ? colors.background : '#F5F5F5'}]}
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
       refreshControl={

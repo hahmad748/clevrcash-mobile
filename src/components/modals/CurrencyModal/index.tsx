@@ -18,9 +18,9 @@ export function CurrencyModal({visible, selectedCurrency, onSelect, onClose}: Cu
   const {colors, isDark} = useTheme();
   const {brand} = useBrand();
   const primaryColor = brand?.primary_color || colors.primary;
-  const cardBackground = isDark ? '#1A1F3A' : '#FFFFFF';
-  const textColor = isDark ? '#FFFFFF' : '#1A1A1A';
-  const secondaryTextColor = isDark ? '#B0B0B0' : '#666666';
+  const cardBackground = colors.surface;
+  const textColor = colors.text;
+  const secondaryTextColor = colors.textSecondary;
 
   const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [loading, setLoading] = useState(true);

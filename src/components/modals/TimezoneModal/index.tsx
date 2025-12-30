@@ -15,13 +15,13 @@ interface TimezoneModalProps {
 }
 
 export function TimezoneModal({visible, selectedTimezone, onSelect, onClose}: TimezoneModalProps) {
-  const {colors, isDark} = useTheme();
+  const {colors} = useTheme();
   const {brand} = useBrand();
   const primaryColor = brand?.primary_color || colors.primary;
-  const cardBackground = isDark ? '#1A1F3A' : '#FFFFFF';
-  const textColor = isDark ? '#FFFFFF' : '#1A1A1A';
-  const secondaryTextColor = isDark ? '#B0B0B0' : '#666666';
-  const searchBackground = isDark ? '#252A4A' : '#F5F5F5';
+  const cardBackground = colors.surface;
+  const textColor = colors.text;
+  const secondaryTextColor = colors.textSecondary;
+  const searchBackground = colors.surface;
 
   const [timezones, setTimezones] = useState<Timezone[]>([]);
   const [filteredTimezones, setFilteredTimezones] = useState<Timezone[]>([]);

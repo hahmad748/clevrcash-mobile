@@ -44,9 +44,9 @@ export function TransactionFiltersModal({
   const [selectedFriendId, setSelectedFriendId] = useState<number | undefined>(filters.friend_id);
 
   const primaryColor = brand?.primary_color || colors.primary;
-  const cardBackground = isDark ? '#1A1F3A' : '#FFFFFF';
-  const textColor = isDark ? '#FFFFFF' : '#1A1A1A';
-  const secondaryTextColor = isDark ? '#B0B0B0' : '#666666';
+  const cardBackground = colors.surface;
+  const textColor = colors.text;
+  const secondaryTextColor = colors.textSecondary;
   const selectedBackground = primaryColor + '20';
   const selectedTextColor = primaryColor;
 

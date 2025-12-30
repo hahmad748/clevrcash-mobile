@@ -59,7 +59,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>We need access to your camera to take receipt photos</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string/>
+	<string></string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to select receipt images</string>
 	<key>NSUserTrackingUsageDescription</key>
@@ -105,8 +105,6 @@
 	<string>UIStatusBarStyleLightContent</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>

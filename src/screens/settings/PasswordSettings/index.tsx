@@ -10,13 +10,12 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
 import {useTheme} from '../../../contexts/ThemeContext';
 import {apiClient} from '../../../services/apiClient';
 import {styles} from './styles';
+import {showError} from '../../../utils/flashMessage';
 
 export function PasswordSettingsScreen() {
-  const navigation = useNavigation();
   const {colors} = useTheme();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -70,9 +69,9 @@ export function PasswordSettingsScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={[styles.container, {backgroundColor: colors.background}]}
+      style={[styles.container, {backgroundColor: isDark ? colors.background : '#F5F5F5'}]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+      <ScrollView style={[styles.scrollView,{backgroundColor: isDark ? colors.background : '#F5F5F5'}]} contentContainerStyle={styles.content}>
         <View style={styles.form}>
           <View style={styles.inputContainer}>
             <Text style={[styles.label, {color: colors.text}]}>Current Password *</Text>

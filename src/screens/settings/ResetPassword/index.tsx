@@ -67,7 +67,7 @@ export function ResetPasswordScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.keyboardView}
+      style={[styles.keyboardView,{backgroundColor: isDark ? colors.background : '#F5F5F5'}]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
       <ScrollView

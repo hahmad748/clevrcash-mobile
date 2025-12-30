@@ -293,7 +293,7 @@ export function ProfileSettingsScreen() {
   return (
     <>
       <KeyboardAvoidingView
-        style={styles.keyboardView}
+        style={[styles.keyboardView,{backgroundColor: isDark ? colors.surface : '#FFFFFF'}]}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
         >

@@ -44,13 +44,13 @@ export function SearchFriendsScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const primaryColor = brand?.primary_color || colors.primary;
-  const backgroundColor = isDark ? '#0A0E27' : '#F5F5F5';
-  const cardBackground = isDark ? '#1A1F3A' : '#FFFFFF';
-  const textColor = isDark ? '#FFFFFF' : '#1A1A1A';
-  const secondaryTextColor = isDark ? '#B0B0B0' : '#666666';
-  const searchBackground = isDark ? '#1A1F3A' : '#FFFFFF';
-  const tabBackground = isDark ? '#1A1F3A' : '#FFFFFF';
-  const activeTabBackground = isDark ? '#252A4A' : '#F0F0F0';
+  const backgroundColor = colors.background;
+  const cardBackground = colors.surface;
+  const textColor = colors.text;
+  const secondaryTextColor = colors.textSecondary;
+  const searchBackground = colors.surface;
+  const tabBackground = colors.surface;
+  const activeTabBackground = isDark ? colors.surface + 'CC' : colors.border;
 
   const loadPendingRequests = async () => {
     try {

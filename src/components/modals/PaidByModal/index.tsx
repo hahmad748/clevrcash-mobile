@@ -28,8 +28,8 @@ export function PaidByModal({
   const {colors, isDark} = useTheme();
   const {brand} = useBrand();
   const primaryColor = brand?.primary_color || colors.primary;
-  const cardBackground = isDark ? '#1A1F3A' : '#FFFFFF';
-  const textColor = isDark ? '#FFFFFF' : '#1A1A1A';
+  const cardBackground = colors.surface;
+  const textColor = colors.text;
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>

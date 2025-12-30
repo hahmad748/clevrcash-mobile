@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
   Image,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useTheme} from '../../../contexts/ThemeContext';
 import {useBrand} from '../../../contexts/BrandContext';
@@ -34,6 +34,12 @@ export function DashboardScreen() {
   useEffect(() => {
     loadDashboardData();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadDashboardData();
+    }, [])
+  );
 
   const loadDashboardData = async () => {
     try {
@@ -78,10 +84,10 @@ export function DashboardScreen() {
     );
   }
 
-  const backgroundColor = isDark ? '#0A0E27' : '#F5F5F5';
-  const cardBackground = isDark ? '#1A1F3A' : '#FFFFFF';
-  const textColor = isDark ? '#FFFFFF' : '#1A1A1A';
-  const secondaryTextColor = isDark ? '#B0B0B0' : '#666666';
+  const backgroundColor = colors.background;
+  const cardBackground = colors.surface;
+  const textColor = colors.text;
+  const secondaryTextColor = colors.textSecondary;
 
   return (
     <View style={[styles.container, {backgroundColor}]}>

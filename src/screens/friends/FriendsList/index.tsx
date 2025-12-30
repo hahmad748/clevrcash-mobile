@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
   TextInput,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useTheme} from '../../../contexts/ThemeContext';
 import {useBrand} from '../../../contexts/BrandContext';
@@ -31,12 +31,12 @@ export function FriendsListScreen() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const primaryColor = brand?.primary_color || colors.primary;
-  const defaultCurrency = user?.default_currency || 'USD';
-  const backgroundColor = isDark ? '#0A0E27' : '#F5F5F5';
-  const cardBackground = isDark ? '#1A1F3A' : '#FFFFFF';
-  const textColor = isDark ? '#FFFFFF' : '#1A1A1A';
-  const secondaryTextColor = isDark ? '#B0B0B0' : '#666666';
-  const searchBackground = isDark ? '#1A1F3A' : '#FFFFFF';
+  const defaultCurrency = user?.default_currency || 'AED';
+  const backgroundColor = colors.background;
+  const cardBackground = colors.surface;
+  const textColor = colors.text;
+  const secondaryTextColor = colors.textSecondary;
+  const searchBackground = colors.surface;
 
   useEffect(() => {
     loadFriends();
@@ -53,6 +53,14 @@ export function FriendsListScreen() {
       loadFriends();
     }
   }, [searchQuery]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!searchQuery.trim()) {
+        loadFriends();
+      }
+    }, [searchQuery])
+  );
 
   const loadFriends = async () => {
     try {

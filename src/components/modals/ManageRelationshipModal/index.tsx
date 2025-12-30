@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useTheme} from '../../../contexts/ThemeContext';
-import {useBrand} from '../../../contexts/BrandContext';
 import {apiClient} from '../../../services/apiClient';
 import {styles} from './styles';
 import { showError, showSuccess } from '../../../utils/flashMessage';
@@ -33,18 +32,16 @@ export function ManageRelationshipModal({
   onRemove,
   onBlock,
 }: ManageRelationshipModalProps) {
-  const {colors, isDark} = useTheme();
-  const {brand} = useBrand();
+  const {colors} = useTheme();
   const [loading, setLoading] = useState<string | null>(null);
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState('');
 
-  const primaryColor = brand?.primary_color || colors.primary;
-  const cardBackground = isDark ? '#1A1F3A' : '#FFFFFF';
-  const textColor = isDark ? '#FFFFFF' : '#1A1A1A';
-  const secondaryTextColor = isDark ? '#B0B0B0' : '#666666';
+  const cardBackground = colors.surface;
+  const textColor = colors.text;
+  const secondaryTextColor = colors.textSecondary;
   const dangerColor = '#F44336';
-  const inputBackground = isDark ? '#0A0E27' : '#F5F5F5';
+  const inputBackground = colors.background;
 
   const handleRemove = () => {
     Alert.alert(

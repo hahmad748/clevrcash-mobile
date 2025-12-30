@@ -17,9 +17,9 @@ export function DatePickerModal({visible, selectedDate, onSelect, onClose}: Date
   const {colors, isDark} = useTheme();
   const {brand} = useBrand();
   const primaryColor = brand?.primary_color || colors.primary;
-  const cardBackground = isDark ? '#1A1F3A' : '#FFFFFF';
-  const textColor = isDark ? '#FFFFFF' : '#1A1A1A';
-  const secondaryTextColor = isDark ? '#B0B0B0' : '#666666';
+  const cardBackground = colors.surface;
+  const textColor = colors.text;
+  const secondaryTextColor = colors.textSecondary;
 
   // Parse the selected date string to Date object
   const getDateFromString = (dateStr: string): Date => {
@@ -130,7 +130,7 @@ export function DatePickerModal({visible, selectedDate, onSelect, onClose}: Date
               display="spinner"
               onChange={handleDateChange}
               maximumDate={new Date()}
-              textColor={isDark ? '#FFFFFF' : '#000000'}
+              textColor={colors.text}
               themeVariant={isDark ? 'dark' : 'light'}
             />
             <View style={styles.quickDateButtons}>
