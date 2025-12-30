@@ -13,6 +13,7 @@ import {ThemeProvider, useTheme} from './src/contexts/ThemeContext';
 import {BrandProvider} from './src/contexts/BrandContext';
 import AppNavigator from './src/navigation/AppNavigator';
 import {PushBootstrap} from './src/components/PushBootstrap';
+import FlashMessage from 'react-native-flash-message';
 
 function AppContent() {
   const {isDark} = useTheme();
@@ -33,6 +34,7 @@ function App(): React.JSX.Element {
           <AuthProvider>
             <PushBootstrap />
             <AppContent />
+            <FlashMessage position="top" />
           </AuthProvider>
         </ThemeProvider>
       </BrandProvider>

@@ -52,7 +52,7 @@ import {NotificationPreferencesScreen} from '../screens/settings/NotificationPre
 import {PrivacyScreen} from '../screens/settings/Privacy';
 import {DevicesScreen} from '../screens/settings/Devices';
 import {TwoFactorAuthScreen} from '../screens/settings/TwoFactorAuth';
-import {UpgradeToProScreen} from '../screens/settings/UpgradeToPro';
+// import {UpgradeToProScreen} from '../screens/settings/UpgradeToPro'; // COMMENTED OUT FOR NOW
 import {DrawerContent} from '../components/DrawerContent/index';
 import {CustomTabBar} from '../components/CustomTabBar';
 import {CustomHeader} from '../components/CustomHeader';
@@ -638,14 +638,15 @@ export default function AppNavigator() {
                 headerShown: true
               }}
             />
-            <RootStack.Screen
+            {/* UpgradeToPro Screen - COMMENTED OUT FOR NOW */}
+            {/* <RootStack.Screen
               name="UpgradeToPro"
               component={UpgradeToProScreen}
               options={{
                 header: () => <CustomDetailHeader />,
                 headerShown: true
               }}
-            />
+            /> */}
             {/* Add more modal screens here */}
           </>
         )}

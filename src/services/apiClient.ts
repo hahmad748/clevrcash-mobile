@@ -156,11 +156,27 @@ class ApiClient {
         providers: string[];
         configs?: Record<string, any>;
       }>>('/utilities/social-providers');
-      return response.data;
+      
+      // Ensure we have valid data structure
+      const data = response.data || {};
+      const providers = Array.isArray(data.providers) ? data.providers : [];
+      
+      if (__DEV__) {
+        console.log('[API] Social providers response:', {
+          raw: data,
+          providers,
+          configs: data.configs,
+        });
+      }
+      
+      return {
+        providers: providers.filter(p => typeof p === 'string' && p.length > 0),
+        configs: data.configs || {},
+      };
     } catch (error) {
       // If endpoint doesn't exist, return empty array (graceful degradation)
-      console.warn('Failed to fetch enabled social providers:', error);
-      return {providers: []};
+      console.warn('[API] Failed to fetch enabled social providers:', error);
+      return {providers: [], configs: {}};
     }
   }
 
@@ -207,11 +223,8 @@ class ApiClient {
   }
 
   async uploadAvatar(file: FormData): Promise<User> {
-    const response = await apiService.post<ApiResponse<User>>('/user/avatar', file, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    // Don't set Content-Type header - let the API service handle FormData automatically
+    const response = await apiService.post<ApiResponse<User>>('/user/avatar', file);
     return response.data;
   }
 

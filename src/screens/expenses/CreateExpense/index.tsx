@@ -28,6 +28,7 @@ import {DatePickerModal} from '../../../components/modals/DatePickerModal';
 import {PaidByModal} from '../../../components/modals/PaidByModal';
 import type {User, Category, Currency} from '../../../types/api';
 import {styles} from './styles';
+import { showError, showWarning } from '../../../utils/flashMessage';
 
 
 interface Participant {
@@ -189,7 +190,7 @@ export function CreateExpenseScreen() {
       }
     } catch (error) {
       console.error('Failed to load initial data:', error);
-      Alert.alert('Error', 'Failed to load required data');
+      showError('Error', 'Failed to load required data');
     } finally {
       setLoadingData(false);
     }
@@ -232,7 +233,7 @@ export function CreateExpenseScreen() {
 
   const removeParticipant = (userId: number) => {
     if (userId === user?.id) {
-      Alert.alert('Error', 'You cannot remove yourself from the expense');
+      showError('Error', 'You cannot remove yourself from the expense');
       return;
     }
     setParticipants(prev => prev.filter(p => p.user_id !== userId));
@@ -328,7 +329,7 @@ export function CreateExpenseScreen() {
           return;
         }
         if (response.errorMessage) {
-          Alert.alert('Error', response.errorMessage);
+          showError('Error', response.errorMessage);
           return;
         }
         if (response.assets && response.assets[0]) {
@@ -354,7 +355,7 @@ export function CreateExpenseScreen() {
           return;
         }
         if (response.errorMessage) {
-          Alert.alert('Error', response.errorMessage);
+          showError('Error', response.errorMessage);
           return;
         }
         if (response.assets && response.assets[0]) {
@@ -385,7 +386,7 @@ export function CreateExpenseScreen() {
         // User cancelled
         return;
       }
-      Alert.alert('Error', 'Failed to pick document');
+      showError('Error', 'Failed to pick document');
     }
   };
 
@@ -428,17 +429,17 @@ export function CreateExpenseScreen() {
   const handleSubmit = async () => {
     // Validations
     if (!description.trim()) {
-      Alert.alert('Error', 'Please enter a description');
+      showError('Error', 'Please enter a description');
       return;
     }
 
     if (!amount || parseFloat(amount) <= 0) {
-      Alert.alert('Error', 'Please enter a valid amount greater than 0');
+      showError('Error', 'Please enter a valid amount greater than 0');
       return;
     }
 
     if (participants.length < 2) {
-      Alert.alert('Error', 'Please add at least one other participant');
+      showError('Error', 'Please add at least one other participant');
       return;
     }
 
@@ -446,28 +447,28 @@ export function CreateExpenseScreen() {
     if (splitType === 'exact') {
       const total = participants.reduce((sum, p) => sum + (p.amount || 0), 0);
       if (Math.abs(total - parseFloat(amount)) > 0.01) {
-        Alert.alert('Error', 'Exact amounts must equal the total amount');
+        showError('Error', 'Exact amounts must equal the total amount');
         return;
       }
     } else if (splitType === 'percentage') {
       const total = participants.reduce((sum, p) => sum + (p.percentage || 0), 0);
       if (Math.abs(total - 100) > 0.01) {
-        Alert.alert('Error', 'Percentages must equal 100%');
+        showError('Error', 'Percentages must equal 100%');
         return;
       }
     } else if (splitType === 'reimbursement') {
       if (!reimbursedUserId) {
-        Alert.alert('Error', 'Please select who is being reimbursed');
+        showError('Error', 'Please select who is being reimbursed');
         return;
       }
     } else if (splitType === 'itemized') {
       if (items.length === 0) {
-        Alert.alert('Error', 'Please add at least one item');
+        showError('Error', 'Please add at least one item');
         return;
       }
       const hasInvalidItems = items.some(item => !item.name.trim() || item.amount <= 0);
       if (hasInvalidItems) {
-        Alert.alert('Error', 'Please fill in all item names and amounts');
+        showError('Error', 'Please fill in all item names and amounts');
         return;
       }
     }
@@ -544,7 +545,7 @@ export function CreateExpenseScreen() {
         } catch (error: any) {
           console.error('Failed to upload receipt:', error);
           // Don't block navigation if receipt upload fails
-          Alert.alert('Warning', 'Expense created but receipt upload failed');
+          showWarning('Warning', 'Expense created but receipt upload failed');
         }
       }
 
@@ -552,7 +553,7 @@ export function CreateExpenseScreen() {
       resetForm();
       navigation.goBack();
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to create expense');
+      showError('Error', error.message || 'Failed to create expense');
     } finally {
       setLoading(false);
     }

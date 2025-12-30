@@ -54,7 +54,7 @@ export function EditGroupScreen() {
       setShowDescription(!!data.description);
     } catch (error) {
       console.error('Failed to load group:', error);
-      Alert.alert('Error', 'Failed to load group details');
+      showError('Error', 'Failed to load group details');
     } finally {
       setLoading(false);
     }
@@ -62,7 +62,7 @@ export function EditGroupScreen() {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert('Error', 'Please enter a group name');
+      showError('Error', 'Please enter a group name');
       return;
     }
 
@@ -80,7 +80,7 @@ export function EditGroupScreen() {
         },
       ]);
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to update group');
+      showError('Error', error.message || 'Failed to update group');
     } finally {
       setSaving(false);
     }

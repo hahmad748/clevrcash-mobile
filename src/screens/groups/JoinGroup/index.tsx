@@ -23,7 +23,7 @@ export function JoinGroupScreen() {
 
   const handleJoin = async () => {
     if (!inviteCode.trim()) {
-      Alert.alert('Error', 'Please enter an invite code');
+      showError('Error', 'Please enter an invite code');
       return;
     }
 
@@ -41,7 +41,7 @@ export function JoinGroupScreen() {
         },
       ]);
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to join group');
+      showError('Error', error.message || 'Failed to join group');
     } finally {
       setLoading(false);
     }

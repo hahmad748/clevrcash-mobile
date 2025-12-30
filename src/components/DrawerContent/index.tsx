@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, Image, Platform} from 'react-native';
+import {View, Text, TouchableOpacity, Image, Linking, Alert} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {DrawerContentScrollView} from '@react-navigation/drawer';
 import {BlurView} from '@react-native-community/blur';
@@ -19,18 +19,27 @@ export function DrawerContent(props: any) {
   const primaryColor = brand?.primary_color || colors.primary;
   const backgroundColor = isDark ? '#0A0E27' : '#F5F5F5';
 
-  const menuItems = [
+  const menuItems: Array<{
+    label: string;
+    icon: string;
+    screen?: string;
+    tabScreen?: string;
+    action?: string;
+    url?: string;
+    isDirectNavigation?: boolean;
+  }> = [
     {label: 'Home', icon: 'home', screen: 'MainTabs', tabScreen: 'Home'},
     {label: 'Groups', icon: 'groups', screen: 'MainTabs', tabScreen: 'Groups'},
     {label: 'Friends', icon: 'people', screen: 'MainTabs', tabScreen: 'Friends'},
     {label: 'Transactions', icon: 'account-balance-wallet', screen: 'MainTabs', tabScreen: 'Transactions'},
     {label: 'Add Expense', icon: 'add-circle-outline', screen: 'MainTabs', tabScreen: 'Expenses', action: 'CreateExpense'},
-    {label: 'Settings', icon: 'settings', screen: 'Settings'},
-    {label: 'Help Center', icon: 'help-outline', screen: 'Help'},
-    {label: 'Notifications', icon: 'notifications', screen: 'Notifications'},
+    {label: 'Settings', icon: 'settings', screen: 'ProfileSettings', isDirectNavigation: true},
+    {label: 'Help Center', icon: 'help-outline', action: 'openUrl', url: 'https://clevrcash.com/faq'},
+    {label: 'Notifications', icon: 'notifications', action: 'comingSoon'},
   ];
 
-  const isActive = (screen: string, tabScreen?: string) => {
+  const isActive = (screen: string | undefined, tabScreen?: string) => {
+    if (!screen) return false;
     const currentRoute = state?.routes[state?.index];
     if (tabScreen) {
       return (
@@ -42,6 +51,33 @@ export function DrawerContent(props: any) {
   };
 
   const handleMenuPress = (item: typeof menuItems[0]) => {
+    // Handle special actions
+    if (item.action === 'comingSoon') {
+      Alert.alert('Coming Soon', 'This feature will be available soon!');
+      navigation.closeDrawer();
+      return;
+    }
+
+    if (item.action === 'openUrl') {
+      const url = item.url || '';
+      if (url) {
+        Linking.openURL(url).catch(err => {
+          console.error('Failed to open URL:', err);
+          Alert.alert('Error', 'Failed to open link');
+        });
+      }
+      navigation.closeDrawer();
+      return;
+    }
+
+    // Handle direct navigation (like ProfileSettings)
+    if (item.isDirectNavigation && item.screen) {
+      navigation.navigate(item.screen as never);
+      navigation.closeDrawer();
+      return;
+    }
+
+    // Handle tab navigation with action
     if (item.action && item.tabScreen) {
       navigation.dispatch(
         CommonActions.navigate({
@@ -63,7 +99,7 @@ export function DrawerContent(props: any) {
           },
         }),
       );
-    } else {
+    } else if (item.screen) {
       navigation.navigate(item.screen as never);
     }
     navigation.closeDrawer();
@@ -137,7 +173,7 @@ export function DrawerContent(props: any) {
                       name={item.icon as any}
                       size={20}
                       color={active 
-                        ? (isDark ? primaryColor : primaryColor)
+                        ? primaryColor
                         : (isDark ? '#FFFFFF' : '#1A1A1A')}
                       style={styles.menuIcon}
                     />

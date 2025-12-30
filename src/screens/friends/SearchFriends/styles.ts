@@ -5,6 +5,14 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  headerBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 100, // Enough to cover status bar and header area
+    zIndex: -1, // Behind everything
+  },
   scrollView: {
     flex: 1,
   },
@@ -14,11 +22,45 @@ export const styles = StyleSheet.create({
     paddingBottom: TOTAL_TAB_BAR_HEIGHT + 20,
   },
   pageHeader: {
-    marginBottom: 24,
+    
   },
   pageTitle: {
     fontSize: 28,
     fontWeight: '700',
+    marginBottom: 12,
+  },
+  infoContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginTop: 8,
+    paddingHorizontal: 4,
+  },
+  infoIcon: {
+    marginRight: 8,
+    marginTop: 2,
+  },
+  infoText: {
+    flex: 1,
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  centeredInfoContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 40,
+    paddingVertical: 60,
+    minHeight: 300,
+  },
+  emptyIcon: {
+    marginBottom: 16,
+    opacity: 0.5,
+  },
+  noResultsText: {
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 12,
   },
   globalSearchContainer: {
     flexDirection: 'row',
@@ -207,5 +249,97 @@ export const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '600',
+  },
+  // Main Tabs
+  mainTabs: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  mainTab: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginHorizontal: 4,
+    gap: 8,
+  },
+  mainTabText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  // Pending Tab Styles
+  pendingContainer: {
+    flex: 1,
+  },
+  pendingTabs: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  pendingTab: {
+    flex: 1,
+    paddingVertical: 16,
+    alignItems: 'center',
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+  },
+  pendingTabText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  pendingListContent: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: TOTAL_TAB_BAR_HEIGHT + 20,
+  },
+  pendingActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  acceptButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  acceptButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  declineButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  declineButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  pendingText: {
+    fontSize: 14,
+    fontWeight: '500',
+    paddingHorizontal: 12,
+  },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyContainer: {
+    paddingVertical: 40,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 16,
+  },
+  emptyListContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
   },
 });

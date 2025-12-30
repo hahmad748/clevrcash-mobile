@@ -37,7 +37,7 @@ export function CreateGroupScreen() {
 
   const handleSubmit = async () => {
     if (!name.trim()) {
-      Alert.alert('Error', 'Please enter a group name');
+      showError('Error', 'Please enter a group name');
       return;
     }
 
@@ -59,7 +59,7 @@ export function CreateGroupScreen() {
         },
       ]);
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to create group');
+      showError('Error', error.message || 'Failed to create group');
     } finally {
       setLoading(false);
     }

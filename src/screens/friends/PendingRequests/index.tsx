@@ -13,6 +13,7 @@ import {useTheme} from '../../../contexts/ThemeContext';
 import {apiClient} from '../../../services/apiClient';
 import type {Friendship} from '../../../types/api';
 import {styles} from './styles';
+import { showError, showSuccess } from '../../../utils/flashMessage';
 
 export function PendingRequestsScreen() {
   const navigation = useNavigation();
@@ -48,10 +49,10 @@ export function PendingRequestsScreen() {
     try {
       const friendId = activeTab === 'received' ? friendship.user_id : friendship.friend_id;
       await apiClient.acceptFriendRequest(friendId);
-      Alert.alert('Success', 'Friend request accepted');
+      showSuccess('Success', 'Friend request accepted');
       await loadRequests();
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to accept request');
+      showError('Error', error.message || 'Failed to accept request');
     }
   };
 
@@ -59,10 +60,10 @@ export function PendingRequestsScreen() {
     try {
       const friendId = activeTab === 'received' ? friendship.user_id : friendship.friend_id;
       await apiClient.declineFriendRequest(friendId);
-      Alert.alert('Success', 'Friend request declined');
+      showSuccess('Success', 'Friend request declined');
       await loadRequests();
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to decline request');
+      showError('Error', error.message || 'Failed to decline request');
     }
   };
 

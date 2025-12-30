@@ -16,6 +16,7 @@ import {useAuth} from '../../../contexts/AuthContext';
 import {apiClient} from '../../../services/apiClient';
 import type {Group, Balance, Transaction} from '../../../types/api';
 import {styles} from './styles';
+import { showError, showSuccess } from '../../../utils/flashMessage';
 
 export function GroupDetailScreen() {
   const route = useRoute();
@@ -79,7 +80,7 @@ export function GroupDetailScreen() {
       setUsersMap(users);
     } catch (error) {
       console.error('Failed to load group:', error);
-      Alert.alert('Error', 'Failed to load group details');
+      showError('Error', 'Failed to load group details');
     } finally {
       setLoading(false);
     }
@@ -478,9 +479,9 @@ export function GroupDetailScreen() {
                     onPress={async () => {
                       try {
                         await apiClient.remindGroup(groupId);
-                        Alert.alert('Success', 'Reminder sent to all group members');
+                        showSuccess('Success', 'Reminder sent to all group members');
                       } catch (error: any) {
-                        Alert.alert('Error', error.message || 'Failed to send reminder');
+                        showError('Error', error.message || 'Failed to send reminder');
                       }
                     }}>
                     <MaterialIcons name="notifications" size={18} color={primaryColor} />

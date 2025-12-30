@@ -7,6 +7,7 @@ import {useBrand} from '../../../contexts/BrandContext';
 import {apiClient} from '../../../services/apiClient';
 import type {NotificationPreferences} from '../../../types/api';
 import {styles} from './styles';
+import { showError, showSuccess } from '../../../utils/flashMessage';
 
 interface NotificationPreference {
   key: string;
@@ -45,7 +46,7 @@ export function NotificationPreferencesScreen() {
       }
     } catch (error: any) {
       console.error('Failed to load notification preferences:', error);
-      Alert.alert('Error', 'Failed to load notification preferences');
+      showError('Error', 'Failed to load notification preferences');
       // Fallback to user object if API call fails
       if (user?.notification_preferences) {
         setPreferences(user.notification_preferences);
@@ -82,9 +83,9 @@ export function NotificationPreferencesScreen() {
       });
       // Refresh user data to get updated preferences
       await refreshUser();
-      Alert.alert('Success', 'Notification preferences updated successfully');
+      showSuccess('Success', 'Notification preferences updated successfully');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to update preferences');
+      showError('Error', error.message || 'Failed to update preferences');
     } finally {
       setSaving(false);
     }

@@ -14,7 +14,7 @@ import DeviceInfo from 'react-native-device-info';
 // Update this to your machine's IP address for real device testing
 // Find your IP: macOS/Linux: `ipconfig getifaddr en0` or `ifconfig | grep "inet "`
 // Windows: `ipconfig` (look for IPv4 Address)
-const DEV_API_HOST = '192.168.70.33'; 
+const DEV_API_HOST = '192.168.0.143'; 
 
 // Cache for device type detection
 let isSimulatorCache: boolean | null = null;
@@ -49,15 +49,15 @@ export async function getAPIBaseURL(): Promise<string> {
       return 'http://localhost:8000/api/v1';
     }
   } else {
-    return 'https://api.clevrcash.com/api/v1';
+    return 'https://clevrcash.com/api/v1';
   }
 }
 
 // For backward compatibility - will be updated on first API call
 // Default to localhost for initial load (works for simulator)
-export let API_BASE_URL = __DEV__ 
-  ? 'http://localhost:8000/api/v1'
-  : 'https://api.clevrcash.com/api/v1';
+//   ? 'http://localhost:8000/api/v1'
+//   : 'https://clevrcash.com/api/v1';
+export let API_BASE_URL = "https://clevrcash.com/api/v1"; 
 
 // Initialize the base URL asynchronously
 getAPIBaseURL().then(url => {

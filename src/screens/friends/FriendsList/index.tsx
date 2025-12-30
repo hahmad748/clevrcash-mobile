@@ -15,7 +15,7 @@ import {useBrand} from '../../../contexts/BrandContext';
 import {useAuth} from '../../../contexts/AuthContext';
 import {apiClient} from '../../../services/apiClient';
 import {ScreenWrapper} from '../../../components/ScreenWrapper';
-import type {User, FriendBalance} from '../../../types/api';
+import type {User, FriendBalance, Friendship} from '../../../types/api';
 import {styles} from './styles';
 
 export function FriendsListScreen() {
@@ -25,6 +25,7 @@ export function FriendsListScreen() {
   const {user} = useAuth();
   const [friends, setFriends] = useState<User[]>([]);
   const [friendBalances, setFriendBalances] = useState<FriendBalance[]>([]);
+  const [pendingRequests, setPendingRequests] = useState<Friendship[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -201,6 +202,84 @@ export function FriendsListScreen() {
           contentContainerStyle={styles.listContent}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={primaryColor} />
+          }
+          ListHeaderComponent={
+            !searchQuery.trim() && pendingRequests.length > 0 ? (
+              <View style={styles.pendingSection}>
+                <Text style={[styles.sectionTitle, {color: textColor}]}>Pending Requests</Text>
+                {pendingRequests.map(request => {
+                  const otherUser = request.user_id === user?.id ? request.friend : request.user;
+                  const isReceived = request.user_id !== user?.id;
+                  if (!otherUser) return null;
+                  
+                  return (
+                    <View key={request.id} style={[styles.pendingCard, {backgroundColor: cardBackground}]}>
+                      <View style={styles.friendLeft}>
+                        <View style={[styles.friendAvatar, {backgroundColor: primaryColor + '30'}]}>
+                          <Text style={[styles.friendAvatarText, {color: primaryColor}]}>
+                            {otherUser.name.charAt(0).toUpperCase()}
+                          </Text>
+                        </View>
+                        <View style={styles.friendInfo}>
+                          <Text style={[styles.friendName, {color: textColor}]} numberOfLines={1}>
+                            {otherUser.name}
+                          </Text>
+                          <Text style={[styles.friendEmail, {color: secondaryTextColor}]} numberOfLines={1}>
+                            {isReceived ? 'Sent you a request' : 'Request sent'}
+                          </Text>
+                        </View>
+                      </View>
+                      {isReceived ? (
+                        <View style={styles.pendingActions}>
+                          <TouchableOpacity
+                            style={[styles.acceptButton, {backgroundColor: primaryColor}]}
+                            onPress={async () => {
+                              try {
+                                await apiClient.acceptFriendRequest(otherUser.id);
+                                showSuccess('Friend request accepted');
+                                await loadFriends();
+                              } catch (error: any) {
+                                console.error('Failed to accept request:', error);
+                                showError('Failed to accept request', error.message);
+                              }
+                            }}>
+                            <Text style={styles.acceptButtonText}>Accept</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={[styles.declineButton, {backgroundColor: colors.error || '#F44336'}]}
+                            onPress={async () => {
+                              try {
+                                await apiClient.declineFriendRequest(otherUser.id);
+                                await loadFriends();
+                              } catch (error: any) {
+                                console.error('Failed to decline request:', error);
+                              }
+                            }}>
+                            <Text style={styles.declineButtonText}>Decline</Text>
+                          </TouchableOpacity>
+                        </View>
+                      ) : (
+                        <TouchableOpacity
+                          style={[styles.cancelButton, {borderColor: secondaryTextColor}]}
+                          onPress={async () => {
+                            try {
+                              await apiClient.declineFriendRequest(otherUser.id);
+                              showSuccess('Friend request cancelled');
+                              await loadFriends();
+                            } catch (error: any) {
+                              console.error('Failed to cancel request:', error);
+                              showError('Failed to cancel request', error.message);
+                            }
+                          }}>
+                          <Text style={[styles.cancelButtonText, {color: secondaryTextColor}]}>Cancel</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  );
+                })}
+                <Text style={[styles.sectionTitle, {color: textColor, marginTop: 24}]}>Friends</Text>
+              </View>
+            ) : null
           }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>

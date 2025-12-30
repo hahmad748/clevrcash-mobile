@@ -7,7 +7,10 @@ import {useTheme} from '../../../contexts/ThemeContext';
 import {useAuth} from '../../../contexts/AuthContext';
 import {useBrand} from '../../../contexts/BrandContext';
 import {apiClient} from '../../../services/apiClient';
+import {CurrencyModal} from '../../../components/modals/CurrencyModal';
+import {TimezoneModal} from '../../../components/modals/TimezoneModal';
 import {styles} from './styles';
+import { showError, showSuccess } from '../../../utils/flashMessage';
 
 export function ProfileSettingsScreen() {
   const {colors, isDark} = useTheme();
@@ -15,9 +18,13 @@ export function ProfileSettingsScreen() {
   const {brand} = useBrand();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [defaultCurrency, setDefaultCurrency] = useState('');
+  const [timezone, setTimezone] = useState('');
   const [loading, setLoading] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
+  const [showCurrencyModal, setShowCurrencyModal] = useState(false);
+  const [showTimezoneModal, setShowTimezoneModal] = useState(false);
 
   const primaryColor = brand?.primary_color || colors.primary;
 
@@ -25,6 +32,8 @@ export function ProfileSettingsScreen() {
     if (user) {
       setName(user.name || '');
       setPhone(user.phone || '');
+      setDefaultCurrency(user.default_currency || '');
+      setTimezone(user.timezone || '');
       setAvatarUri(user.avatar || null);
     }
   }, [user]);
@@ -39,13 +48,18 @@ export function ProfileSettingsScreen() {
 
     const callback = (response: ImagePickerResponse) => {
       if (response.didCancel || response.errorCode) {
+        if (response.errorMessage) {
+          showError('Error', response.errorMessage);
+        }
         return;
       }
 
       if (response.assets && response.assets[0]) {
         const asset = response.assets[0];
         if (asset.uri) {
-          uploadAvatar(asset.uri);
+          uploadAvatar(asset.uri, asset.fileName, asset.type);
+        } else {
+          showError('Error', 'Failed to get image URI');
         }
       }
     };
@@ -85,22 +99,144 @@ export function ProfileSettingsScreen() {
     }
   };
 
-  const uploadAvatar = async (uri: string) => {
+  const uploadAvatar = async (uri: string, fileName?: string, mimeType?: string) => {
+    if (!uri || uri.trim().length === 0) {
+      showError('Error', 'Invalid image URI');
+      return;
+    }
+
     setUploadingAvatar(true);
     try {
+      // Ensure proper URI format for both platforms
+      let fileUri = uri;
+      if (Platform.OS === 'android' && !uri.startsWith('file://')) {
+        fileUri = `file://${uri}`;
+      } else if (Platform.OS === 'ios') {
+        // For iOS, keep the URI as-is (it may or may not have file://)
+        fileUri = uri;
+      }
+
+      // Determine MIME type
+      let imageType = mimeType || 'image/jpeg';
+      if (fileName) {
+        const extension = fileName.split('.').pop()?.toLowerCase();
+        if (extension === 'png') {
+          imageType = 'image/png';
+        } else if (extension === 'jpg' || extension === 'jpeg') {
+          imageType = 'image/jpeg';
+        }
+      }
+
+      // Generate file name - ensure it's never empty
+      let imageName = fileName?.trim() || '';
+      
+      // If no filename or empty, generate one
+      if (!imageName || imageName.length === 0) {
+        // Try to extract filename from URI
+        const uriParts = uri.split('/');
+        const lastPart = uriParts[uriParts.length - 1];
+        if (lastPart && lastPart.includes('.')) {
+          imageName = lastPart;
+        } else {
+          // Extract extension from URI if possible
+          const uriExtension = uri.split('.').pop()?.toLowerCase();
+          const extension = (uriExtension && ['jpg', 'jpeg', 'png'].includes(uriExtension)) 
+            ? uriExtension 
+            : 'jpg';
+          imageName = `avatar_${Date.now()}.${extension}`;
+        }
+      }
+
+      // Ensure name has a valid extension
+      if (!imageName.includes('.')) {
+        imageName = `${imageName}.jpg`;
+      }
+
+      // Final validation - ensure name is never empty
+      if (!imageName || imageName.trim().length === 0) {
+        imageName = `avatar_${Date.now()}.jpg`;
+      }
+
+      // Always generate a unique filename with timestamp to ensure it's never empty
+      // Extract extension from current imageName, URI, or default to jpg
+      let extension = 'jpg';
+      
+      // Try to get extension from provided filename
+      if (imageName && imageName.includes('.')) {
+        const ext = imageName.split('.').pop()?.toLowerCase();
+        if (ext && ['jpg', 'jpeg', 'png'].includes(ext)) {
+          extension = ext;
+        }
+      }
+      
+      // If still no extension, try to get from URI
+      if (extension === 'jpg' && uri.includes('.')) {
+        const uriExt = uri.split('.').pop()?.toLowerCase();
+        if (uriExt && ['jpg', 'jpeg', 'png'].includes(uriExt)) {
+          extension = uriExt === 'jpeg' ? 'jpg' : uriExt;
+        }
+      }
+      
+      // Generate a guaranteed unique filename with timestamp and random suffix
+      // Format: avatar_TIMESTAMP_RANDOM.jpg
+      // This ensures Laravel's getClientOriginalExtension() will always have a value
+      const timestamp = Date.now();
+      const randomSuffix = Math.random().toString(36).substring(2, 8);
+      imageName = `avatar_${timestamp}_${randomSuffix}.${extension}`;
+
+      // Final validation - this should never fail now
+      if (!imageName || imageName.length === 0 || !imageName.includes('.')) {
+        imageName = `avatar_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.jpg`;
+      }
+      
+      // Ensure minimum length
+      if (imageName.length < 15) {
+        imageName = `avatar_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.jpg`;
+      }
+
+      console.log('Uploading avatar:', { 
+        originalUri: uri, 
+        fileUri, 
+        imageName, 
+        imageType,
+        fileNameParam: fileName,
+        mimeTypeParam: mimeType,
+        imageNameLength: imageName.length,
+        imageNameValid: imageName && imageName.length > 0 && imageName.includes('.')
+      });
+
       const formData = new FormData();
-      formData.append('avatar', {
-        uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
-        type: 'image/jpeg',
-        name: 'avatar.jpg',
-      } as any);
+      
+      // React Native FormData format for file upload
+      // Ensure all properties are set correctly
+      const fileData = {
+        uri: fileUri,
+        type: imageType,
+        name: imageName,
+      };
+      
+      // Verify the fileData before appending
+      if (!fileData.name || fileData.name.length === 0) {
+        throw new Error(`Invalid filename: "${fileData.name}"`);
+      }
+      
+      formData.append('avatar', fileData as any);
+      
+      console.log('FormData appended with fileData:', {
+        hasUri: !!fileData.uri,
+        hasType: !!fileData.type,
+        hasName: !!fileData.name,
+        nameLength: fileData.name?.length || 0,
+        name: fileData.name
+      });
 
       const updatedUser = await apiClient.uploadAvatar(formData);
       setAvatarUri(updatedUser.avatar || null);
       await refreshUser();
-      Alert.alert('Success', 'Avatar updated successfully');
+      showSuccess('Success', 'Avatar updated successfully');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to upload avatar');
+      console.error('Avatar upload error:', error);
+      showError('Error', error.message || 'Failed to upload avatar');
     } finally {
       setUploadingAvatar(false);
     }
@@ -108,7 +244,7 @@ export function ProfileSettingsScreen() {
 
   const handleSaveProfile = async () => {
     if (!name.trim()) {
-      Alert.alert('Error', 'Please enter your name');
+      showError('Error', 'Please enter your name');
       return;
     }
 
@@ -117,11 +253,13 @@ export function ProfileSettingsScreen() {
       await apiClient.updateAccount({
         name: name.trim(),
         phone: phone.trim() || undefined,
+        default_currency: defaultCurrency || undefined,
+        timezone: timezone || undefined,
       });
       await refreshUser();
-      Alert.alert('Success', 'Profile updated successfully');
+      showSuccess('Success', 'Profile updated successfully');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to update profile');
+      showError('Error', error.message || 'Failed to update profile');
     } finally {
       setLoading(false);
     }
@@ -144,7 +282,7 @@ export function ProfileSettingsScreen() {
                 'Your data removal request has been submitted. You will receive a confirmation email shortly.',
               );
             } catch (error: any) {
-              Alert.alert('Error', error.message || 'Failed to submit request');
+              showError('Error', error.message || 'Failed to submit request');
             }
           },
         },
@@ -153,7 +291,7 @@ export function ProfileSettingsScreen() {
   };
 
   return (
-    
+    <>
       <KeyboardAvoidingView
         style={styles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -268,6 +406,60 @@ export function ProfileSettingsScreen() {
               </Text>
             </View>
 
+            {/* Default Currency Selection */}
+            <View style={styles.inputSection}>
+              <View style={styles.inputLabelRow}>
+                <MaterialIcons 
+                  name="attach-money" 
+                  size={18} 
+                  color={isDark ? colors.textSecondary : '#666666'} 
+                />
+                <Text style={[styles.inputLabel, {color: isDark ? colors.textSecondary : '#666666'}]}>
+                  Default Currency
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={[styles.selectableInputContainer, {borderColor: isDark ? colors.border : '#E0E0E0', backgroundColor: isDark ? colors.background : '#FAFAFA'}]}
+                onPress={() => setShowCurrencyModal(true)}
+                activeOpacity={0.7}>
+                <Text style={[styles.selectableInputText, {color: defaultCurrency ? (isDark ? colors.text : '#1A1A1A') : (isDark ? colors.textSecondary : '#999999')}]}>
+                  {defaultCurrency || 'Select currency'}
+                </Text>
+                <MaterialIcons name="chevron-right" size={20} color={isDark ? colors.textSecondary : '#999999'} />
+              </TouchableOpacity>
+              <Text style={[styles.inputHint, {color: isDark ? colors.textSecondary : '#666666'}]}>
+                This currency will be used as default for new expenses
+              </Text>
+            </View>
+
+            {/* Timezone Selection */}
+            <View style={styles.inputSection}>
+              <View style={styles.inputLabelRow}>
+                <MaterialIcons 
+                  name="schedule" 
+                  size={18} 
+                  color={isDark ? colors.textSecondary : '#666666'} 
+                />
+                <Text style={[styles.inputLabel, {color: isDark ? colors.textSecondary : '#666666'}]}>
+                  Timezone
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={[styles.selectableInputContainer, {borderColor: isDark ? colors.border : '#E0E0E0', backgroundColor: isDark ? colors.background : '#FAFAFA'}]}
+                onPress={() => setShowTimezoneModal(true)}
+                activeOpacity={0.7}>
+                <Text 
+                  style={[styles.selectableInputText, {color: timezone ? (isDark ? colors.text : '#1A1A1A') : (isDark ? colors.textSecondary : '#999999')}]}
+                  numberOfLines={1}>
+                  {timezone ? timezone.replace(/_/g, ' ') : 'Select timezone'}
+                </Text>
+                <MaterialIcons name="chevron-right" size={20} color={isDark ? colors.textSecondary : '#999999'} />
+              </TouchableOpacity>
+              <Text style={[styles.inputHint, {color: isDark ? colors.textSecondary : '#666666'}]}>
+                Your local timezone for date and time display
+              </Text>
+            </View>
+
             {/* Save Button */}
             <TouchableOpacity
               style={[styles.saveButton, {backgroundColor: primaryColor}]}
@@ -309,6 +501,22 @@ export function ProfileSettingsScreen() {
 
         </ScrollView>
       </KeyboardAvoidingView>
-    
+
+      {/* Currency Modal */}
+      <CurrencyModal
+        visible={showCurrencyModal}
+        selectedCurrency={defaultCurrency}
+        onSelect={setDefaultCurrency}
+        onClose={() => setShowCurrencyModal(false)}
+      />
+
+      {/* Timezone Modal */}
+      <TimezoneModal
+        visible={showTimezoneModal}
+        selectedTimezone={timezone}
+        onSelect={setTimezone}
+        onClose={() => setShowTimezoneModal(false)}
+      />
+    </>
   );
 }

@@ -24,6 +24,7 @@ import {PaymentMethodModal} from '../../../components/modals/PaymentMethodModal'
 import {FromToModal} from '../../../components/modals/FromToModal';
 import type {Group, Balance, User} from '../../../types/api';
 import {styles} from './styles';
+import { showError, showSuccess } from '../../../utils/flashMessage';
 
 export function SettleUpGroupScreen() {
   const route = useRoute();
@@ -148,7 +149,7 @@ export function SettleUpGroupScreen() {
       }
     } catch (error) {
       console.error('Failed to load group data:', error);
-      Alert.alert('Error', 'Failed to load group data');
+      showError('Error', 'Failed to load group data');
     } finally {
       setLoading(false);
     }
@@ -196,7 +197,7 @@ export function SettleUpGroupScreen() {
       (response: ImagePickerResponse) => {
         if (response.didCancel) return;
         if (response.errorMessage) {
-          Alert.alert('Error', response.errorMessage);
+          showError('Error', response.errorMessage);
           return;
         }
         if (response.assets && response.assets[0]) {
@@ -220,7 +221,7 @@ export function SettleUpGroupScreen() {
       (response: ImagePickerResponse) => {
         if (response.didCancel) return;
         if (response.errorMessage) {
-          Alert.alert('Error', response.errorMessage);
+          showError('Error', response.errorMessage);
           return;
         }
         if (response.assets && response.assets[0]) {
@@ -250,7 +251,7 @@ export function SettleUpGroupScreen() {
       if (DocumentPicker.isCancel(err)) {
         return;
       }
-      Alert.alert('Error', 'Failed to pick document');
+      showError('Error', 'Failed to pick document');
     }
   };
 
@@ -281,15 +282,15 @@ export function SettleUpGroupScreen() {
 
   const handleSettle = async () => {
     if (!fromUserId || !toUserId) {
-      Alert.alert('Error', 'Please select who paid and who received');
+      showError('Error', 'Please select who paid and who received');
       return;
     }
     if (!amount || parseFloat(amount) <= 0) {
-      Alert.alert('Error', 'Please enter a valid amount');
+      showError('Error', 'Please enter a valid amount');
       return;
     }
     if (fromUserId === toUserId) {
-      Alert.alert('Error', 'From and To users must be different');
+      showError('Error', 'From and To users must be different');
       return;
     }
 
@@ -332,9 +333,9 @@ export function SettleUpGroupScreen() {
 
       resetForm();
       navigation.goBack();
-      Alert.alert('Success', 'Payment recorded successfully');
+      showSuccess('Success', 'Payment recorded successfully');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to record payment');
+      showError('Error', error.message || 'Failed to record payment');
     } finally {
       setSettling(false);
     }

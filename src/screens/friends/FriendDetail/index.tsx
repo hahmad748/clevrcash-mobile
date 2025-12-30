@@ -17,6 +17,7 @@ import {apiClient} from '../../../services/apiClient';
 import {ManageRelationshipModal} from '../../../components/modals/ManageRelationshipModal';
 import type {User, FriendBalance, Transaction, Group} from '../../../types/api';
 import {styles} from './styles';
+import { showError, showSuccess } from '../../../utils/flashMessage';
 
 export function FriendDetailScreen() {
   const route = useRoute();
@@ -58,7 +59,7 @@ export function FriendDetailScreen() {
       setSharedGroups(sharedGroupsData);
     } catch (error) {
       console.error('Failed to load friend data:', error);
-      Alert.alert('Error', 'Failed to load friend details');
+      showError('Error', 'Failed to load friend details');
     } finally {
       setLoading(false);
     }
@@ -94,9 +95,9 @@ export function FriendDetailScreen() {
   const handleRemind = async () => {
     try {
       await apiClient.remindFriend(friendId);
-      Alert.alert('Success', 'Reminder sent successfully');
+      showSuccess('Success', 'Reminder sent successfully');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to send reminder');
+      showError('Error', error.message || 'Failed to send reminder');
     }
   };
 

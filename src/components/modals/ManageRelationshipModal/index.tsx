@@ -14,6 +14,7 @@ import {useTheme} from '../../../contexts/ThemeContext';
 import {useBrand} from '../../../contexts/BrandContext';
 import {apiClient} from '../../../services/apiClient';
 import {styles} from './styles';
+import { showError, showSuccess } from '../../../utils/flashMessage';
 
 interface ManageRelationshipModalProps {
   visible: boolean;
@@ -58,11 +59,11 @@ export function ManageRelationshipModal({
             try {
               setLoading('remove');
               await apiClient.removeFriend(friendId);
-              Alert.alert('Success', `${friendName} has been removed from your friend list.`);
+              showSuccess('Success', `${friendName} has been removed from your friend list.`);
               onRemove();
               onClose();
             } catch (error: any) {
-              Alert.alert('Error', error.message || 'Failed to remove friend');
+              showError('Error', error.message || 'Failed to remove friend');
             } finally {
               setLoading(null);
             }
@@ -85,11 +86,11 @@ export function ManageRelationshipModal({
             try {
               setLoading('block');
               await apiClient.blockFriend(friendId);
-              Alert.alert('Success', `${friendName} has been blocked.`);
+              showSuccess('Success', `${friendName} has been blocked.`);
               onBlock();
               onClose();
             } catch (error: any) {
-              Alert.alert('Error', error.message || 'Failed to block user');
+              showError('Error', error.message || 'Failed to block user');
             } finally {
               setLoading(null);
             }
@@ -105,18 +106,18 @@ export function ManageRelationshipModal({
 
   const submitReport = async () => {
     if (!reportReason.trim()) {
-      Alert.alert('Error', 'Please provide a reason for reporting');
+      showError('Error', 'Please provide a reason for reporting');
       return;
     }
     try {
       setLoading('report');
       await apiClient.reportFriend(friendId, reportReason.trim());
-      Alert.alert('Success', 'User has been reported. Our team will review your report.');
+      showSuccess('Success', 'User has been reported. Our team will review your report.');
       setReportReason('');
       setShowReportModal(false);
       onClose();
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to report user');
+      showError('Error', error.message || 'Failed to report user');
     } finally {
       setLoading(null);
     }

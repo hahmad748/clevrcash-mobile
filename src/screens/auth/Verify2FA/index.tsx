@@ -21,6 +21,7 @@ import {useBrand} from '../../../contexts/BrandContext';
 import {getBrandOverlayColor, getBrandColor} from '../../../utils/colorUtils';
 import {styles as baseStyles} from './styles';
 import {StyleSheet} from 'react-native';
+import { showError } from '../../../utils/flashMessage';
 
 export function Verify2FAScreen() {
   const navigation = useNavigation();
@@ -87,12 +88,12 @@ export function Verify2FAScreen() {
   const handleVerify = async () => {
     const fullCode = code.join('');
     if (fullCode.length !== 6) {
-      Alert.alert('Error', 'Please enter a valid 6-digit code');
+      showError('Error', 'Please enter a valid 6-digit code');
       return;
     }
 
     if (!email || !password) {
-      Alert.alert('Error', 'Missing credentials');
+      showError('Error', 'Missing credentials');
       navigation.goBack();
       return;
     }
@@ -103,7 +104,7 @@ export function Verify2FAScreen() {
       // Reload brand after successful login
       await loadBrand();
     } catch (error: any) {
-      Alert.alert('Verification Failed', error.message || 'Invalid code');
+      showError('Verification Failed', error.message || 'Invalid code');
       // Clear code on error
       setCode(['', '', '', '', '', '']);
       inputRefs.current[0]?.focus();
@@ -133,13 +134,13 @@ export function Verify2FAScreen() {
       {backgroundSource ? (
         <ImageBackground
           source={backgroundSource}
-          style={styles.backgroundImage}
+          style={baseStyles.backgroundImage}
           resizeMode="cover">
-          <View style={styles.overlay} />
+          <View style={dynamicStyles.overlay} />
         </ImageBackground>
       ) : (
-        <View style={[styles.backgroundImage, styles.fallbackBackground]}>
-          <View style={styles.overlay} />
+        <View style={[baseStyles.backgroundImage, baseStyles.fallbackBackground]}>
+          <View style={dynamicStyles.overlay} />
         </View>
       )}
 

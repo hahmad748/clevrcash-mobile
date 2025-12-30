@@ -23,6 +23,7 @@ import {socialLoginService} from '../../../services/socialLogin';
 import {apiClient} from '../../../services/apiClient';
 import {styles as baseStyles} from './styles';
 import {StyleSheet} from 'react-native';
+import { showError } from '../../../utils/flashMessage';
 
 export function LoginScreen() {
   const navigation = useNavigation();
@@ -35,6 +36,7 @@ export function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [enabledProviders, setEnabledProviders] = useState<string[]>([]);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
+  const [checkingProviders, setCheckingProviders] = useState(true);
 
   const primaryColor = getBrandColor(brand?.primary_color);
   const overlayColor = getBrandOverlayColor(brand?.primary_color, 0.7);
@@ -53,19 +55,37 @@ export function LoginScreen() {
   }, []);
 
   const checkEnabledProviders = async () => {
+    setCheckingProviders(true);
     try {
       const response = await apiClient.getEnabledSocialProviders();
-      setEnabledProviders(response.providers || []);
+      const providers = Array.isArray(response.providers) ? response.providers : [];
+      
+      // Filter to only valid provider strings and normalize to lowercase
+      const validProviders = providers
+        .filter(p => typeof p === 'string' && p.length > 0)
+        .map(p => p.toLowerCase().trim());
+      
+      console.log('[Login] Enabled social providers:', {
+        raw: providers,
+        filtered: validProviders,
+        hasGoogle: validProviders.includes('google'),
+        hasApple: validProviders.includes('apple'),
+      });
+      
+      // Only set providers that are explicitly in the array
+      setEnabledProviders(validProviders);
     } catch (error) {
-      console.error('Failed to check enabled providers:', error);
+      console.error('[Login] Failed to check enabled providers:', error);
       // Don't show any providers if we can't check (security: only show if explicitly enabled)
       setEnabledProviders([]);
+    } finally {
+      setCheckingProviders(false);
     }
   };
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
-      Alert.alert('Error', 'Please enter both email and password');
+      showError('Error', 'Please enter both email and password');
       return;
     }
 
@@ -87,7 +107,7 @@ export function LoginScreen() {
           password: password.trim(),
         } as never);
       } else {
-        Alert.alert('Login Failed', error.message || 'Invalid credentials');
+        showError('Login Failed', error.message || 'Invalid credentials');
       }
     } finally {
       setLoading(false);
@@ -101,9 +121,22 @@ export function LoginScreen() {
       if (result) {
         await socialLogin(result);
         await loadBrand();
+        // Navigate to Main after successful login
+        // Use a small delay to ensure navigation state is updated
+        setTimeout(() => {
+          try {
+            navigation.reset({
+              index: 0,
+              routes: [{name: 'Main' as never}],
+            });
+          } catch (navError) {
+            console.error('Navigation error after Google login:', navError);
+            // Fallback: navigation will happen automatically via AppNavigator re-render
+          }
+        }, 100);
       }
     } catch (error: any) {
-      Alert.alert('Google Sign-In Failed', error.message || 'Unable to sign in with Google');
+      showError('Google Sign-In Failed', error.message || 'Unable to sign in with Google');
     } finally {
       setSocialLoading(null);
     }
@@ -116,9 +149,22 @@ export function LoginScreen() {
       if (result) {
         await socialLogin(result);
         await loadBrand();
+        // Navigate to Main after successful login
+        // Use a small delay to ensure navigation state is updated
+        setTimeout(() => {
+          try {
+            navigation.reset({
+              index: 0,
+              routes: [{name: 'Main' as never}],
+            });
+          } catch (navError) {
+            console.error('Navigation error after Apple login:', navError);
+            // Fallback: navigation will happen automatically via AppNavigator re-render
+          }
+        }, 100);
       }
     } catch (error: any) {
-      Alert.alert('Apple Sign-In Failed', error.message || 'Unable to sign in with Apple');
+      showError('Apple Sign-In Failed', error.message || 'Unable to sign in with Apple');
     } finally {
       setSocialLoading(null);
     }
@@ -249,8 +295,8 @@ export function LoginScreen() {
                 )}
               </TouchableOpacity>
 
-              {/* Divider - Only show if social login is available */}
-              {(enabledProviders.includes('google') || enabledProviders.includes('apple')) && (
+              {/* Divider - Only show if social login is available and not checking */}
+              {!checkingProviders && enabledProviders.length > 0 && (
                 <View style={baseStyles.divider}>
                   <View style={baseStyles.dividerLine} />
                   <Text style={baseStyles.dividerText}>OR</Text>
@@ -258,8 +304,8 @@ export function LoginScreen() {
                 </View>
               )}
 
-              {/* Social Login Buttons */}
-              {(enabledProviders.includes('google') || enabledProviders.includes('apple')) && (
+              {/* Social Login Buttons - Only show if providers are enabled and not checking */}
+              {!checkingProviders && enabledProviders.length > 0 && (
                 <View style={baseStyles.socialButtonsContainer}>
                   {enabledProviders.includes('google') && (
                     <TouchableOpacity

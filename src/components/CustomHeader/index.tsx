@@ -1,10 +1,8 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, TouchableOpacity, Platform, StatusBar} from 'react-native';
+import {View, Text, TouchableOpacity, StatusBar, Alert} from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useTheme} from '../../contexts/ThemeContext';
-import {useBrand} from '../../contexts/BrandContext';
-import {apiClient} from '../../services/apiClient';
 import {styles} from './styles';
 
 interface CustomHeaderProps {
@@ -27,10 +25,7 @@ export function CustomHeader({
   const navigation = useNavigation();
   const route = useRoute();
   const {colors, isDark} = useTheme();
-  const {brand} = useBrand();
   const [unreadCount, setUnreadCount] = useState(0);
-
-  const primaryColor = brand?.primary_color || colors.primary;
   const headerBackground = backgroundColor || (isDark ? colors.surface : '#FFFFFF');
   const textColor = backgroundColor ? '#FFFFFF' : (isDark ? colors.text : '#1A1A1A');
   const iconColor = backgroundColor ? '#FFFFFF' : (isDark ? colors.text : '#1A1A1A');
@@ -53,7 +48,7 @@ export function CustomHeader({
   };
 
   const handleNotificationsPress = () => {
-    navigation.navigate('Notifications' as never);
+    Alert.alert('Coming Soon', 'Notifications feature will be available soon!');
   };
 
   // Determine if we should show drawer or back button
@@ -74,9 +69,10 @@ export function CustomHeader({
       navigation.goBack();
     }
   };
+  const bgColor = isDark ? '#0A0E27' : '#F5F5F5';
 
   return (
-    <>
+    <View style={{backgroundColor: bgColor}}>
       <StatusBar
         barStyle={backgroundColor ? 'light-content' : (isDark ? 'light-content' : 'dark-content')}
         backgroundColor={headerBackground}
@@ -151,6 +147,6 @@ export function CustomHeader({
           </View>
         </View>
       </View>
-    </>
+    </View>
   );
 }

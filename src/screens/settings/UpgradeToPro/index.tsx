@@ -43,7 +43,7 @@ export function UpgradeToProScreen() {
       // Get auth token
       const token = await getToken();
       if (!token) {
-        Alert.alert('Error', 'Please log in to upgrade to PRO');
+        showError('Error', 'Please log in to upgrade to PRO');
         navigation.goBack();
         return;
       }
@@ -60,7 +60,7 @@ export function UpgradeToProScreen() {
         setWebViewUrl(url);
       }
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to load upgrade page');
+      showError('Error', error.message || 'Failed to load upgrade page');
       navigation.goBack();
     }
   };
@@ -151,7 +151,7 @@ export function UpgradeToProScreen() {
         onError={(syntheticEvent) => {
           const {nativeEvent} = syntheticEvent;
           console.error('WebView error: ', nativeEvent);
-          Alert.alert('Error', 'Failed to load upgrade page. Please try again.');
+          showError('Error', 'Failed to load upgrade page. Please try again.');
         }}
         injectedJavaScript={injectAuthScript()}
         javaScriptEnabled={true}

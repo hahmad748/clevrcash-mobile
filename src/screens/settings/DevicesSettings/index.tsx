@@ -12,6 +12,7 @@ import {useTheme} from '../../../contexts/ThemeContext';
 import {apiClient} from '../../../services/apiClient';
 import type {Device} from '../../../types/api';
 import {styles} from './styles';
+import { showError, showSuccess } from '../../../utils/flashMessage';
 
 export function DevicesSettingsScreen() {
   const {colors} = useTheme();
@@ -53,10 +54,10 @@ export function DevicesSettingsScreen() {
           onPress: async () => {
             try {
               await apiClient.revokeDevice(device.id);
-              Alert.alert('Success', 'Device access revoked');
+              showSuccess('Success', 'Device access revoked');
               await loadDevices();
             } catch (error: any) {
-              Alert.alert('Error', error.message || 'Failed to revoke device');
+              showError('Error', error.message || 'Failed to revoke device');
             }
           },
         },
@@ -76,10 +77,10 @@ export function DevicesSettingsScreen() {
           onPress: async () => {
             try {
               await apiClient.revokeAllDevices();
-              Alert.alert('Success', 'All devices revoked');
+              showSuccess('Success', 'All devices revoked');
               await loadDevices();
             } catch (error: any) {
-              Alert.alert('Error', error.message || 'Failed to revoke devices');
+              showError('Error', error.message || 'Failed to revoke devices');
             }
           },
         },

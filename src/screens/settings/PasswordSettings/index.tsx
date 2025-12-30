@@ -25,22 +25,22 @@ export function PasswordSettingsScreen() {
 
   const handleSave = async () => {
     if (!currentPassword.trim()) {
-      Alert.alert('Error', 'Please enter your current password');
+      showError('Error', 'Please enter your current password');
       return;
     }
 
     if (!newPassword.trim()) {
-      Alert.alert('Error', 'Please enter a new password');
+      showError('Error', 'Please enter a new password');
       return;
     }
 
     if (newPassword.length < 8) {
-      Alert.alert('Error', 'Password must be at least 8 characters long');
+      showError('Error', 'Password must be at least 8 characters long');
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      Alert.alert('Error', 'New passwords do not match');
+      showError('Error', 'New passwords do not match');
       return;
     }
 
@@ -62,7 +62,7 @@ export function PasswordSettingsScreen() {
         },
       ]);
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to change password');
+      showError('Error', error.message || 'Failed to change password');
     } finally {
       setSaving(false);
     }

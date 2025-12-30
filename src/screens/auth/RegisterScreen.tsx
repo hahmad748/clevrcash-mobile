@@ -10,6 +10,7 @@ import {
 import {useAuth} from '../../contexts/AuthContext';
 import {useTheme} from '../../contexts/ThemeContext';
 import {getBrandConfig} from '../../config/brand';
+import { showError } from '../../utils/flashMessage';
 
 export default function RegisterScreen({navigation}: any) {
   const [name, setName] = useState('');
@@ -23,12 +24,12 @@ export default function RegisterScreen({navigation}: any) {
 
   const handleRegister = async () => {
     if (!name || !email || !password || !passwordConfirmation) {
-      Alert.alert('Error', 'Please fill in all fields');
+      showError('Error', 'Please fill in all fields');
       return;
     }
 
     if (password !== passwordConfirmation) {
-      Alert.alert('Error', 'Passwords do not match');
+      showError('Error', 'Passwords do not match');
       return;
     }
 
@@ -36,7 +37,7 @@ export default function RegisterScreen({navigation}: any) {
     try {
       await register({name, email, password, password_confirmation: passwordConfirmation});
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Registration failed');
+      showError('Error', error.message || 'Registration failed');
     } finally {
       setLoading(false);
     }

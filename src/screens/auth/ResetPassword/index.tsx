@@ -13,6 +13,7 @@ import {useRoute, useNavigation} from '@react-navigation/native';
 import {useTheme} from '../../../contexts/ThemeContext';
 import {apiClient} from '../../../services/apiClient';
 import {styles} from './styles';
+import { showError, showSuccess } from '../../../utils/flashMessage';
 
 export function ResetPasswordScreen() {
   const route = useRoute();
@@ -25,22 +26,22 @@ export function ResetPasswordScreen() {
 
   const handleReset = async () => {
     if (!password.trim()) {
-      Alert.alert('Error', 'Please enter a new password');
+      showError("Error", 'Please enter a new password');
       return;
     }
 
     if (password.length < 8) {
-      Alert.alert('Error', 'Password must be at least 8 characters long');
+      showError("Error", 'Password must be at least 8 characters long');
       return;
     }
 
     if (password !== passwordConfirmation) {
-      Alert.alert('Error', 'Passwords do not match');
+      showError("Error", 'Passwords do not match');
       return;
     }
 
     if (!token) {
-      Alert.alert('Error', 'Invalid reset token. Please request a new password reset link.');
+      showError("Error", 'Invalid reset token. Please request a new password reset link.');
       return;
     }
 
@@ -52,14 +53,10 @@ export function ResetPasswordScreen() {
         password,
         password_confirmation: passwordConfirmation,
       });
-      Alert.alert('Success', 'Your password has been reset successfully', [
-        {
-          text: 'OK',
-          onPress: () => navigation.navigate('Login' as never),
-        },
-      ]);
+      showSuccess('Success', 'Your password has been reset successfully');
+      navigation.navigate('Login' as never)
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to reset password. The link may have expired.');
+      showError("Error", error.message || 'Failed to reset password. The link may have expired.');
     } finally {
       setLoading(false);
     }

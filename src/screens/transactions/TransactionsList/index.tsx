@@ -20,6 +20,7 @@ import {ScreenWrapper} from '../../../components/ScreenWrapper';
 import {TransactionFiltersModal} from '../../../components/modals/TransactionFiltersModal';
 import type {Transaction, TransactionFilters} from '../../../types/api';
 import {styles} from './styles';
+import { showError, showSuccess } from '../../../utils/flashMessage';
 
 export function TransactionsListScreen() {
   const navigation = useNavigation();
@@ -153,9 +154,9 @@ export function TransactionsListScreen() {
               try {
                 await apiClient.deleteExpense(String(expense.id));
                 setTransactions(prev => prev.filter(t => t.id !== transaction.id));
-                Alert.alert('Success', 'Expense deleted successfully');
+                showSuccess('Success', 'Expense deleted successfully');
               } catch (error: any) {
-                Alert.alert('Error', error.message || 'Failed to delete expense');
+                showError('Error', error.message || 'Failed to delete expense');
               }
             },
           },

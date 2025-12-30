@@ -123,7 +123,7 @@ export function DashboardScreen() {
               </View>
               <TouchableOpacity
                 style={[styles.addFriendButton, {backgroundColor: primaryColor}]}
-                onPress={() => navigation.navigate('InviteFriend' as never)}>
+                onPress={() => navigation.navigate('SearchFriends' as never)}>
                 <Text style={styles.addFriendText}>+ Friends</Text>
               </TouchableOpacity>
             </View>

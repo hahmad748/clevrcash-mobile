@@ -17,6 +17,7 @@ import {useAuth} from '../../../contexts/AuthContext';
 import {useBrand} from '../../../contexts/BrandContext';
 import {apiClient} from '../../../services/apiClient';
 import {styles} from './styles';
+import { showError, showSuccess } from '../../../utils/flashMessage';
 
 type SetupStep = 'initial' | 'qr_code' | 'verification' | 'backup_codes';
 
@@ -51,7 +52,7 @@ export function TwoFactorAuthScreen() {
       setSecret(result.secret);
       setSetupStep('qr_code');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to initialize 2FA');
+      showError('Error', error.message || 'Failed to initialize 2FA');
     } finally {
       setLoading(false);
     }
@@ -59,7 +60,7 @@ export function TwoFactorAuthScreen() {
 
   const handleVerifyCode = async () => {
     if (!verificationCode.trim() || verificationCode.length !== 6) {
-      Alert.alert('Error', 'Please enter a valid 6-digit code');
+      showError('Error', 'Please enter a valid 6-digit code');
       return;
     }
 
@@ -71,7 +72,7 @@ export function TwoFactorAuthScreen() {
       await refreshUser();
       setIsEnabled(true);
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Invalid verification code');
+      showError('Error', error.message || 'Invalid verification code');
     } finally {
       setVerifying(false);
     }
@@ -83,7 +84,7 @@ export function TwoFactorAuthScreen() {
     setSecret(null);
     setVerificationCode('');
     setBackupCodes([]);
-    Alert.alert('Success', 'Two-factor authentication has been enabled successfully');
+    showSuccess('Success', 'Two-factor authentication has been enabled successfully');
   };
 
   const handleDisable2FA = () => {
@@ -101,9 +102,9 @@ export function TwoFactorAuthScreen() {
               await apiClient.disable2FA('');
               await refreshUser();
               setIsEnabled(false);
-              Alert.alert('Success', 'Two-factor authentication has been disabled');
+              showSuccess('Success', 'Two-factor authentication has been disabled');
             } catch (error: any) {
-              Alert.alert('Error', error.message || 'Failed to disable 2FA');
+              showError('Error', error.message || 'Failed to disable 2FA');
             } finally {
               setDisabling(false);
             }

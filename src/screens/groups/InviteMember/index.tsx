@@ -45,7 +45,7 @@ export function InviteMemberScreen() {
       setGroup(data);
     } catch (error) {
       console.error('Failed to load group:', error);
-      Alert.alert('Error', 'Failed to load group details');
+      showError('Error', 'Failed to load group details');
     } finally {
       setLoadingGroup(false);
     }
@@ -53,13 +53,13 @@ export function InviteMemberScreen() {
 
   const handleInvite = async () => {
     if (!email.trim()) {
-      Alert.alert('Error', 'Please enter an email address');
+      showError('Error', 'Please enter an email address');
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
-      Alert.alert('Error', 'Please enter a valid email address');
+      showError('Error', 'Please enter a valid email address');
       return;
     }
 
@@ -80,7 +80,7 @@ export function InviteMemberScreen() {
         ],
       );
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to send invitation');
+      showError('Error', error.message || 'Failed to send invitation');
     } finally {
       setLoading(false);
     }

@@ -204,7 +204,8 @@ class SocialLoginService {
       }
 
       // Check if Apple Sign-In is available on this device
-      const isAvailable = await appleAuth.isSupported();
+      // Note: isSupported is a boolean property, not a function
+      const isAvailable = appleAuth.isSupported;
       if (!isAvailable) {
         Alert.alert(
           'Apple Sign-In Not Available',
@@ -212,23 +213,29 @@ class SocialLoginService {
         );
         return null;
       }
-
-      // Map requested scopes from backend config
-      // As per the FAQ of react-native-apple-authentication, the name should come first
-      // See: https://github.com/invertase/react-native-apple-authentication#faqs
+      
       const requestedScopesArray = appleConfig.requested_scopes || ['name', 'email'];
-      const requestedScopes = requestedScopesArray.map((scope: string) => {
-        const scopeMap: Record<string, any> = {
-          'email': appleAuth.Scope.EMAIL,
-          'name': appleAuth.Scope.FULL_NAME,
-        };
+      const scopeMap: Record<string, any> = {
+        'email': appleAuth.Scope.EMAIL,
+        'name': appleAuth.Scope.FULL_NAME,
+      };
+      
+      // Map scopes and ensure FULL_NAME comes first (as per Firebase documentation)
+      const mappedScopes = requestedScopesArray.map((scope: string) => {
         return scopeMap[scope.toLowerCase()] || appleAuth.Scope.EMAIL;
       });
+      
+      // Ensure FULL_NAME is first if both scopes are present
+      const hasFullName = mappedScopes.includes(appleAuth.Scope.FULL_NAME);
+      const hasEmail = mappedScopes.includes(appleAuth.Scope.EMAIL);
+      const requestedScopes = hasFullName && hasEmail
+        ? [appleAuth.Scope.FULL_NAME, appleAuth.Scope.EMAIL]
+        : mappedScopes;
 
       // Start the sign-in request (following official docs)
       const appleAuthRequestResponse = await appleAuth.performRequest({
         requestedOperation: appleAuth.Operation.LOGIN,
-        requestedScopes: requestedScopes,
+        requestedScopes: requestedScopes
       });
 
       // Ensure Apple returned a user identityToken (following official docs)
@@ -252,7 +259,8 @@ class SocialLoginService {
       const token = await firebaseUser.getIdToken();
 
       // Get default name from backend config
-      const defaultName = appleConfig.default_name;
+      const username = appleAuthRequestResponse.email?.split('@')[0] || '';
+      const defaultName = username || appleConfig.default_name;
 
       // Extract name from Apple response (only available on first sign-in)
       const fullName = appleAuthRequestResponse.fullName;
@@ -282,6 +290,19 @@ class SocialLoginService {
         // User cancelled the sign-in
         return null;
       }
+      
+      // Handle specific Apple Sign-In error 1000 (configuration issue)
+      const errorMessage = error.message || '';
+      const isError1000 = 
+        error.code === 1000 ||
+        errorMessage.includes('error 1000') ||
+        errorMessage.includes('AuthorizationError error 1000');
+      
+      if (isError1000) {
+        console.error('Apple Sign-In Error 1000 (Configuration Issue):', error);
+        return null;
+      }
+      
       console.error('Apple Sign-In Error:', error);
       Alert.alert('Apple Sign-In Failed', error.message || 'Unable to sign in with Apple');
       return null;

@@ -3,6 +3,7 @@ import type {User} from '../types/api';
 import {getToken, getUser, setUser, removeUser, setToken, removeToken} from '../services/storage';
 import {apiClient} from '../services/apiClient';
 import {authHandler} from '../services/authHandler';
+import {navigationService} from '../services/navigationService';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -138,6 +139,9 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
     await removeUser();
     setUserState(null);
     setIsAuthenticated(false);
+    
+    // Navigate to Auth screen after logout
+    navigationService.navigateToAuth();
   };
 
   // Register logout handler for global 401 handling
@@ -147,6 +151,7 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
       await removeUser();
       setUserState(null);
       setIsAuthenticated(false);
+      // Navigation will be handled by navigateToAuth() called from api.ts
     });
   }, []);
 
@@ -160,6 +165,9 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
     await removeUser();
     setUserState(null);
     setIsAuthenticated(false);
+    
+    // Navigate to Auth screen after logout
+    navigationService.navigateToAuth();
   };
 
   const refreshUser = async () => {

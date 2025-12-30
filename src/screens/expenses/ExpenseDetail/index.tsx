@@ -14,6 +14,7 @@ import {useAuth} from '../../../contexts/AuthContext';
 import {apiClient} from '../../../services/apiClient';
 import type {Expense} from '../../../types/api';
 import {styles} from './styles';
+import { showError } from '../../../utils/flashMessage';
 
 export function ExpenseDetailScreen() {
   const route = useRoute();
@@ -35,7 +36,7 @@ export function ExpenseDetailScreen() {
       setExpense(data);
     } catch (error) {
       console.error('Failed to load expense:', error);
-      Alert.alert('Error', 'Failed to load expense details');
+      showError('Error', 'Failed to load expense details');
     } finally {
       setLoading(false);
     }
@@ -55,7 +56,7 @@ export function ExpenseDetailScreen() {
               await apiClient.deleteExpense(expenseId);
               navigation.goBack();
             } catch (error: any) {
-              Alert.alert('Error', error.message || 'Failed to delete expense');
+              showError('Error', error.message || 'Failed to delete expense');
             }
           },
         },

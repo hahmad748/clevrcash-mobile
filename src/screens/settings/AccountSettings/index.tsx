@@ -39,7 +39,7 @@ export function AccountSettingsScreen() {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert('Error', 'Please enter your name');
+      showError('Error', 'Please enter your name');
       return;
     }
 
@@ -54,7 +54,7 @@ export function AccountSettingsScreen() {
       await refreshUser();
       Alert.alert('Success', 'Profile updated successfully');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to update profile');
+      showError('Error', error.message || 'Failed to update profile');
     } finally {
       setSaving(false);
     }

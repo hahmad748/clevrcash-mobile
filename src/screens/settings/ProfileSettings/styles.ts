@@ -6,7 +6,6 @@ export const styles = StyleSheet.create({
   },
   keyboardView: {
     flex: 1,
-    paddingTop: 16,
   },
   scrollView: {
     flex: 1,
@@ -121,6 +120,20 @@ export const styles = StyleSheet.create({
     borderWidth: 1.5,
   },
   readonlyInputText: {
+    fontSize: 16,
+    fontWeight: '400',
+    flex: 1,
+  },
+  selectableInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 1.5,
+  },
+  selectableInputText: {
     fontSize: 16,
     fontWeight: '400',
     flex: 1,

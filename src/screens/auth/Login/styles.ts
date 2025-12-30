@@ -172,12 +172,12 @@ export const styles = StyleSheet.create({
     color: '#999999',
   },
   socialButtonsContainer: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     gap: 12,
     marginBottom: 24,
   },
   socialButton: {
-    flex: 1,
+    width: '100%',
     height: 56,
     backgroundColor: '#FFFFFF',
     borderRadius: 12,

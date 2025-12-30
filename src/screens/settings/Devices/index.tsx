@@ -7,6 +7,7 @@ import {useBrand} from '../../../contexts/BrandContext';
 import {apiClient} from '../../../services/apiClient';
 import type {Device} from '../../../types/api';
 import {styles} from './styles';
+import { showError, showSuccess } from '../../../utils/flashMessage';
 
 export function DevicesScreen() {
   const {colors, isDark} = useTheme();
@@ -27,7 +28,7 @@ export function DevicesScreen() {
       const deviceList = await apiClient.getDevices();
       setDevices(deviceList);
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to load devices');
+      showError('Error', error.message || 'Failed to load devices');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -48,9 +49,9 @@ export function DevicesScreen() {
             try {
               await apiClient.revokeDevice(deviceId);
               await loadDevices();
-              Alert.alert('Success', 'Device access revoked successfully');
+              showSuccess('Success', 'Device access revoked successfully');
             } catch (error: any) {
-              Alert.alert('Error', error.message || 'Failed to revoke device');
+              showError('Error', error.message || 'Failed to revoke device');
             } finally {
               setRevoking(null);
             }
@@ -73,10 +74,10 @@ export function DevicesScreen() {
             try {
               await apiClient.revokeAllDevices();
               await loadDevices();
-              Alert.alert('Success', 'All device access revoked successfully');
+              showSuccess('Success', 'All device access revoked successfully');
               // reset to auth screen
             } catch (error: any) {
-              Alert.alert('Error', error.message || 'Failed to revoke devices');
+              showError('Error', error.message || 'Failed to revoke devices');
             }
           },
         },

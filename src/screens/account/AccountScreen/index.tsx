@@ -179,8 +179,8 @@ export function AccountScreen() {
           })}
         </View>
 
-        {/* Upgrade to PRO Banner */}
-        {!isPremium && (
+        {/* Upgrade to PRO Banner - COMMENTED OUT FOR NOW */}
+        {/* {!isPremium && (
           <TouchableOpacity
             style={[styles.proBanner, {backgroundColor: primaryColor}]}
             onPress={() => navigation.navigate('UpgradeToPro' as never)}>
@@ -195,7 +195,7 @@ export function AccountScreen() {
               <MaterialIcons name="arrow-forward" size={24} color="#FFFFFF" />
             </View>
           </TouchableOpacity>
-        )}
+        )} */}
 
       </ScrollView>
     </SafeAreaView>

@@ -3,6 +3,7 @@ import {View, Text, ScrollView, Switch, TouchableOpacity, Alert} from 'react-nat
 import {useTheme} from '../../../contexts/ThemeContext';
 import {apiClient} from '../../../services/apiClient';
 import {styles} from './styles';
+import { showError, showSuccess } from '../../../utils/flashMessage';
 
 export function PrivacySettingsScreen() {
   const {colors} = useTheme();
@@ -33,9 +34,9 @@ export function PrivacySettingsScreen() {
     try {
       // TODO: Add API endpoint to update privacy settings
       // await apiClient.updatePrivacySettings({...});
-      Alert.alert('Success', 'Privacy settings updated');
+      showSuccess('Success', 'Privacy settings updated');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to update privacy settings');
+      showError('Error', error.message || 'Failed to update privacy settings');
     }
   };
 

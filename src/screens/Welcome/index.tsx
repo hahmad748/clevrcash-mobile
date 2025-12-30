@@ -13,16 +13,30 @@ export function WelcomeScreen() {
   useEffect(() => {
     if (!authLoading && !brandLoading) {
       setTimeout(() => {
-        if (isAuthenticated) {
-          navigation.reset({
-            index: 0,
-            routes: [{name: 'Main' as never}],
-          });
-        } else {
-          navigation.reset({
-            index: 0,
-            routes: [{name: 'Auth' as never}],
-          });
+        try {
+          if (isAuthenticated) {
+            navigation.reset({
+              index: 0,
+              routes: [{name: 'Main' as never}],
+            });
+          } else {
+            // Only navigate to Auth if we're not already authenticated
+            // Check if navigation can handle the route before attempting
+            const state = navigation.getState();
+            const hasAuthRoute = state?.routes?.some((route: any) => route.name === 'Auth');
+            
+            if (hasAuthRoute) {
+              navigation.reset({
+                index: 0,
+                routes: [{name: 'Auth' as never}],
+              });
+            }
+            // If Auth route doesn't exist, we're likely already authenticated
+            // and the AppNavigator will handle the navigation automatically
+          }
+        } catch (error) {
+          console.error('Navigation error in WelcomeScreen:', error);
+          // If navigation fails, AppNavigator will handle it via conditional rendering
         }
       }, 2000);
     }

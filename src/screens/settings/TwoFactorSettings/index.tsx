@@ -12,6 +12,7 @@ import {useTheme} from '../../../contexts/ThemeContext';
 import {useAuth} from '../../../contexts/AuthContext';
 import {apiClient} from '../../../services/apiClient';
 import {styles} from './styles';
+import { showError, showSuccess } from '../../../utils/flashMessage';
 
 export function TwoFactorSettingsScreen() {
   const navigation = useNavigation();
@@ -65,7 +66,7 @@ export function TwoFactorSettingsScreen() {
         ],
       );
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to enable 2FA');
+      showError('Error', error.message || 'Failed to enable 2FA');
     } finally {
       setEnabling(false);
     }
@@ -85,9 +86,9 @@ export function TwoFactorSettingsScreen() {
               await apiClient.disable2FA();
               await refreshUser();
               setTwoFactorEnabled(false);
-              Alert.alert('Success', '2FA has been disabled');
+              showSuccess('Success', '2FA has been disabled');
             } catch (error: any) {
-              Alert.alert('Error', error.message || 'Failed to disable 2FA');
+              showError('Error', error.message || 'Failed to disable 2FA');
             }
           },
         },
@@ -104,7 +105,7 @@ export function TwoFactorSettingsScreen() {
         [{text: 'OK'}],
       );
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to load recovery codes');
+      showError('Error', error.message || 'Failed to load recovery codes');
     }
   };
 

@@ -21,6 +21,7 @@ import {apiClient} from '../../../services/apiClient';
 import {getBrandOverlayColor, getBrandColor} from '../../../utils/colorUtils';
 import {styles as baseStyles} from './styles';
 import {StyleSheet} from 'react-native';
+import { showError, showSuccess } from '../../../utils/flashMessage';
 
 export function ForgotPasswordScreen() {
   const navigation = useNavigation();
@@ -42,14 +43,14 @@ export function ForgotPasswordScreen() {
 
   const handleSubmit = async () => {
     if (!email.trim()) {
-      Alert.alert('Error', 'Please enter your email address');
+      showError('Error', 'Please enter your email address');
       return;
     }
 
     setLoading(true);
     try {
       await apiClient.forgotPassword(email.trim());
-      Alert.alert(
+      showSuccess(
         'Success',
         'Password reset link has been sent to your email',
         [
@@ -60,7 +61,7 @@ export function ForgotPasswordScreen() {
         ],
       );
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to send reset link');
+      showError('Error', error.message || 'Failed to send reset link');
     } finally {
       setLoading(false);
     }

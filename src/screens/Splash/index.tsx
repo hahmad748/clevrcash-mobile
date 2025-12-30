@@ -44,14 +44,18 @@ export function SplashScreen() {
     setTimeout(() => {
       try {
         if (isAuthenticated) {
+          console.log('navigating to Main from Splash');
           navigation.reset({
             index: 0,
             routes: [{name: 'Main' as never}],
           });
         } else {
+          console.log('navigating to Auth from Splash');
           navigation.reset({
             index: 0,
-            routes: [{name: 'Auth' as never}],
+            routes: [{name: 'Auth' as never, params: {
+              screen: 'Welcome',
+            } as never}],
           });
         }
       } catch (error) {

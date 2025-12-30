@@ -10,6 +10,7 @@ import {
 import {useAuth} from '../../contexts/AuthContext';
 import {useTheme} from '../../contexts/ThemeContext';
 import {getBrandConfig} from '../../config/brand';
+import { showError } from '../../utils/flashMessage';
 
 export default function LoginScreen({navigation}: any) {
   const [email, setEmail] = useState('');
@@ -21,7 +22,7 @@ export default function LoginScreen({navigation}: any) {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      showError('Error', 'Please fill in all fields');
       return;
     }
 
@@ -29,7 +30,7 @@ export default function LoginScreen({navigation}: any) {
     try {
       await login(email, password);
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Login failed');
+      showError('Error', error.message || 'Login failed');
     } finally {
       setLoading(false);
     }

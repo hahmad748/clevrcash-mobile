@@ -6,6 +6,7 @@ import {useAuth} from '../../../contexts/AuthContext';
 import {useBrand} from '../../../contexts/BrandContext';
 import {apiClient} from '../../../services/apiClient';
 import {styles} from './styles';
+import { showError, showSuccess } from '../../../utils/flashMessage';
 
 export function PrivacyScreen() {
   const {colors, isDark} = useTheme();
@@ -31,9 +32,9 @@ export function PrivacyScreen() {
         allow_friend_suggestions: allowFriendSuggestions,
       });
       await refreshUser();
-      Alert.alert('Success', 'Privacy settings updated successfully');
+      showSuccess('Success', 'Privacy settings updated successfully');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to update privacy settings');
+      showError('Error', error.message || 'Failed to update privacy settings');
     } finally {
       setSaving(false);
     }

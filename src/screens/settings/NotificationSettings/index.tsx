@@ -3,6 +3,7 @@ import {View, Text, ScrollView, Switch, TouchableOpacity, Alert} from 'react-nat
 import {useTheme} from '../../../contexts/ThemeContext';
 import {apiClient} from '../../../services/apiClient';
 import {styles} from './styles';
+import { showError, showSuccess } from '../../../utils/flashMessage';
 
 export function NotificationSettingsScreen() {
   const {colors} = useTheme();
@@ -36,9 +37,9 @@ export function NotificationSettingsScreen() {
     try {
       // TODO: Add API endpoint to update notification preferences
       // await apiClient.updateNotificationSettings({[key]: value});
-      Alert.alert('Success', 'Notification preferences updated');
+      showSuccess('Success', 'Notification preferences updated');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to update preferences');
+      showError('Error', error.message || 'Failed to update preferences');
     }
   };
 

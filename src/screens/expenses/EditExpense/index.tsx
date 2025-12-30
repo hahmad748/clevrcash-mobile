@@ -15,6 +15,7 @@ import {useTheme} from '../../../contexts/ThemeContext';
 import {apiClient} from '../../../services/apiClient';
 import type {Expense, Category, Currency, User} from '../../../types/api';
 import {styles} from './styles';
+import { showError } from '../../../utils/flashMessage';
 
 export function EditExpenseScreen() {
   const route = useRoute();
@@ -52,7 +53,7 @@ export function EditExpenseScreen() {
       setNotes(data.notes || '');
     } catch (error) {
       console.error('Failed to load expense:', error);
-      Alert.alert('Error', 'Failed to load expense details');
+      showError('Error', 'Failed to load expense details');
     } finally {
       setLoading(false);
     }
@@ -78,12 +79,12 @@ export function EditExpenseScreen() {
 
   const handleSave = async () => {
     if (!description.trim()) {
-      Alert.alert('Error', 'Please enter a description');
+      showError('Error', 'Please enter a description');
       return;
     }
 
     if (!amount || parseFloat(amount) <= 0) {
-      Alert.alert('Error', 'Please enter a valid amount');
+      showError('Error', 'Please enter a valid amount');
       return;
     }
 
@@ -104,7 +105,7 @@ export function EditExpenseScreen() {
         },
       ]);
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to update expense');
+      showError('Error', error.message || 'Failed to update expense');
     } finally {
       setSaving(false);
     }

@@ -19,6 +19,7 @@ import {useAuth} from '../../../contexts/AuthContext';
 import {useTheme} from '../../../contexts/ThemeContext';
 import {useBrand} from '../../../contexts/BrandContext';
 import {getBrandOverlayColor, getBrandColor} from '../../../utils/colorUtils';
+import {showError, showSuccess} from '../../../utils/flashMessage';
 import {styles as baseStyles} from './styles';
 import {StyleSheet} from 'react-native';
 import { apiClient } from '../../../services/apiClient';
@@ -38,6 +39,7 @@ export function RegisterScreen() {
   const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false);
   const [enabledProviders, setEnabledProviders] = useState<string[]>([]);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
+  const [checkingProviders, setCheckingProviders] = useState(true);
 
   const primaryColor = getBrandColor(brand?.primary_color);
   const overlayColor = getBrandOverlayColor(brand?.primary_color, 0.7);
@@ -56,29 +58,47 @@ export function RegisterScreen() {
   }, []);
 
   const checkEnabledProviders = async () => {
+    setCheckingProviders(true);
     try {
       const response = await apiClient.getEnabledSocialProviders();
-      setEnabledProviders(response.providers || []);
+      const providers = Array.isArray(response.providers) ? response.providers : [];
+      
+      // Filter to only valid provider strings and normalize to lowercase
+      const validProviders = providers
+        .filter(p => typeof p === 'string' && p.length > 0)
+        .map(p => p.toLowerCase().trim());
+      
+      console.log('[Register] Enabled social providers:', {
+        raw: providers,
+        filtered: validProviders,
+        hasGoogle: validProviders.includes('google'),
+        hasApple: validProviders.includes('apple'),
+      });
+      
+      // Only set providers that are explicitly in the array
+      setEnabledProviders(validProviders);
     } catch (error) {
-      console.error('Failed to check enabled providers:', error);
+      console.error('[Register] Failed to check enabled providers:', error);
       // Don't show any providers if we can't check (security: only show if explicitly enabled)
       setEnabledProviders([]);
+    } finally {
+      setCheckingProviders(false);
     }
   };
 
   const handleRegister = async () => {
     if (!name.trim() || !email.trim() || !password.trim() || !passwordConfirmation.trim()) {
-      Alert.alert('Error', 'Please fill in all fields');
+      showError('Error', 'Please fill in all fields');
       return;
     }
 
     if (password !== passwordConfirmation) {
-      Alert.alert('Error', 'Passwords do not match');
+      showError('Error', 'Passwords do not match');
       return;
     }
 
     if (password.length < 8) {
-      Alert.alert('Error', 'Password must be at least 8 characters');
+      showError('Error', 'Password must be at least 8 characters');
       return;
     }
 
@@ -95,7 +115,7 @@ export function RegisterScreen() {
       // Reload brand after successful registration
       await loadBrand();
     } catch (error: any) {
-      Alert.alert('Registration Failed', error.message || 'Failed to create account');
+      showError('Registration Failed', error.message || 'Failed to create account');
     } finally {
       setLoading(false);
     }
@@ -110,7 +130,7 @@ export function RegisterScreen() {
         await loadBrand();
       }
     } catch (error: any) {
-      Alert.alert('Google Sign-In Failed', error.message || 'Unable to sign in with Google');
+      showError('Google Sign-In Failed', error.message || 'Unable to sign in with Google');
     } finally {
       setSocialLoading(null);
     }
@@ -125,7 +145,7 @@ export function RegisterScreen() {
         await loadBrand();
       }
     } catch (error: any) {
-      Alert.alert('Apple Sign-In Failed', error.message || 'Unable to sign in with Apple');
+      showError('Apple Sign-In Failed', error.message || 'Unable to sign in with Apple');
     } finally {
       setSocialLoading(null);
     }
@@ -294,8 +314,8 @@ export function RegisterScreen() {
                 )}
               </TouchableOpacity>
 
-              {/* Divider */}
-              {(enabledProviders.includes('google') || enabledProviders.includes('apple')) && (
+              {/* Divider - Only show if social login is available and not checking */}
+              {!checkingProviders && enabledProviders.length > 0 && (
                 <>
                   <View style={baseStyles.divider}>
                     <View style={baseStyles.dividerLine} />
