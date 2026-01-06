@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   modalOverlay: {
@@ -9,40 +10,41 @@ export const styles = StyleSheet.create({
   modalContent: {
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingTop: 20,
-    paddingBottom: 40,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xxxl,
     maxHeight: '80%',
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    paddingHorizontal: 20,
-    paddingBottom: 16,
+    ...typography.h3,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
+    ...androidTextProps,
   },
   modalScroll: {
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.lg,
   },
   modalOption: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: spacing.lg,
     borderRadius: 12,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   modalOptionText: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '500',
+    ...androidTextProps,
   },
   modalCloseButton: {
-    marginTop: 16,
-    marginHorizontal: 20,
-    padding: 16,
+    marginTop: spacing.lg,
+    marginHorizontal: spacing.lg,
+    padding: spacing.lg,
     borderRadius: 12,
     alignItems: 'center',
   },
   modalCloseText: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
+    ...androidTextProps,
   },
 });

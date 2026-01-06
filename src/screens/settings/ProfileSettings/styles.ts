@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   container: {
@@ -11,14 +12,14 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingBottom: spacing.lg,
   },
   // Profile Card
   profileCard: {
-    marginHorizontal: 16,
-    marginBottom: 16,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
     borderRadius: 16,
-    padding: 20,
+    padding: spacing.lg,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -31,14 +32,14 @@ export const styles = StyleSheet.create({
   // Avatar Section
   avatarSection: {
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: spacing.xxl,
   },
   avatarTouchable: {
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   avatarContainer: {
     position: 'relative',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   avatar: {
     width: 100,
@@ -56,7 +57,7 @@ export const styles = StyleSheet.create({
     borderWidth: 3,
   },
   avatarText: {
-    fontSize: 36,
+    ...typography.h1,
     fontWeight: '700',
   },
   avatarLoader: {
@@ -83,77 +84,82 @@ export const styles = StyleSheet.create({
     borderColor: '#FFFFFF',
   },
   avatarHint: {
-    fontSize: 13,
+    ...typography.bodySmall,
     fontWeight: '400',
+    ...androidTextProps,
   },
   // Input Sections
   inputSection: {
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   inputLabelRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
-    gap: 6,
+    marginBottom: spacing.sm,
+    gap: spacing.xs,
   },
   inputLabel: {
-    fontSize: 13,
+    ...typography.bodySmall,
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+    ...androidTextProps,
   },
   input: {
-    fontSize: 16,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
+    ...typography.body,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.lg,
     borderRadius: 12,
     borderWidth: 1.5,
     fontWeight: '400',
+    ...androidTextProps,
   },
   readonlyInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.lg,
     borderRadius: 12,
     borderWidth: 1.5,
   },
   readonlyInputText: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '400',
     flex: 1,
+    ...androidTextProps,
   },
   selectableInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.lg,
     borderRadius: 12,
     borderWidth: 1.5,
   },
   selectableInputText: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '400',
     flex: 1,
+    ...androidTextProps,
   },
   inputHint: {
-    fontSize: 12,
-    lineHeight: 16,
-    marginTop: 6,
+    ...typography.caption,
+    marginTop: spacing.xs,
     fontWeight: '400',
+    ...androidTextProps,
   },
   // Save Button
   saveButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 20,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.lg,
     borderRadius: 12,
-    gap: 8,
-    marginTop: 8,
+    gap: spacing.sm,
+    marginTop: spacing.sm,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -164,15 +170,15 @@ export const styles = StyleSheet.create({
     elevation: 3,
   },
   saveButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
     color: '#FFFFFF',
+    ...androidTextProps,
   },
   // Danger Zone Card
   dangerCard: {
-    marginHorizontal: 16,
+    marginHorizontal: spacing.lg,
     borderRadius: 16,
-    padding: 20,
+    padding: spacing.lg,
     borderWidth: 1.5,
     shadowColor: '#000',
     shadowOffset: {
@@ -186,32 +192,34 @@ export const styles = StyleSheet.create({
   dangerHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
-    gap: 8,
+    marginBottom: spacing.md,
+    gap: spacing.sm,
   },
   dangerTitle: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+    ...androidTextProps,
   },
   dangerDescription: {
-    fontSize: 12,
-    lineHeight: 18,
-    marginBottom: 16,
+    ...typography.caption,
+    marginBottom: spacing.lg,
+    ...androidTextProps,
   },
   dangerButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 20,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.lg,
     borderRadius: 12,
     borderWidth: 1.5,
-    gap: 8,
+    gap: spacing.sm,
   },
   dangerButtonText: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
+    ...androidTextProps,
   },
 });

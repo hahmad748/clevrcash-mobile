@@ -1,4 +1,5 @@
 import {StyleSheet, Platform} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   container: {
@@ -6,19 +7,19 @@ export const styles = StyleSheet.create({
   },
   keyboardView: {
     flex: 1,
-    paddingTop: 16,
+    paddingTop: spacing.lg,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 16,
-    paddingBottom: 20,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.lg,
   },
   card: {
-    marginHorizontal: 16,
+    marginHorizontal: spacing.lg,
     borderRadius: 16,
-    padding: 20,
+    padding: spacing.lg,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -29,53 +30,56 @@ export const styles = StyleSheet.create({
     elevation: 3,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 8,
+    ...typography.h2,
+    marginBottom: spacing.sm,
+    ...androidTextProps,
   },
   subtitle: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 24,
+    ...typography.bodySmall,
+    marginBottom: spacing.xxl,
+    ...androidTextProps,
   },
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   inputLabel: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
+    ...androidTextProps,
   },
   passwordInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1.5,
     borderRadius: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.lg,
   },
   passwordInput: {
     flex: 1,
-    fontSize: 16,
-    paddingVertical: 12,
+    ...typography.body,
+    paddingVertical: spacing.md,
+    ...androidTextProps,
   },
   eyeButton: {
-    padding: 4,
+    padding: spacing.xs,
   },
   hint: {
-    fontSize: 12,
-    marginTop: 4,
+    ...typography.caption,
+    marginTop: spacing.xs,
+    ...androidTextProps,
   },
   saveButton: {
-    paddingVertical: 14,
-    paddingHorizontal: 20,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.lg,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   saveButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
     color: '#FFFFFF',
+    ...androidTextProps,
   },
 });

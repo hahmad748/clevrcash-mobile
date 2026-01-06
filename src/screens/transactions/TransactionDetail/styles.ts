@@ -1,5 +1,6 @@
 import {StyleSheet} from 'react-native';
 import {TOTAL_TAB_BAR_HEIGHT} from '../../../components/CustomTabBar/styles';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   container: {
@@ -13,14 +14,14 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: TOTAL_TAB_BAR_HEIGHT + 20,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: TOTAL_TAB_BAR_HEIGHT + spacing.lg,
   },
   card: {
     borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -33,8 +34,8 @@ export const styles = StyleSheet.create({
   // Main Card - Modern Design
   mainCard: {
     borderRadius: 20,
-    padding: 20,
-    marginBottom: 16,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -55,45 +56,47 @@ export const styles = StyleSheet.create({
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: spacing.lg,
   },
   mainCardHeaderText: {
     flex: 1,
   },
   mainCardType: {
-    fontSize: 12,
+    ...typography.caption,
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
+    ...androidTextProps,
   },
   mainCardTitle: {
-    fontSize: 18,
+    ...typography.medium,
     fontWeight: '700',
-    lineHeight: 24,
+    ...androidTextProps,
   },
   mainCardAmountSection: {
-    paddingTop: 20,
+    paddingTop: spacing.lg,
     borderTopWidth: 1,
     borderTopColor: 'rgba(0, 0, 0, 0.08)',
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   mainCardAmount: {
-    fontSize: 32,
-    fontWeight: '700',
-    marginBottom: 8,
+    ...typography.h1,
+    marginBottom: spacing.sm,
     letterSpacing: -0.5,
+    ...androidTextProps,
   },
   mainCardDate: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '500',
+    ...androidTextProps,
   },
   // Payment Flow
   paymentFlow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 20,
+    paddingTop: spacing.lg,
     borderTopWidth: 1,
     borderTopColor: 'rgba(0, 0, 0, 0.08)',
   },
@@ -103,60 +106,66 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   paymentArrow: {
-    paddingHorizontal: 12,
+    paddingHorizontal: spacing.md,
   },
   participantLabel: {
-    fontSize: 10,
+    ...typography.captionSmall,
     fontWeight: '500',
+    ...androidTextProps,
   },
   participantName: {
-    fontSize: 12,
+    ...typography.caption,
     fontWeight: '500',
+    ...androidTextProps,
   },
   // Verification Card
   cardTitle: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '600',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
+    ...androidTextProps,
   },
   verificationContainer: {
-    gap: 8,
+    gap: spacing.sm,
   },
   verificationStatus: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: spacing.sm,
   },
   verificationText: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
+    ...androidTextProps,
   },
   hashContainer: {
-    gap: 4,
+    gap: spacing.xs,
   },
   hashLabel: {
-    fontSize: 12,
+    ...typography.caption,
     fontWeight: '500',
+    ...androidTextProps,
   },
   hashValue: {
-    fontSize: 9,
+    ...typography.captionSmall,
     fontFamily: 'monospace',
-    lineHeight: 12,
+    ...androidTextProps,
   },
   detailsList: {
-    gap: 2,
+    gap: spacing.xs,
   },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 4,
+    paddingVertical: spacing.xs,
     minHeight: 32,
   },
   detailLabel: {
-    fontSize: 12,
+    ...typography.caption,
     fontWeight: '400',
     flex: 1,
+    ...androidTextProps,
   },
   detailValueContainer: {
     flexDirection: 'row',
@@ -165,22 +174,24 @@ export const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   detailIcon: {
-    marginRight: 6,
+    marginRight: spacing.xs,
   },
   detailValue: {
-    fontSize: 12,
+    ...typography.caption,
     fontWeight: '500',
     textAlign: 'right',
+    ...androidTextProps,
   },
   statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
     borderRadius: 8,
   },
   statusText: {
-    fontSize: 10,
+    ...typography.captionSmall,
     fontWeight: '500',
     textTransform: 'uppercase',
+    ...androidTextProps,
   },
   // Splits Card
   splitsList: {
@@ -190,7 +201,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: spacing.sm,
   },
   splitRowBorder: {
     borderBottomWidth: 1,
@@ -200,7 +211,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    gap: 4,
+    gap: spacing.xs,
   },
   splitAvatar: {
     width: 32,
@@ -208,29 +219,33 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   splitAvatarText: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '700',
   },
   splitInfo: {
     flex: 1,
   },
   splitUserName: {
-    fontSize: 12,
+    ...typography.caption,
     fontWeight: '600',
-    marginBottom: 2,
+    marginBottom: spacing.xs,
+    ...androidTextProps,
   },
   splitPercentage: {
-    fontSize: 12,
+    ...typography.caption,
+    ...androidTextProps,
   },
   splitShares: {
-    fontSize: 12,
+    ...typography.caption,
+    ...androidTextProps,
   },
   splitAmount: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
+    ...androidTextProps,
   },
   // Participants Card
   participantsList: {
@@ -239,7 +254,7 @@ export const styles = StyleSheet.create({
   participantRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: spacing.sm,
   },
   participantRowBorder: {
     borderBottomWidth: 1,
@@ -250,37 +265,39 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   participantAvatarText: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '700',
   },
   participantInfo: {
     flex: 1,
   },
   participantEmail: {
-    fontSize: 10,
+    ...typography.captionSmall,
     fontWeight: '400',
+    ...androidTextProps,
   },
   paidByBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
     borderRadius: 8,
   },
   paidByBadgeText: {
-    fontSize: 10,
+    ...typography.captionSmall,
     fontWeight: '700',
+    ...androidTextProps,
   },
   // Delete Button
   deleteButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 14,
+    paddingVertical: spacing.lg,
     borderRadius: 12,
-    gap: 8,
-    marginTop: 8,
+    gap: spacing.sm,
+    marginTop: spacing.sm,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -292,11 +309,12 @@ export const styles = StyleSheet.create({
   },
   deleteButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
+    ...androidTextProps,
   },
   errorText: {
-    fontSize: 16,
+    ...typography.body,
+    ...androidTextProps,
   },
   // Attachments
   attachmentsList: {
@@ -305,7 +323,7 @@ export const styles = StyleSheet.create({
   attachmentRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: spacing.sm,
   },
   attachmentRowBorder: {
     borderBottomWidth: 1,
@@ -314,7 +332,7 @@ export const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 8,
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   attachmentIcon: {
     width: 48,
@@ -322,17 +340,19 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   attachmentInfo: {
     flex: 1,
   },
   attachmentName: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
-    marginBottom: 2,
+    marginBottom: spacing.xs,
+    ...androidTextProps,
   },
   attachmentSize: {
-    fontSize: 12,
+    ...typography.caption,
+    ...androidTextProps,
   },
 });

@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   container: {
@@ -6,40 +7,43 @@ export const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 24,
+    padding: spacing.xxl,
     justifyContent: 'center',
   },
   title: {
-    fontSize: 32,
-    fontWeight: '700',
-    marginBottom: 8,
+    ...typography.h1,
+    marginBottom: spacing.sm,
+    ...androidTextProps,
   },
   subtitle: {
-    fontSize: 16,
-    marginBottom: 32,
-    lineHeight: 24,
+    ...typography.body,
+    marginBottom: spacing.xxxl,
+    ...androidTextProps,
   },
   form: {
     width: '100%',
   },
   inputContainer: {
-    marginBottom: 24,
+    marginBottom: spacing.xxl,
   },
   label: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
+    ...androidTextProps,
   },
   input: {
     height: 50,
     borderWidth: 1,
     borderRadius: 8,
-    paddingHorizontal: 16,
-    fontSize: 16,
+    paddingHorizontal: spacing.lg,
+    ...typography.body,
+    ...androidTextProps,
   },
   hint: {
-    fontSize: 12,
-    marginTop: 4,
+    ...typography.caption,
+    marginTop: spacing.xs,
+    ...androidTextProps,
   },
   button: {
     height: 50,
@@ -49,7 +53,7 @@ export const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
+    ...androidTextProps,
   },
 });

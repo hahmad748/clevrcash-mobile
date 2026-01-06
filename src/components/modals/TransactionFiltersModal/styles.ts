@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   modalOverlay: {
@@ -18,14 +19,14 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0, 0, 0, 0.1)',
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
+    ...typography.h3,
+    ...androidTextProps,
   },
   tabsContainer: {
     flexDirection: 'row',
@@ -34,13 +35,14 @@ export const styles = StyleSheet.create({
   },
   tab: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: spacing.md,
     alignItems: 'center',
     borderBottomWidth: 2,
   },
   tabText: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
+    ...androidTextProps,
   },
   contentContainer: {
     flex: 1,
@@ -52,13 +54,13 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   listContent: {
-    padding: 16,
+    padding: spacing.lg,
   },
   filterItem: {
     borderRadius: 12,
     borderWidth: 1,
-    padding: 12,
-    marginBottom: 8,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
   },
   filterItemContent: {
     flexDirection: 'row',
@@ -69,40 +71,42 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   filterItemText: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '500',
-    marginBottom: 2,
+    marginBottom: spacing.xs,
+    ...androidTextProps,
   },
   filterItemSubtext: {
-    fontSize: 12,
+    ...typography.caption,
+    ...androidTextProps,
   },
   actionsContainer: {
     flexDirection: 'row',
-    gap: 12,
-    padding: 16,
+    gap: spacing.md,
+    padding: spacing.lg,
     borderTopWidth: 1,
     borderTopColor: 'rgba(0, 0, 0, 0.1)',
   },
   clearButton: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: spacing.md,
     borderRadius: 12,
     borderWidth: 1,
     alignItems: 'center',
   },
   clearButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
+    ...androidTextProps,
   },
   applyButton: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: spacing.md,
     borderRadius: 12,
     alignItems: 'center',
   },
   applyButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
+    ...androidTextProps,
   },
 });

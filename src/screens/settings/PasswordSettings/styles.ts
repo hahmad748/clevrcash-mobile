@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   container: {
@@ -8,41 +9,44 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: 16,
+    padding: spacing.lg,
   },
   form: {
     width: '100%',
   },
   inputContainer: {
-    marginBottom: 24,
+    marginBottom: spacing.xxl,
   },
   label: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
+    ...androidTextProps,
   },
   input: {
     height: 50,
     borderWidth: 1,
     borderRadius: 8,
-    paddingHorizontal: 16,
-    fontSize: 16,
+    paddingHorizontal: spacing.lg,
+    ...typography.body,
+    ...androidTextProps,
   },
   hint: {
-    fontSize: 12,
-    marginTop: 4,
+    ...typography.caption,
+    marginTop: spacing.xs,
+    ...androidTextProps,
   },
   saveButton: {
     height: 50,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 8,
-    marginBottom: 32,
+    marginTop: spacing.sm,
+    marginBottom: spacing.xxxl,
   },
   saveButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
+    ...androidTextProps,
   },
 });

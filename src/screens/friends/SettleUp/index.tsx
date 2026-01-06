@@ -12,7 +12,7 @@ import {
   ActionSheetIOS,
 } from 'react-native';
 import {launchCamera, launchImageLibrary, ImagePickerResponse, MediaType} from 'react-native-image-picker';
-import DocumentPicker from 'react-native-document-picker';
+import {pick, keepLocalCopy, types, isCancel} from '@react-native-documents/picker';
 import {useRoute, useNavigation, useFocusEffect} from '@react-navigation/native';
 import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useTheme} from '../../../contexts/ThemeContext';
@@ -202,19 +202,28 @@ export function SettleUpFriendScreen() {
 
   const handleChooseDocument = async () => {
     try {
-      const result = await DocumentPicker.pick({
-        type: [DocumentPicker.types.pdf, DocumentPicker.types.images, DocumentPicker.types.allFiles],
-        copyTo: 'cachesDirectory',
+      const [file] = await pick({
+        type: [types.pdf, types.images, types.allFiles],
       });
 
-      if (result && result[0]) {
-        const file = result[0];
-        setReceiptUri(file.uri);
+      if (file) {
+        // Keep a local copy in caches directory
+        const [localCopy] = await keepLocalCopy({
+          files: [
+            {
+              uri: file.uri,
+              fileName: file.name ?? 'document',
+            },
+          ],
+          destination: 'cachesDirectory',
+        });
+
+        setReceiptUri(localCopy.uri);
         setReceiptType('document');
-        setReceiptName(file.name || 'document');
+        setReceiptName(localCopy.name || 'document');
       }
     } catch (err) {
-      if (DocumentPicker.isCancel(err)) {
+      if (isCancel(err)) {
         return;
       }
       showError('Error', 'Failed to pick document');

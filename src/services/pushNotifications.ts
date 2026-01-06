@@ -1,5 +1,5 @@
 import messaging from '@react-native-firebase/messaging';
-import {Platform, PermissionsAndroid, Alert} from 'react-native';
+import {Platform, PermissionsAndroid, Alert, AppState, InteractionManager} from 'react-native';
 import {apiClient} from './apiClient';
 import {getToken} from './storage';
 import DeviceInfo from 'react-native-device-info';
@@ -87,12 +87,38 @@ class PushNotificationService {
       if (Platform.OS === 'android') {
         // Android 13+ requires runtime permission
         if (Platform.Version >= 33) {
-          const granted = await PermissionsAndroid.request(
+          // First check if permission is already granted
+          const checkResult = await PermissionsAndroid.check(
             PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
           );
-          if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-            console.log('Notification permission denied');
-            return false;
+          
+          if (checkResult) {
+            console.log('Notification permission already granted');
+          } else {
+            // Only request if not already granted
+            // Ensure app is in foreground and Activity is ready
+            if (AppState.currentState !== 'active') {
+              console.log('App not in foreground, skipping permission request');
+              return false;
+            }
+            
+            // Wait for interactions to complete to ensure Activity is ready
+            await new Promise<void>(resolve => {
+              InteractionManager.runAfterInteractions(() => {
+                resolve();
+              });
+            });
+            
+            // Small delay to ensure Activity context is available
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const granted = await PermissionsAndroid.request(
+              PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+            );
+            if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+              console.log('Notification permission denied');
+              return false;
+            }
           }
         }
       }
@@ -111,6 +137,24 @@ class PushNotificationService {
       }
     } catch (error) {
       console.error('Error requesting notification permission:', error);
+      // If permission request fails, check if already granted
+      if (Platform.OS === 'android' && Platform.Version >= 33) {
+        try {
+          const checkResult = await PermissionsAndroid.check(
+            PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+          );
+          if (checkResult) {
+            // Permission is already granted, continue with Firebase
+            const authStatus = await messaging().requestPermission();
+            const enabled =
+              authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+              authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+            return enabled;
+          }
+        } catch (checkError) {
+          console.error('Error checking notification permission:', checkError);
+        }
+      }
       return false;
     }
   }

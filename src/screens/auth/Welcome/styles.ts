@@ -1,4 +1,5 @@
 import {StyleSheet, Platform, Dimensions} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 const {width, height} = Dimensions.get('window');
 
@@ -24,7 +25,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingBottom: Platform.OS === 'ios' ? 40 : 30,
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing.xxl,
   },
   headerSection: {
     alignItems: 'center',
@@ -34,30 +35,31 @@ export const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   logo: {
     width: 120,
     height: 120,
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   logoText: {
-    fontSize: 32,
+    ...typography.h1,
     fontWeight: '700',
     color: '#FFFFFF',
     letterSpacing: 2,
     textTransform: 'uppercase',
-    marginTop: 12,
+    marginTop: spacing.md,
+    ...androidTextProps,
   },
   tagline: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '700',
     color: '#FFFFFF',
     textAlign: 'center',
     letterSpacing: 1.5,
     textTransform: 'uppercase',
-    paddingHorizontal: 20,
-    lineHeight: 20,
+    paddingHorizontal: spacing.lg,
+    ...androidTextProps,
   },
   buttonContainer: {
     width: '100%',
@@ -79,9 +81,10 @@ export const styles = StyleSheet.create({
     elevation: 8,
   },
   getStartedButtonText: {
-    fontSize: 18,
+    ...typography.medium,
     fontWeight: '700',
     color: '#FFFFFF',
     letterSpacing: 0.5,
+    ...androidTextProps,
   },
 });

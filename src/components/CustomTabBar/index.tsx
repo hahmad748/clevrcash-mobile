@@ -100,7 +100,7 @@ export function CustomTabBar({
       left: withTiming(leftPosition, {
         duration: 300,
       }),
-      bottom: withTiming(-ACTIVE_TAB_PROTRUSION * 3 , {
+      bottom: withTiming(Platform.OS === 'android' ? -ACTIVE_TAB_PROTRUSION * 2.5 : -ACTIVE_TAB_PROTRUSION * 3, {
         duration: 300,
       }),
     };
@@ -123,7 +123,10 @@ export function CustomTabBar({
                 color={activeIconColor}
               />
             </View>
-            <Text style={[styles.activeTabLabel, {color: primaryColor}]}>
+            <Text 
+              style={[styles.activeTabLabel, {color: "#ffffff"}]}
+              numberOfLines={1}
+              ellipsizeMode="tail">
               {visibleRoutes[displayedIconIndex]?.name || ''}
             </Text>
           </View>

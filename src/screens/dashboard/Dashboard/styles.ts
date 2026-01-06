@@ -1,5 +1,6 @@
-import {StyleSheet, Platform, Dimensions} from 'react-native';
+import {StyleSheet, Dimensions} from 'react-native';
 import {TOTAL_TAB_BAR_HEIGHT} from '../../../components/CustomTabBar/styles';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 const {width} = Dimensions.get('window');
 
@@ -35,9 +36,9 @@ export const styles = StyleSheet.create({
     paddingBottom: TOTAL_TAB_BAR_HEIGHT + 100,
   },
   profileCard: {
-    marginHorizontal: 20,
+    marginHorizontal: spacing.lg,
     borderRadius: 20,
-    padding: 20,
+    padding: spacing.lg,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -55,7 +56,7 @@ export const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 35,
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   avatarPlaceholder: {
     width: 70,
@@ -63,45 +64,47 @@ export const styles = StyleSheet.create({
     borderRadius: 35,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   avatarText: {
-    fontSize: 28,
+    ...typography.large,
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
   profileInfo: {
     flex: 1,
+    minWidth: 0, // Allow flex shrinking
   },
   profileName: {
-    fontSize: 22,
-    fontWeight: '700',
+    ...typography.h2,
     color: '#1A1A1A',
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   profileEmail: {
-    fontSize: 14,
+    ...typography.bodySmall,
     color: '#666',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
+    flexShrink: 1, // Allow wrapping but take full space first
+    flexWrap: 'wrap',
+    ...androidTextProps,
   },
   followersRow: {
     flexDirection: 'row',
-    gap: 16,
+    gap: spacing.md,
   },
   followersText: {
-    fontSize: 14,
+    ...typography.bodySmall,
     color: '#666',
   },
   addFriendButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
     borderRadius: 20,
     alignSelf: 'flex-start',
   },
   addFriendText: {
     color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
+    ...typography.buttonSmall,
   },
   statsGrid: {
     flexDirection: 'row',
@@ -169,14 +172,14 @@ export const styles = StyleSheet.create({
   // You Are Owed / You Owe Row
   owedRow: {
     flexDirection: 'row',
-    marginHorizontal: 20,
-    marginTop: 20,
-    gap: 12,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.lg,
+    gap: spacing.md,
   },
   owedCard: {
     flex: 1,
     borderRadius: 16,
-    padding: 16,
+    padding: spacing.lg,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -189,23 +192,23 @@ export const styles = StyleSheet.create({
   owedHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
-    gap: 6,
+    marginBottom: spacing.sm,
+    gap: spacing.xs,
   },
   owedLabel: {
-    fontSize: 12,
+    ...typography.caption,
     fontWeight: '500',
   },
   owedAmount: {
-    fontSize: 24,
+    ...typography.large,
     fontWeight: '700',
   },
   // Section Card
   sectionCard: {
-    marginHorizontal: 20,
-    marginTop: 20,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.lg,
     borderRadius: 16,
-    padding: 16,
+    padding: spacing.lg,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -219,50 +222,50 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   sectionTitle: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '600',
   },
   seeAllText: {
-    fontSize: 12,
+    ...typography.caption,
     fontWeight: '500',
   },
   // Currency Grid
   currencyGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    gap: spacing.md,
   },
   currencyGridView:{
-    marginTop:12
+    marginTop: spacing.md
   },
   currencyItem: {
-    padding: 12,
+    padding: spacing.md,
     borderRadius: 12,
     minWidth: (width - 64) / 3,
   },
   currencyLabel: {
-    fontSize: 11,
+    ...typography.captionSmall,
     fontWeight: '500',
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   currencyAmount: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '600',
   },
   // Top Owed Row
   topOwedRow: {
     flexDirection: 'row',
-    marginHorizontal: 20,
-    marginTop: 20,
-    gap: 12,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.lg,
+    gap: spacing.md,
   },
   topOwedCard: {
     flex: 1,
     borderRadius: 16,
-    padding: 16,
+    padding: spacing.lg,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -273,12 +276,12 @@ export const styles = StyleSheet.create({
     elevation: 3,
   },
   topOwedItem: {
-    marginTop: 12,
+    marginTop: spacing.md,
   },
   topOwedContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   topOwedAvatar: {
     width: 40,
@@ -286,40 +289,40 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   topOwedAvatarText: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '600',
   },
   topOwedInfo: {
     flex: 1,
   },
   topOwedName: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
-    marginBottom: 2,
+    marginBottom: spacing.xs,
   },
   topOwedSubtext: {
-    fontSize: 11,
+    ...typography.captionSmall,
   },
   topOwedBalance: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
     textAlign: 'right',
   },
   emptyText: {
-    fontSize: 12,
+    ...typography.caption,
     textAlign: 'center',
-    marginTop: 12,
+    marginTop: spacing.md,
     fontStyle: 'italic',
   },
   // Transactions List
   transactionsList: {
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   transactionItem: {
-    paddingVertical: 12,
+    paddingVertical: spacing.md,
   },
   transactionItemBorder: {
     borderBottomWidth: 1,
@@ -335,7 +338,7 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   transactionInfo: {
     flex: 1,
@@ -344,24 +347,24 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   transactionDescription: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '500',
     flex: 1,
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   transactionMeta: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: spacing.xs,
   },
   transactionMetaText: {
-    fontSize: 11,
+    ...typography.captionSmall,
   },
   transactionAmount: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
     flexShrink: 0,
   },

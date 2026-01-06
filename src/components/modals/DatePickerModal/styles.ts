@@ -1,4 +1,5 @@
 import {StyleSheet, Platform} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   modalOverlay: {
@@ -17,32 +18,32 @@ export const styles = StyleSheet.create({
   modalContent: {
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingTop: 20,
-    paddingBottom: 40,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xxxl,
     maxHeight: '80%',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingBottom: 16,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.1)',
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
+    ...typography.h3,
+    ...androidTextProps,
   },
   datePickerContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 16,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
     alignItems: 'center',
   },
   quickDateButtons: {
     flexDirection: 'row',
-    gap: 12,
-    marginTop: 16,
+    gap: spacing.md,
+    marginTop: spacing.lg,
     width: '100%',
   },
   quickDateButton: {
@@ -53,49 +54,50 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   quickDateText: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
+    ...androidTextProps,
   },
   modalActions: {
     flexDirection: 'row',
-    gap: 12,
-    marginTop: 16,
-    marginHorizontal: 20,
-    paddingTop: 16,
+    gap: spacing.md,
+    marginTop: spacing.lg,
+    marginHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
     borderTopWidth: 1,
     borderTopColor: 'rgba(0,0,0,0.1)',
   },
   modalCancelButton: {
     flex: 1,
-    padding: 16,
+    padding: spacing.lg,
     borderRadius: 12,
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.05)',
   },
   modalCancelText: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
+    ...androidTextProps,
   },
   modalConfirmButton: {
     flex: 1,
-    padding: 16,
+    padding: spacing.lg,
     borderRadius: 12,
     alignItems: 'center',
   },
   modalConfirmText: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
     color: '#FFFFFF',
+    ...androidTextProps,
   },
   modalCloseButton: {
-    marginTop: 16,
-    marginHorizontal: 20,
-    padding: 16,
+    marginTop: spacing.lg,
+    marginHorizontal: spacing.lg,
+    padding: spacing.lg,
     borderRadius: 12,
     alignItems: 'center',
   },
   modalCloseText: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
+    ...androidTextProps,
   },
 });

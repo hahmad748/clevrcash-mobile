@@ -1,5 +1,6 @@
 import {StyleSheet, Dimensions} from 'react-native';
 import {TOTAL_TAB_BAR_HEIGHT} from '../../../components/CustomTabBar/styles';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 const {width} = Dimensions.get('window');
 
@@ -12,18 +13,18 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headingContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 12,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.md,
   },
   heading: {
-    fontSize: 28,
-    fontWeight: '700',
+    ...typography.h1,
+    ...androidTextProps,
   },
   searchContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
-    paddingBottom: 16,
-    gap: 12,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
+    gap: spacing.md,
     alignItems: 'center',
   },
   searchBar: {
@@ -31,7 +32,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 12,
-    paddingHorizontal: 12,
+    paddingHorizontal: spacing.md,
     height: 44,
     shadowColor: '#000',
     shadowOffset: {
@@ -43,15 +44,16 @@ export const styles = StyleSheet.create({
     elevation: 3,
   },
   searchIcon: {
-    marginRight: 8,
+    marginRight: spacing.sm,
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
+    ...typography.bodySmall,
     height: '100%',
+    ...androidTextProps,
   },
   clearButton: {
-    padding: 4,
+    padding: spacing.xs,
   },
   filterButton: {
     width: 44,
@@ -71,24 +73,25 @@ export const styles = StyleSheet.create({
   },
   filterBadge: {
     position: 'absolute',
-    top: -4,
-    right: -4,
+    top: -spacing.xs,
+    right: -spacing.xs,
     backgroundColor: '#F44336',
     borderRadius: 10,
     minWidth: 20,
     height: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 4,
+    paddingHorizontal: spacing.xs,
   },
   filterBadgeText: {
     color: '#FFFFFF',
-    fontSize: 10,
+    ...typography.captionSmall,
     fontWeight: '700',
+    ...androidTextProps,
   },
   listContent: {
-    paddingHorizontal: 20,
-    paddingBottom: TOTAL_TAB_BAR_HEIGHT + 20,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: TOTAL_TAB_BAR_HEIGHT + spacing.lg,
   },
   emptyListContent: {
     flexGrow: 1,
@@ -96,8 +99,8 @@ export const styles = StyleSheet.create({
   },
   transactionCard: {
     borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -116,7 +119,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   transactionIcon: {
     width: 40,
@@ -124,76 +127,84 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   transactionInfo: {
     flex: 1,
   },
   transactionTitle: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '600',
-    marginBottom: 6,
+    marginBottom: spacing.xs,
+    ...androidTextProps,
   },
   transactionMeta: {
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'wrap',
-    gap: 6,
-    marginBottom: 6,
+    gap: spacing.xs,
+    marginBottom: spacing.xs,
   },
   transactionMetaText: {
-    fontSize: 12,
+    ...typography.caption,
+    ...androidTextProps,
   },
   transactionFooter: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginTop: 4,
+    gap: spacing.sm,
+    marginTop: spacing.xs,
   },
   transactionPayer: {
-    fontSize: 11,
+    ...typography.captionSmall,
+    ...androidTextProps,
   },
   transactionDate: {
-    fontSize: 11,
+    ...typography.captionSmall,
+    ...androidTextProps,
   },
   transactionRight: {
     alignItems: 'flex-end',
   },
   transactionAmount: {
-    fontSize: 18,
+    ...typography.medium,
     fontWeight: '700',
-    marginBottom: 2,
+    marginBottom: spacing.xs,
+    ...androidTextProps,
   },
   transactionCurrency: {
-    fontSize: 12,
+    ...typography.caption,
+    ...androidTextProps,
   },
   deleteAction: {
     justifyContent: 'center',
     alignItems: 'center',
     width: 80,
     borderRadius: 16,
-    marginBottom: 12,
-    paddingHorizontal: 16,
+    marginBottom: spacing.md,
+    paddingHorizontal: spacing.lg,
   },
   deleteActionText: {
     color: '#FFFFFF',
-    fontSize: 12,
+    ...typography.caption,
     fontWeight: '600',
-    marginTop: 4,
+    marginTop: spacing.xs,
+    ...androidTextProps,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 64,
+    paddingVertical: spacing.xxxl * 2,
   },
   emptyText: {
-    fontSize: 16,
+    ...typography.body,
     textAlign: 'center',
-    marginTop: 16,
+    marginTop: spacing.lg,
+    ...androidTextProps,
   },
   footerLoader: {
-    paddingVertical: 20,
+    paddingVertical: spacing.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },

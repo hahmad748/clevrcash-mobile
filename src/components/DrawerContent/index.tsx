@@ -1,7 +1,10 @@
 import React from 'react';
 import {View, Text, TouchableOpacity, Image, Linking, Alert} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {DrawerContentScrollView} from '@react-navigation/drawer';
+import {
+  DrawerContentScrollView,
+  type DrawerContentComponentProps,
+} from '@react-navigation/drawer';
 import {BlurView} from '@react-native-community/blur';
 import {CommonActions} from '@react-navigation/native';
 import {MaterialIcons} from '@react-native-vector-icons/material-icons';
@@ -10,7 +13,7 @@ import {useTheme} from '../../contexts/ThemeContext';
 import {useBrand} from '../../contexts/BrandContext';
 import {styles} from './styles';
 
-export function DrawerContent(props: any) {
+export function DrawerContent(props: DrawerContentComponentProps) {
   const {user, logout} = useAuth();
   const {colors, isDark} = useTheme();
   const {brand} = useBrand();

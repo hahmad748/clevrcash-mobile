@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   container: {
@@ -9,7 +10,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   searchContainer: {
-    padding: 16,
+    padding: spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
   },
@@ -17,33 +18,35 @@ export const styles = StyleSheet.create({
     height: 44,
     borderWidth: 1,
     borderRadius: 8,
-    paddingHorizontal: 16,
-    fontSize: 16,
+    paddingHorizontal: spacing.lg,
+    ...typography.body,
+    ...androidTextProps,
   },
   listContent: {
-    padding: 16,
+    padding: spacing.lg,
   },
   expenseCard: {
     borderRadius: 12,
     borderWidth: 1,
-    padding: 16,
-    marginBottom: 12,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
   },
   expenseHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   expenseDescription: {
     flex: 1,
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '600',
-    marginRight: 12,
+    marginRight: spacing.md,
+    ...androidTextProps,
   },
   expenseAmount: {
-    fontSize: 18,
-    fontWeight: '700',
+    ...typography.medium,
+    ...androidTextProps,
   },
   expenseFooter: {
     flexDirection: 'row',
@@ -51,41 +54,45 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   expenseDate: {
-    fontSize: 14,
+    ...typography.bodySmall,
+    ...androidTextProps,
   },
   expensePayer: {
-    fontSize: 14,
+    ...typography.bodySmall,
+    ...androidTextProps,
   },
   expenseGroup: {
-    fontSize: 12,
+    ...typography.caption,
     fontWeight: '600',
-    marginTop: 8,
+    marginTop: spacing.sm,
+    ...androidTextProps,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 64,
+    paddingVertical: spacing.xxxl * 2,
   },
   emptyText: {
-    fontSize: 16,
+    ...typography.body,
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: spacing.xxl,
+    ...androidTextProps,
   },
   createButton: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.xxl,
+    paddingVertical: spacing.md,
     borderRadius: 8,
   },
   createButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
+    ...androidTextProps,
   },
   fab: {
     position: 'absolute',
-    right: 16,
-    bottom: 16,
+    right: spacing.lg,
+    bottom: spacing.lg,
     width: 56,
     height: 56,
     borderRadius: 28,
@@ -99,7 +106,8 @@ export const styles = StyleSheet.create({
   },
   fabText: {
     color: '#FFFFFF',
-    fontSize: 24,
+    ...typography.h2,
     fontWeight: 'bold',
+    ...androidTextProps,
   },
 });

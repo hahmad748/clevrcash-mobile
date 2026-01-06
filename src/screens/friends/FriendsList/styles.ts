@@ -1,5 +1,6 @@
 import {StyleSheet} from 'react-native';
 import {TOTAL_TAB_BAR_HEIGHT} from '../../../components/CustomTabBar/styles';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   container: {
@@ -10,20 +11,20 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headingContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 16,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
   },
   heading: {
-    fontSize: 24,
-    fontWeight: '700',
+    ...typography.h2,
+    ...androidTextProps,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: 20,
-    marginBottom: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: {
@@ -35,25 +36,26 @@ export const styles = StyleSheet.create({
     elevation: 2,
   },
   searchIcon: {
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
+    ...typography.body,
     padding: 0,
+    ...androidTextProps,
   },
   clearButton: {
-    padding: 4,
-    marginLeft: 8,
+    padding: spacing.xs,
+    marginLeft: spacing.sm,
   },
   listContent: {
-    paddingHorizontal: 20,
-    paddingBottom: TOTAL_TAB_BAR_HEIGHT + 100,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: TOTAL_TAB_BAR_HEIGHT + spacing.xxxl * 2,
   },
   friendCard: {
     borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -72,7 +74,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   friendAvatar: {
     width: 48,
@@ -80,23 +82,26 @@ export const styles = StyleSheet.create({
     borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   friendAvatarText: {
-    fontSize: 20,
+    ...typography.medium,
     fontWeight: '700',
+    ...androidTextProps,
   },
   friendInfo: {
     flex: 1,
   },
   friendName: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '600',
-    marginBottom: 4,
+    marginBottom: spacing.xs,
+    ...androidTextProps,
   },
   friendEmail: {
-    fontSize: 12,
+    ...typography.caption,
     fontWeight: '400',
+    ...androidTextProps,
   },
   friendRight: {
     alignItems: 'flex-end',
@@ -106,34 +111,38 @@ export const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   balanceAmount: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '700',
-    marginBottom: 2,
+    marginBottom: spacing.xs,
+    ...androidTextProps,
   },
   balanceLabel: {
-    fontSize: 11,
+    ...typography.captionSmall,
     fontWeight: '500',
+    ...androidTextProps,
   },
   balanceStatus: {
-    fontSize: 12,
+    ...typography.caption,
     fontWeight: '600',
-    marginTop: 2,
+    marginTop: spacing.xs,
+    ...androidTextProps,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 64,
+    paddingVertical: spacing.xxxl * 2,
   },
   emptyText: {
-    fontSize: 16,
+    ...typography.body,
     textAlign: 'center',
-    marginTop: 16,
-    marginBottom: 24,
+    marginTop: spacing.lg,
+    marginBottom: spacing.xxl,
+    ...androidTextProps,
   },
   createButton: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.xxl,
+    paddingVertical: spacing.md,
     borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: {
@@ -146,15 +155,15 @@ export const styles = StyleSheet.create({
   },
   createButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
+    ...androidTextProps,
   },
   fabContainer: {
     position: 'absolute',
-    right: 20,
-    bottom: TOTAL_TAB_BAR_HEIGHT + 20,
+    right: spacing.lg,
+    bottom: TOTAL_TAB_BAR_HEIGHT + spacing.lg,
     flexDirection: 'row',
-    gap: 12,
+    gap: spacing.md,
   },
   fab: {
     width: 56,
@@ -172,17 +181,18 @@ export const styles = StyleSheet.create({
     elevation: 8,
   },
   pendingSection: {
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   sectionTitle: {
-    fontSize: 18,
+    ...typography.medium,
     fontWeight: '700',
-    marginBottom: 12,
+    marginBottom: spacing.md,
+    ...androidTextProps,
   },
   pendingCard: {
     borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -197,36 +207,39 @@ export const styles = StyleSheet.create({
   },
   pendingActions: {
     flexDirection: 'row',
-    gap: 8,
+    gap: spacing.sm,
   },
   acceptButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
     borderRadius: 8,
   },
   acceptButtonText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
+    ...androidTextProps,
   },
   declineButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
     borderRadius: 8,
   },
   declineButtonText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
+    ...androidTextProps,
   },
   cancelButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
     borderRadius: 8,
     borderWidth: 1,
   },
   cancelButtonText: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
+    ...androidTextProps,
   },
 });

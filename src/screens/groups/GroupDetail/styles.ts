@@ -1,5 +1,6 @@
 import {StyleSheet, Dimensions} from 'react-native';
 import {TOTAL_TAB_BAR_HEIGHT} from '../../../components/CustomTabBar/styles';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 const {width} = Dimensions.get('window');
 
@@ -15,23 +16,23 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 20,
-    paddingBottom: TOTAL_TAB_BAR_HEIGHT + 20,
+    paddingTop: spacing.lg,
+    paddingBottom: TOTAL_TAB_BAR_HEIGHT + spacing.lg,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingBottom: 16,
-    marginBottom: 20,
-    paddingHorizontal: 16,
-    paddingTop: 16,
+    paddingBottom: spacing.lg,
+    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   groupAvatar: {
     width: 48,
@@ -39,30 +40,30 @@ export const styles = StyleSheet.create({
     borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   groupAvatarText: {
-    fontSize: 20,
+    ...typography.medium,
     fontWeight: '700',
   },
   headerInfo: {
     flex: 1,
   },
   groupName: {
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 4,
+    ...typography.h2,
+    marginBottom: spacing.xs,
   },
   groupDescription: {
-    fontSize: 14,
+    ...typography.bodySmall,
+    ...androidTextProps,
   },
   addExpenseButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
     borderRadius: 12,
-    gap: 6,
+    gap: spacing.xs,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -74,25 +75,26 @@ export const styles = StyleSheet.create({
   },
   addExpenseText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
+    ...androidTextProps,
   },
   twoColumnLayout: {
     flexDirection: width > 768 ? 'row' : 'column',
-    paddingHorizontal: 20,
-    gap: 16,
+    paddingHorizontal: spacing.lg,
+    gap: spacing.lg,
   },
   leftColumn: {
     flex: width > 768 ? 2 : 1,
-    gap: 16,
+    gap: spacing.lg,
   },
   rightColumn: {
     flex: width > 768 ? 1 : 1,
-    gap: 16,
+    gap: spacing.lg,
   },
   card: {
     borderRadius: 16,
-    padding: 16,
+    padding: spacing.lg,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -106,35 +108,37 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   cardTitle: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '600',
+    ...androidTextProps,
   },
   cardSubtitle: {
-    fontSize: 12,
+    ...typography.caption,
     fontWeight: '500',
+    ...androidTextProps,
   },
   // Your Balance Card
   balanceAmount: {
-    fontSize: 32,
-    fontWeight: '700',
-    marginBottom: 4,
+    ...typography.h1,
+    marginBottom: spacing.xs,
   },
   balanceLabel: {
-    fontSize: 12,
+    ...typography.caption,
     fontWeight: '500',
+    ...androidTextProps,
   },
   // Balances List
   balancesList: {
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   balanceItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0, 0, 0, 0.05)',
   },
@@ -142,38 +146,41 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   balanceItemRight: {
     alignItems: 'flex-end',
     flexShrink: 0,
   },
   memberBalanceAmount: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
-    marginBottom: 2,
+    marginBottom: spacing.xs,
+    ...androidTextProps,
   },
   memberBalanceLabel: {
-    fontSize: 11,
+    ...typography.captionSmall,
     fontWeight: '500',
-    marginBottom: 6,
+    marginBottom: spacing.xs,
+    ...androidTextProps,
   },
   settleButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
     borderRadius: 8,
   },
   settleButtonText: {
     color: '#FFFFFF',
-    fontSize: 12,
+    ...typography.caption,
     fontWeight: '600',
+    ...androidTextProps,
   },
   // Transaction History
   transactionsList: {
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   transactionItem: {
-    paddingVertical: 12,
+    paddingVertical: spacing.md,
   },
   transactionItemBorder: {
     borderBottomWidth: 1,
@@ -189,7 +196,7 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   transactionInfo: {
     flex: 1,
@@ -198,40 +205,44 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   transactionDescription: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '500',
     flex: 1,
-    marginRight: 12,
+    marginRight: spacing.md,
+    ...androidTextProps,
   },
   transactionAmount: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
     flexShrink: 0,
+    ...androidTextProps,
   },
   transactionMeta: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    marginBottom: 2,
+    gap: spacing.xs,
+    marginBottom: spacing.xs,
   },
   transactionMetaText: {
-    fontSize: 11,
+    ...typography.captionSmall,
+    ...androidTextProps,
   },
   transactionMethod: {
-    fontSize: 11,
+    ...typography.captionSmall,
     fontStyle: 'italic',
+    ...androidTextProps,
   },
   // Members List
   membersList: {
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   memberItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: spacing.sm,
   },
   memberAvatar: {
     width: 40,
@@ -239,51 +250,55 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   memberAvatarText: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '600',
   },
   memberInfo: {
     flex: 1,
   },
   memberName: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '500',
-    marginBottom: 2,
+    marginBottom: spacing.xs,
+    ...androidTextProps,
   },
   memberRole: {
-    fontSize: 12,
+    ...typography.caption,
+    ...androidTextProps,
   },
   // Group Info
   infoList: {
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   infoItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0, 0, 0, 0.05)',
   },
   infoLabel: {
-    fontSize: 12,
+    ...typography.caption,
     fontWeight: '500',
+    ...androidTextProps,
   },
   infoValue: {
-    fontSize: 12,
+    ...typography.caption,
     fontWeight: '600',
+    ...androidTextProps,
   },
   // Actions
   actionsList: {
-    marginTop: 8,
-    gap: 12,
+    marginTop: spacing.sm,
+    gap: spacing.md,
   },
   actionButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
     borderRadius: 12,
     alignItems: 'center',
     shadowColor: '#000',

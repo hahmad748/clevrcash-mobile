@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   container: {
@@ -6,14 +7,14 @@ export const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    paddingTop: 16,
+    paddingTop: spacing.lg,
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingBottom: spacing.lg,
   },
   settingsCard: {
-    marginHorizontal: 16,
-    marginBottom: 16,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
     borderRadius: 16,
     overflow: 'hidden',
     shadowColor: '#000',
@@ -29,8 +30,8 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.lg,
     minHeight: 56,
   },
   optionItemBorder: {
@@ -42,9 +43,10 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   optionLabel: {
-    fontSize: 15,
+    ...typography.bodySmall,
     fontWeight: '500',
-    marginLeft: 12,
+    marginLeft: spacing.md,
+    ...androidTextProps,
   },
   optionItemDisabled: {
     opacity: 0.5,
@@ -53,12 +55,12 @@ export const styles = StyleSheet.create({
     marginRight: 0,
   },
   infoCard: {
-    marginHorizontal: 16,
-    padding: 16,
+    marginHorizontal: spacing.lg,
+    padding: spacing.lg,
     borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 12,
+    gap: spacing.md,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -70,7 +72,7 @@ export const styles = StyleSheet.create({
   },
   infoText: {
     flex: 1,
-    fontSize: 13,
-    lineHeight: 18,
+    ...typography.bodySmall,
+    ...androidTextProps,
   },
 });

@@ -1,10 +1,16 @@
-import {StyleSheet, Platform} from 'react-native';
+import {StyleSheet, Platform, Dimensions} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../theme/typography';
 
-export const TAB_BAR_HEIGHT = 60;
-export const ACTIVE_TAB_SIZE = 56;
+const {width, height} = Dimensions.get('window');
+const isSmallDevice = width < 360 || height < 640;
+
+// Increased height on Android to avoid on-screen navigation buttons
+export const TAB_BAR_HEIGHT = Platform.OS === 'android' ? 74 : 60;
+export const ACTIVE_TAB_SIZE = Platform.OS === 'android' ? (isSmallDevice ? 48 : 52) : 56;
 export const INACTIVE_TAB_SIZE = 24;
-export const BOTTOM_PADDING = Platform.OS === 'ios' ? 20 : 10;
-export const ACTIVE_TAB_PROTRUSION = 16; 
+// Increased bottom padding on Android to account for system navigation bar
+export const BOTTOM_PADDING = 40;
+export const ACTIVE_TAB_PROTRUSION = Platform.OS === 'android' ? -8 : 16; 
 export const TOTAL_TAB_BAR_HEIGHT = TAB_BAR_HEIGHT + BOTTOM_PADDING + ACTIVE_TAB_PROTRUSION;
 
 export const styles = StyleSheet.create({
@@ -32,7 +38,7 @@ export const styles = StyleSheet.create({
     height: TAB_BAR_HEIGHT,
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingHorizontal: 12,
+    paddingHorizontal: spacing.md,
     position: 'relative',
   },
   tabButton: {
@@ -48,7 +54,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     position: 'absolute',
     width: ACTIVE_TAB_SIZE + 8,
-    height: ACTIVE_TAB_SIZE * 2 + 16,
+    height: Platform.OS === 'android' ? ACTIVE_TAB_SIZE + 28 : ACTIVE_TAB_SIZE * 2 + 16,
     zIndex: 10,
   },
   activeTabContent: {
@@ -66,12 +72,13 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 12,
     elevation: 10,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   activeTabLabel: {
-    fontSize: 12,
+    ...typography.caption,
     fontWeight: '600',
+    color: '#ffffff',
     textTransform: 'capitalize',
-    marginTop: 2,
+    ...androidTextProps,
   },
 });

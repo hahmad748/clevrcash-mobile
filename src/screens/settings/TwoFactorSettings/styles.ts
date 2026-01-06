@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   container: {
@@ -9,69 +10,71 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   content: {
-    padding: 16,
+    padding: spacing.lg,
   },
   statusCard: {
     borderRadius: 12,
     borderWidth: 1,
-    padding: 20,
-    marginBottom: 24,
+    padding: spacing.lg,
+    marginBottom: spacing.xxl,
   },
   statusTitle: {
-    fontSize: 18,
+    ...typography.medium,
     fontWeight: '600',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
+    ...androidTextProps,
   },
   statusText: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...typography.bodySmall,
+    ...androidTextProps,
   },
   enableButton: {
     height: 50,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   enableButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
+    ...androidTextProps,
   },
   disableButton: {
     height: 50,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   disableButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
+    ...androidTextProps,
   },
   recoveryButton: {
     height: 50,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: spacing.xxl,
   },
   recoveryButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
+    ...androidTextProps,
   },
   infoSection: {
-    marginTop: 24,
+    marginTop: spacing.xxl,
   },
   infoTitle: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '600',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
+    ...androidTextProps,
   },
   infoText: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...typography.bodySmall,
+    ...androidTextProps,
   },
 });

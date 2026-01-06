@@ -1,4 +1,5 @@
 import {StyleSheet, Platform} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   modalOverlay: {
@@ -24,13 +25,13 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
+    padding: spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.1)',
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    ...typography.h3,
+    ...androidTextProps,
   },
   modalScroll: {
     maxHeight: 400,
@@ -39,11 +40,12 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.05)',
   },
   modalOptionText: {
-    fontSize: 16,
+    ...typography.body,
+    ...androidTextProps,
   },
 });

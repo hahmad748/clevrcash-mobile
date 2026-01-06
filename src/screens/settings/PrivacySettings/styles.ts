@@ -1,16 +1,18 @@
 import {StyleSheet} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
   content: {
-    padding: 16,
+    padding: spacing.lg,
   },
   sectionTitle: {
-    fontSize: 18,
+    ...typography.medium,
     fontWeight: '600',
-    marginBottom: 12,
+    marginBottom: spacing.md,
+    ...androidTextProps,
   },
   settingRow: {
     flexDirection: 'row',
@@ -18,27 +20,28 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 12,
     borderWidth: 1,
-    padding: 16,
-    marginBottom: 12,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
   },
   settingInfo: {
     flex: 1,
   },
   settingTitle: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '500',
+    ...androidTextProps,
   },
   saveButton: {
     height: 50,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 24,
-    marginBottom: 32,
+    marginTop: spacing.xxl,
+    marginBottom: spacing.xxxl,
   },
   saveButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
+    ...androidTextProps,
   },
 });

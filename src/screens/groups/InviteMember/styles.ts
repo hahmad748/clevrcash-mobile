@@ -1,5 +1,6 @@
 import {StyleSheet} from 'react-native';
 import {TOTAL_TAB_BAR_HEIGHT} from '../../../components/CustomTabBar/styles';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   container: {
@@ -13,27 +14,28 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: TOTAL_TAB_BAR_HEIGHT + 20,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: TOTAL_TAB_BAR_HEIGHT + spacing.lg,
   },
   pageHeader: {
-    marginBottom: 24,
-    paddingHorizontal: 4,
+    marginBottom: spacing.xxl,
+    paddingHorizontal: spacing.xs,
   },
   pageTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 8,
+    ...typography.h1,
+    marginBottom: spacing.sm,
+    ...androidTextProps,
   },
   groupName: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '400',
+    ...androidTextProps,
   },
   section: {
     borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.05,
@@ -41,36 +43,39 @@ export const styles = StyleSheet.create({
     elevation: 2,
   },
   sectionTitle: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '600',
-    marginBottom: 12,
+    marginBottom: spacing.md,
+    ...androidTextProps,
   },
   input: {
     height: 50,
     borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    marginBottom: 12,
+    paddingHorizontal: spacing.lg,
+    ...typography.body,
+    marginBottom: spacing.md,
+    ...androidTextProps,
   },
   description: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...typography.bodySmall,
+    ...androidTextProps,
   },
   inviteCodeContainer: {
     flexDirection: 'row',
-    gap: 12,
+    gap: spacing.md,
     alignItems: 'center',
   },
   inviteCodeInput: {
     flex: 1,
     height: 50,
     borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
+    paddingHorizontal: spacing.lg,
+    ...typography.body,
     fontFamily: 'monospace',
+    ...androidTextProps,
   },
   copyButton: {
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.lg,
     height: 50,
     borderRadius: 12,
     justifyContent: 'center',
@@ -79,14 +84,14 @@ export const styles = StyleSheet.create({
   },
   copyButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
+    ...androidTextProps,
   },
   actionButtons: {
     flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
-    marginBottom: 32,
+    gap: spacing.md,
+    marginTop: spacing.sm,
+    marginBottom: spacing.xxxl,
   },
   cancelButton: {
     flex: 1,
@@ -98,8 +103,9 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelButtonText: {
-    fontSize: 16,
+    ...typography.button,
     fontWeight: '500',
+    ...androidTextProps,
   },
   sendButton: {
     flex: 1,
@@ -110,7 +116,8 @@ export const styles = StyleSheet.create({
   },
   sendButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    ...typography.button,
     fontWeight: '500',
+    ...androidTextProps,
   },
 });

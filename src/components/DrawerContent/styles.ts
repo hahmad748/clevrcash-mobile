@@ -1,4 +1,5 @@
 import {StyleSheet, Platform} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../theme/typography';
 
 export const styles = StyleSheet.create({
   drawerContainer: {
@@ -47,14 +48,14 @@ export const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: 8,
+    paddingBottom: spacing.sm,
   },
   // User Header - Glass Card
   userHeader: {
-    marginHorizontal: 16,
-    marginTop: 12,
-    marginBottom: 6,
-    padding: 14,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.md,
+    marginBottom: spacing.xs,
+    padding: spacing.lg,
     borderRadius: 16,
     borderWidth: 1,
     // iOS-style glass shadows
@@ -73,7 +74,7 @@ export const styles = StyleSheet.create({
   },
   avatarContainer: {
     position: 'relative',
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   avatar: {
     width: 48,
@@ -92,34 +93,35 @@ export const styles = StyleSheet.create({
     marginRight: 12,
   },
   avatarText: {
-    fontSize: 20,
+    ...typography.medium,
     fontWeight: '700',
   },
   userDetails: {
     flex: 1,
   },
   userName: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '700',
-    marginBottom: 2,
+    marginBottom: spacing.xs,
     letterSpacing: 0.2,
   },
   userEmail: {
-    fontSize: 12,
+    ...typography.caption,
     fontWeight: '400',
     opacity: 0.8,
+    ...androidTextProps,
   },
   // Menu Container
   menuContainer: {
-    paddingHorizontal: 12,
-    marginBottom: 8,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    marginVertical: 3,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    marginVertical: 2,
     borderRadius: 14,
     minHeight: 44,
   },
@@ -128,26 +130,27 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
   },
   menuIcon: {
-    marginRight: 14,
+    marginRight: spacing.lg,
     width: 24,
   },
   menuLabel: {
-    fontSize: 15,
+    ...typography.bodySmall,
     flex: 1,
     letterSpacing: 0.1,
+    ...androidTextProps,
   },
   // Sticky Footer Container
   stickyFooter: {
     backgroundColor: 'transparent',
     borderTopWidth: 0.5,
     borderTopColor: 'rgba(255, 255, 255, 0.1)',
-    paddingTop: 8,
+    paddingTop: spacing.sm,
   },
   // Logout Section - Glass Card
   logoutSection: {
-    marginHorizontal: 16,
-    marginBottom: 8,
-    padding: 12,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.sm,
+    padding: spacing.md,
     borderRadius: 16,
     borderWidth: 1,
     // iOS-style glass shadows
@@ -163,8 +166,8 @@ export const styles = StyleSheet.create({
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
     borderRadius: 12,
     borderWidth: 1,
     backgroundColor: 'rgba(244, 67, 54, 0.08)',
@@ -175,24 +178,26 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
+    marginRight: spacing.sm,
   },
   logoutText: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
     letterSpacing: 0.2,
+    ...androidTextProps,
   },
   // Footer
   footer: {
-    paddingHorizontal: 20,
-    paddingTop: 6,
-    paddingBottom: Platform.OS === 'ios' ? 12 : 8,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xs,
+    paddingBottom: Platform.OS === 'ios' ? spacing.md : spacing.sm,
     alignItems: 'center',
   },
   footerText: {
-    fontSize: 10,
+    ...typography.captionSmall,
     fontWeight: '400',
     letterSpacing: 0.5,
     opacity: 0.6,
+    ...androidTextProps,
   },
 });

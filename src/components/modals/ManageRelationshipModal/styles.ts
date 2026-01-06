@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   modalOverlay: {
@@ -17,29 +18,29 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0, 0, 0, 0.1)',
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
+    ...typography.h3,
+    ...androidTextProps,
   },
   modalScroll: {
     flexGrow: 1,
   },
   modalScrollContent: {
-    paddingBottom: 20,
+    paddingBottom: spacing.lg,
   },
   optionsList: {
-    paddingVertical: 8,
+    paddingVertical: spacing.sm,
   },
   optionItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
     borderBottomWidth: 1,
     minHeight: 60,
   },
@@ -50,59 +51,62 @@ export const styles = StyleSheet.create({
   },
   optionContent: {
     flex: 1,
-    marginLeft: 16,
+    marginLeft: spacing.lg,
   },
   optionTitle: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '600',
-    marginBottom: 4,
+    marginBottom: spacing.xs,
+    ...androidTextProps,
   },
   optionDescription: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...typography.bodySmall,
+    ...androidTextProps,
   },
   reportContent: {
-    padding: 20,
+    padding: spacing.lg,
   },
   reportLabel: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '500',
-    marginBottom: 12,
+    marginBottom: spacing.md,
+    ...androidTextProps,
   },
   reportInput: {
     minHeight: 100,
     borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    ...typography.body,
     borderWidth: 1,
-    marginBottom: 16,
+    marginBottom: spacing.lg,
     textAlignVertical: 'top',
+    ...androidTextProps,
   },
   reportActions: {
     flexDirection: 'row',
-    gap: 12,
+    gap: spacing.md,
   },
   reportCancelButton: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: spacing.md,
     borderRadius: 12,
     borderWidth: 1,
     alignItems: 'center',
   },
   reportCancelText: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
+    ...androidTextProps,
   },
   reportSubmitButton: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: spacing.md,
     borderRadius: 12,
     alignItems: 'center',
   },
   reportSubmitText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
+    ...androidTextProps,
   },
 });

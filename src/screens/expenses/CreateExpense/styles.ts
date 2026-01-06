@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   container: {
@@ -12,21 +13,21 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.lg,
     paddingBottom: 100,
   },
   pageHeader: {
-    marginBottom: 24,
-    paddingHorizontal: 4,
+    marginBottom: spacing.xxl,
+    paddingHorizontal: spacing.xs,
   },
   pageTitle: {
-    fontSize: 28,
-    fontWeight: '700',
+    ...typography.h1,
+    ...androidTextProps,
   },
   section: {
     borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.05,
@@ -36,9 +37,10 @@ export const styles = StyleSheet.create({
     overflow: 'visible',
   },
   sectionLabel: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '500',
-    marginBottom: 12,
+    marginBottom: spacing.md,
+    ...androidTextProps,
   },
   // Participants Section - Higher z-index to ensure search results appear above
   participantsSection: {
@@ -48,7 +50,7 @@ export const styles = StyleSheet.create({
   // Participants Section
   searchContainer: {
     position: 'relative',
-    marginBottom: 12,
+    marginBottom: spacing.md,
     zIndex: 9999,
     elevation: 10,
     overflow: 'visible',
@@ -56,8 +58,9 @@ export const styles = StyleSheet.create({
   searchInput: {
     height: 48,
     borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
+    paddingHorizontal: spacing.lg,
+    ...typography.body,
+    ...androidTextProps,
   },
   searchResults: {
     position: 'absolute',
@@ -76,7 +79,7 @@ export const styles = StyleSheet.create({
     elevation: 20,
   },
   searchResultItem: {
-    padding: 12,
+    padding: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.1)',
     flexDirection: 'row',
@@ -84,54 +87,59 @@ export const styles = StyleSheet.create({
     alignItems:'center',
   },
   searchResultText: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '500',
-    marginBottom: 4,
+    marginBottom: spacing.xs,
+    ...androidTextProps,
   },
   searchResultEmail: {
-    fontSize: 14,
+    ...typography.bodySmall,
+    ...androidTextProps,
   },
   availableFriendsContainer: {
-    marginTop: 12,
-    paddingTop: 12,
+    marginTop: spacing.md,
+    paddingTop: spacing.md,
     borderTopWidth: 1,
     borderTopColor: 'rgba(0,0,0,0.1)',
   },
   availableFriendsLabel: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '500',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
+    ...androidTextProps,
   },
   friendItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 12,
+    padding: spacing.md,
     borderRadius: 8,
-    marginBottom: 6,
+    marginBottom: spacing.xs,
     backgroundColor: 'rgba(0,0,0,0.02)',
   },
   friendItemText: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '500',
+    ...androidTextProps,
   },
   chipsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: spacing.sm,
   },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
     borderRadius: 24,
     minHeight: 36,
   },
   chipText: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '500',
-    marginRight: 6,
+    marginRight: spacing.xs,
+    ...androidTextProps,
   },
   chipRemove: {
     marginLeft: 4,
@@ -153,8 +161,9 @@ export const styles = StyleSheet.create({
     opacity: 0.6,
   },
   receiptText: {
-    fontSize: 12,
-    marginTop: 8,
+    ...typography.caption,
+    marginTop: spacing.sm,
+    ...androidTextProps,
   },
   receiptPreviewContainer: {
     zIndex: 1,
@@ -177,9 +186,10 @@ export const styles = StyleSheet.create({
     padding: 8,
   },
   receiptDocumentName: {
-    fontSize: 10,
-    marginTop: 4,
+    ...typography.captionSmall,
+    marginTop: spacing.xs,
     textAlign: 'center',
+    ...androidTextProps,
   },
   removeReceiptButton: {
     position: 'absolute',
@@ -198,69 +208,74 @@ export const styles = StyleSheet.create({
   },
   expenseInputs: {
     flex: 1,
-    gap: 12,
+    gap: spacing.md,
   },
   descriptionInput: {
-    fontSize: 18,
-    paddingBottom: 8,
+    ...typography.medium,
+    paddingBottom: spacing.sm,
     borderBottomWidth: 2,
+    ...androidTextProps,
   },
   amountRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: spacing.sm,
   },
   currencyButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     borderRadius: 8,
   },
   currencyText: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '500',
-    marginRight: 4,
+    marginRight: spacing.xs,
+    ...androidTextProps,
   },
   amountInput: {
     flex: 1,
-    fontSize: 24,
-    fontWeight: '700',
-    paddingBottom: 8,
+    ...typography.h2,
+    paddingBottom: spacing.sm,
     borderBottomWidth: 2,
+    ...androidTextProps,
   },
   // Paid By Section
   paidBySection: {
-    paddingVertical: 20,
-    paddingHorizontal: 20,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.lg,
   },
   paidByRow: {
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 8,
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
   },
   paidByText: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '500',
+    ...androidTextProps,
   },
   paidByButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
     borderRadius: 20,
     minHeight: 36,
     justifyContent: 'center',
   },
   paidByButtonText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
+    ...androidTextProps,
   },
   splitPerPerson: {
-    fontSize: 14,
-    marginTop: 8,
+    ...typography.bodySmall,
+    marginTop: spacing.sm,
     fontWeight: '400',
+    ...androidTextProps,
   },
   // Split Details
   splitRow: {
@@ -272,17 +287,19 @@ export const styles = StyleSheet.create({
     borderBottomColor: 'rgba(0,0,0,0.05)',
   },
   splitRowName: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '500',
     flex: 1,
+    ...androidTextProps,
   },
   splitInput: {
     width: 120,
     height: 40,
     borderRadius: 8,
-    paddingHorizontal: 12,
-    fontSize: 16,
+    paddingHorizontal: spacing.md,
+    ...typography.body,
     textAlign: 'right',
+    ...androidTextProps,
   },
   // Reimbursement
   reimbursementSelect: {
@@ -297,8 +314,9 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
   },
   reimbursementOptionText: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '500',
+    ...androidTextProps,
   },
   // Itemized
   itemizedHeader: {
@@ -317,8 +335,9 @@ export const styles = StyleSheet.create({
   },
   addItemText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
+    ...androidTextProps,
   },
   itemsList: {
     gap: 12,
@@ -338,29 +357,32 @@ export const styles = StyleSheet.create({
     flex: 2,
     height: 40,
     borderRadius: 8,
-    paddingHorizontal: 12,
-    fontSize: 16,
+    paddingHorizontal: spacing.md,
+    ...typography.body,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.1)',
+    ...androidTextProps,
   },
   itemAmountInput: {
     flex: 1,
     height: 40,
     borderRadius: 8,
-    paddingHorizontal: 12,
-    fontSize: 16,
+    paddingHorizontal: spacing.md,
+    ...typography.body,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.1)',
     textAlign: 'right',
+    ...androidTextProps,
   },
   itemQuantityInput: {
     width: 80,
     height: 40,
     borderRadius: 8,
-    paddingHorizontal: 12,
-    fontSize: 16,
+    paddingHorizontal: spacing.md,
+    ...typography.body,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.1)',
+    ...androidTextProps,
   },
   removeItemButton: {
     flexDirection: 'row',
@@ -369,13 +391,15 @@ export const styles = StyleSheet.create({
     marginLeft: 'auto',
   },
   removeItemText: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '500',
+    ...androidTextProps,
   },
   emptyText: {
-    fontSize: 14,
+    ...typography.bodySmall,
     textAlign: 'center',
-    paddingVertical: 24,
+    paddingVertical: spacing.xxl,
+    ...androidTextProps,
   },
   // Date and Category
   dateCategoryRow: {
@@ -386,36 +410,40 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   fieldLabel: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '500',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
+    ...androidTextProps,
   },
   dateInput: {
     height: 48,
     borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
+    paddingHorizontal: spacing.lg,
+    ...typography.body,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    ...androidTextProps,
   },
   dateText: {
-    fontSize: 16,
+    ...typography.body,
+    ...androidTextProps,
   },
   datePickerContainer: {
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   datePickerInput: {
     height: 48,
     borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    marginBottom: 12,
+    paddingHorizontal: spacing.lg,
+    ...typography.body,
+    marginBottom: spacing.md,
     backgroundColor: 'rgba(0,0,0,0.05)',
+    ...androidTextProps,
   },
   quickDateButtons: {
     flexDirection: 'row',
-    gap: 12,
+    gap: spacing.md,
   },
   quickDateButton: {
     flex: 1,
@@ -425,8 +453,9 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   quickDateText: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
+    ...androidTextProps,
   },
   categoryButton: {
     flex: 1,
@@ -434,12 +463,13 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     height: 48,
     borderRadius: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.lg,
     borderWidth: 1,
-    gap: 8,
+    gap: spacing.sm,
   },
   categoryButtonText: {
-    fontSize: 16,
+    ...typography.body,
+    ...androidTextProps,
   },
   // Notes
   addNotesButton: {
@@ -451,30 +481,32 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
   },
   addNotesText: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '500',
+    ...androidTextProps,
   },
   notesHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   notesInput: {
     minHeight: 80,
     borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    ...typography.body,
     borderWidth: 0.1,
     textAlignVertical: 'top',
+    ...androidTextProps,
   },
   // Action Buttons
   actionButtons: {
     flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
-    marginBottom: 32,
+    gap: spacing.md,
+    marginTop: spacing.sm,
+    marginBottom: spacing.xxxl,
   },
   cancelButton: {
     flex: 1,
@@ -486,8 +518,9 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelButtonText: {
-    fontSize: 16,
+    ...typography.button,
     fontWeight: '500',
+    ...androidTextProps,
   },
   saveButton: {
     flex: 1,
@@ -498,8 +531,9 @@ export const styles = StyleSheet.create({
   },
   saveButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    ...typography.button,
     fontWeight: '500',
+    ...androidTextProps,
   },
   // Modals
   modalOverlay: {
@@ -510,19 +544,19 @@ export const styles = StyleSheet.create({
   modalContent: {
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    padding: 24,
+    padding: spacing.xxl,
     maxHeight: '80%',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 16,
+    ...typography.h3,
+    marginBottom: spacing.lg,
+    ...androidTextProps,
   },
   modalScroll: {
     maxHeight: 400,
@@ -531,27 +565,29 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: spacing.lg,
     borderRadius: 12,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   modalOptionText: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '500',
+    ...androidTextProps,
   },
   modalOptionDesc: {
-    fontSize: 14,
-    marginTop: 4,
+    ...typography.bodySmall,
+    marginTop: spacing.xs,
+    ...androidTextProps,
   },
   modalCloseButton: {
-    marginTop: 16,
-    paddingVertical: 14,
+    marginTop: spacing.lg,
+    paddingVertical: spacing.lg,
     borderRadius: 12,
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.05)',
   },
   modalCloseText: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
+    ...androidTextProps,
   },
 });

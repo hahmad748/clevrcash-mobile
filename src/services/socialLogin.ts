@@ -175,8 +175,27 @@ class SocialLoginService {
         // User cancelled the sign-in
         return null;
       }
+      
       console.error('Google Sign-In Error:', error);
-      Alert.alert('Google Sign-In Failed', error.message || 'Unable to sign in with Google');
+      
+      // Provide more helpful error messages for common Android issues
+      let errorMessage = error.message || 'Unable to sign in with Google';
+      
+      if (error.code === '10' || error.message?.includes('10:') || error.message?.includes('DEVELOPER_ERROR')) {
+        errorMessage = 'Google Sign-In configuration error. Please ensure:\n' +
+          '1. SHA-1 fingerprint is registered in Firebase Console\n' +
+          '2. OAuth client is configured in google-services.json\n' +
+          '3. Package name matches: com.devsfort.clevrcash';
+      } else if (error.message?.includes('No ID token found') || error.message?.includes('idToken')) {
+        errorMessage = 'Google Sign-In token error. Please check:\n' +
+          '1. OAuth client configuration in Firebase\n' +
+          '2. webClientId is correctly set\n' +
+          '3. Google Sign-In API is enabled in Google Cloud Console';
+      } else if (error.message?.includes('network') || error.message?.includes('Network')) {
+        errorMessage = 'Network error. Please check your internet connection and try again.';
+      }
+      
+      Alert.alert('Google Sign-In Failed', errorMessage);
       return null;
     }
   }

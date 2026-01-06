@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   container: {
@@ -9,7 +10,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   listContent: {
-    padding: 16,
+    padding: spacing.lg,
   },
   deviceCard: {
     flexDirection: 'row',
@@ -17,54 +18,59 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 12,
     borderWidth: 1,
-    padding: 16,
-    marginBottom: 12,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
   },
   deviceInfo: {
     flex: 1,
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   deviceName: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '600',
-    marginBottom: 4,
+    marginBottom: spacing.xs,
+    ...androidTextProps,
   },
   deviceDetails: {
-    fontSize: 14,
-    marginBottom: 4,
+    ...typography.bodySmall,
+    marginBottom: spacing.xs,
+    ...androidTextProps,
   },
   deviceDate: {
-    fontSize: 12,
+    ...typography.caption,
+    ...androidTextProps,
   },
   revokeButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
     borderRadius: 8,
   },
   revokeButtonText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
+    ...androidTextProps,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 64,
+    paddingVertical: spacing.xxxl * 2,
   },
   emptyText: {
-    fontSize: 16,
+    ...typography.body,
     textAlign: 'center',
+    ...androidTextProps,
   },
   revokeAllButton: {
-    margin: 16,
-    paddingVertical: 14,
+    margin: spacing.lg,
+    paddingVertical: spacing.lg,
     borderRadius: 8,
     alignItems: 'center',
   },
   revokeAllButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
+    ...androidTextProps,
   },
 });

@@ -1,28 +1,30 @@
 import {StyleSheet} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
   content: {
-    padding: 16,
+    padding: spacing.lg,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 12,
     borderWidth: 1,
-    padding: 16,
-    marginBottom: 12,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
   },
   menuIcon: {
     fontSize: 24,
-    marginRight: 16,
+    marginRight: spacing.lg,
   },
   menuTitle: {
     flex: 1,
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '500',
+    ...androidTextProps,
   },
   menuArrow: {
     fontSize: 24,

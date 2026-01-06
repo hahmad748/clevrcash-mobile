@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   container: {
@@ -9,36 +10,38 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   content: {
-    padding: 16,
+    padding: spacing.lg,
   },
   header: {
     borderRadius: 16,
     borderWidth: 1,
-    padding: 24,
-    marginBottom: 24,
+    padding: spacing.xxl,
+    marginBottom: spacing.xxl,
     alignItems: 'center',
   },
   description: {
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 12,
+    ...typography.h2,
+    marginBottom: spacing.md,
     textAlign: 'center',
+    ...androidTextProps,
   },
   amount: {
-    fontSize: 32,
-    fontWeight: '700',
-    marginBottom: 8,
+    ...typography.h1,
+    marginBottom: spacing.sm,
+    ...androidTextProps,
   },
   date: {
-    fontSize: 16,
+    ...typography.body,
+    ...androidTextProps,
   },
   section: {
-    marginBottom: 24,
+    marginBottom: spacing.xxl,
   },
   sectionTitle: {
-    fontSize: 18,
+    ...typography.medium,
     fontWeight: '600',
-    marginBottom: 12,
+    marginBottom: spacing.md,
+    ...androidTextProps,
   },
   detailRow: {
     flexDirection: 'row',
@@ -46,36 +49,41 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 12,
     borderWidth: 1,
-    padding: 16,
-    marginBottom: 8,
+    padding: spacing.lg,
+    marginBottom: spacing.sm,
   },
   detailLabel: {
-    fontSize: 14,
+    ...typography.bodySmall,
+    ...androidTextProps,
   },
   detailValue: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '500',
+    ...androidTextProps,
   },
   splitRow: {
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 12,
     borderWidth: 1,
-    padding: 16,
-    marginBottom: 8,
+    padding: spacing.lg,
+    marginBottom: spacing.sm,
   },
   splitUserName: {
     flex: 1,
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '500',
+    ...androidTextProps,
   },
   splitAmount: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '600',
-    marginRight: 8,
+    marginRight: spacing.sm,
+    ...androidTextProps,
   },
   splitPercentage: {
-    fontSize: 14,
+    ...typography.bodySmall,
+    ...androidTextProps,
   },
   itemRow: {
     flexDirection: 'row',
@@ -83,23 +91,26 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 12,
     borderWidth: 1,
-    padding: 16,
-    marginBottom: 8,
+    padding: spacing.lg,
+    marginBottom: spacing.sm,
   },
   itemInfo: {
     flex: 1,
   },
   itemName: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '500',
-    marginBottom: 4,
+    marginBottom: spacing.xs,
+    ...androidTextProps,
   },
   itemQuantity: {
-    fontSize: 14,
+    ...typography.bodySmall,
+    ...androidTextProps,
   },
   itemAmount: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '600',
+    ...androidTextProps,
   },
   attachmentRow: {
     flexDirection: 'row',
@@ -124,48 +135,51 @@ export const styles = StyleSheet.create({
     marginRight: 12,
   },
   attachmentIconText: {
-    fontSize: 24,
+    ...typography.h2,
   },
   attachmentInfo: {
     flex: 1,
   },
   attachmentName: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '500',
-    marginBottom: 4,
+    marginBottom: spacing.xs,
+    ...androidTextProps,
   },
   attachmentSize: {
-    fontSize: 14,
+    ...typography.bodySmall,
+    ...androidTextProps,
   },
   actions: {
     flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
-    marginBottom: 32,
+    gap: spacing.md,
+    marginTop: spacing.sm,
+    marginBottom: spacing.xxxl,
   },
   editButton: {
     flex: 1,
-    paddingVertical: 14,
+    paddingVertical: spacing.lg,
     borderRadius: 8,
     alignItems: 'center',
   },
   editButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
+    ...androidTextProps,
   },
   deleteButton: {
     flex: 1,
-    paddingVertical: 14,
+    paddingVertical: spacing.lg,
     borderRadius: 8,
     alignItems: 'center',
   },
   deleteButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.button,
+    ...androidTextProps,
   },
   errorText: {
-    fontSize: 16,
+    ...typography.body,
+    ...androidTextProps,
   },
 });

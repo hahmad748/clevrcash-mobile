@@ -1,16 +1,17 @@
 import {StyleSheet, Platform} from 'react-native';
+import {spacing} from '../../theme/typography';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
   header: {
-    height: 30,
+    height: 44,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingBottom: 16,
-    paddingHorizontal: 20,
+    paddingBottom: spacing.lg,
+    paddingHorizontal: spacing.lg,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
     overflow: 'hidden',

@@ -1,4 +1,5 @@
 import {StyleSheet, Platform, Dimensions} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 const {width} = Dimensions.get('window');
 
@@ -25,49 +26,51 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingBottom: Platform.OS === 'ios' ? 40 : 30,
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing.xxl,
   },
   logoSection: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: spacing.xxxl,
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   logo: {
     width: 80,
     height: 80,
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   logoText: {
-    fontSize: 24,
+    ...typography.h2,
     fontWeight: '700',
     color: '#FFFFFF',
     letterSpacing: 1.5,
     textTransform: 'uppercase',
+    ...androidTextProps,
   },
   welcomeText: {
-    fontSize: 28,
+    ...typography.h1,
     fontWeight: '700',
     color: '#FFFFFF',
-    marginTop: 20,
-    marginBottom: 8,
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
     letterSpacing: 0.5,
     textAlign: 'center',
+    ...androidTextProps,
   },
   subtitleText: {
-    fontSize: 16,
+    ...typography.body,
     color: '#FFFFFF',
     opacity: 0.9,
     textAlign: 'center',
-    paddingHorizontal: 20,
-    lineHeight: 24,
+    paddingHorizontal: spacing.lg,
+    ...androidTextProps,
   },
   formCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
     borderRadius: 24,
-    padding: 24,
+    padding: spacing.xxl,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -81,37 +84,39 @@ export const styles = StyleSheet.create({
     width: '100%',
   },
   inputContainer: {
-    marginBottom: 32,
+    marginBottom: spacing.xxxl,
   },
   inputLabelContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   inputIcon: {
-    marginRight: 8,
+    marginRight: spacing.sm,
   },
   label: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
     color: '#333333',
+    ...androidTextProps,
   },
   input: {
     height: 56,
     backgroundColor: 'rgba(255, 255, 255, 0.5)',
     borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
+    paddingHorizontal: spacing.lg,
+    ...typography.body,
     color: '#333333',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
+    ...androidTextProps,
   },
   primaryButton: {
     height: 56,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: spacing.xxl,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -123,19 +128,21 @@ export const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#FFFFFF',
-    fontSize: 18,
+    ...typography.medium,
     fontWeight: '700',
     letterSpacing: 0.5,
+    ...androidTextProps,
   },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
+    paddingVertical: spacing.md,
   },
   backButtonText: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '600',
-    marginLeft: 8,
+    marginLeft: spacing.sm,
+    ...androidTextProps,
   },
 });

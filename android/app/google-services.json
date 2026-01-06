@@ -12,7 +12,28 @@
           "package_name": "com.devsfort.clevrcash"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "861738091454-15t5pm5mjiiagagpmoo1os6qp177rujh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.devsfort.clevrcash",
+            "certificate_hash": "1a1772c6eabe16154629a3a6c8031a2ad0a9e35d"
+          }
+        },
+        {
+          "client_id": "861738091454-m343fkfghq4qbj7ja6qqsppsek5kts5i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.devsfort.clevrcash",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "861738091454-8efjsk5vlvod8aq6nbvabp4mveg7llud.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAku83-XtjnjVXc7ei1u3GAUwciZ2orqvE"
@@ -20,7 +41,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "861738091454-5chn3f414v835sja944pp19kabt2lide.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "861738091454-ja3bdu8d6gi1apbn5hjhpcufea78kj3u.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.devsfort.clevrcash"
+              }
+            }
+          ]
         }
       }
     }

@@ -115,7 +115,10 @@ export function DashboardScreen() {
                 <Text style={[styles.profileName, {color: textColor}]}>
                   {user?.name || 'User'}
                 </Text>
-                <Text style={[styles.profileEmail, {color: secondaryTextColor}]}>
+                <Text 
+                  style={[styles.profileEmail, {color: secondaryTextColor}]}
+                  numberOfLines={2}
+                  ellipsizeMode="tail">
                   {user?.email || ''}
                 </Text>
                 <View style={styles.followersRow}>

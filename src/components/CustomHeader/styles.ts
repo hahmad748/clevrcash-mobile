@@ -1,7 +1,8 @@
 import {StyleSheet, Platform} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../theme/typography';
 
-export const HEADER_HEIGHT = Platform.OS === 'ios' ? 100 : 60;
-export const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 44 : 0;
+export const HEADER_HEIGHT = Platform.OS === 'ios' ? 100 : 75;
+export const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 44 : 44;
 
 export const styles = StyleSheet.create({
   container: {
@@ -26,7 +27,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.lg,
   },
   leftSection: {
     width: 48,
@@ -37,13 +38,13 @@ export const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.lg,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '600',
+    ...typography.h3,
     textAlign: 'center',
     textTransform: 'capitalize',
+    ...androidTextProps,
   },
   rightSection: {
     width: 48,
@@ -73,7 +74,8 @@ export const styles = StyleSheet.create({
   },
   badgeText: {
     color: '#FFFFFF',
-    fontSize: 10,
+    ...typography.captionSmall,
     fontWeight: '700',
+    ...androidTextProps,
   },
 });

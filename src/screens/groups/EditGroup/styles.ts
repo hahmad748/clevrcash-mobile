@@ -1,5 +1,6 @@
 import {StyleSheet} from 'react-native';
 import {TOTAL_TAB_BAR_HEIGHT} from '../../../components/CustomTabBar/styles';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   container: {
@@ -13,22 +14,22 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: TOTAL_TAB_BAR_HEIGHT + 20,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: TOTAL_TAB_BAR_HEIGHT + spacing.lg,
   },
   pageHeader: {
-    marginBottom: 24,
-    paddingHorizontal: 4,
+    marginBottom: spacing.xxl,
+    paddingHorizontal: spacing.xs,
   },
   pageTitle: {
-    fontSize: 28,
-    fontWeight: '700',
+    ...typography.h1,
+    ...androidTextProps,
   },
   section: {
     borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.05,
@@ -36,52 +37,57 @@ export const styles = StyleSheet.create({
     elevation: 2,
   },
   sectionLabel: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '500',
-    marginBottom: 12,
+    marginBottom: spacing.md,
+    ...androidTextProps,
   },
   input: {
-    fontSize: 18,
-    paddingBottom: 8,
+    ...typography.medium,
+    paddingBottom: spacing.sm,
     borderBottomWidth: 2,
+    ...androidTextProps,
   },
   addDescriptionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    paddingVertical: 12,
+    gap: spacing.sm,
+    paddingVertical: spacing.md,
   },
   addDescriptionText: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '500',
+    ...androidTextProps,
   },
   textArea: {
     minHeight: 100,
     borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    ...typography.body,
     textAlignVertical: 'top',
     backgroundColor: 'rgba(0,0,0,0.02)',
+    ...androidTextProps,
   },
   currencyButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     borderRadius: 12,
     minHeight: 48,
   },
   currencyText: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '500',
+    ...androidTextProps,
   },
   actionButtons: {
     flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
-    marginBottom: 32,
+    gap: spacing.md,
+    marginTop: spacing.sm,
+    marginBottom: spacing.xxxl,
   },
   cancelButton: {
     flex: 1,
@@ -93,8 +99,9 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelButtonText: {
-    fontSize: 16,
+    ...typography.button,
     fontWeight: '500',
+    ...androidTextProps,
   },
   saveButton: {
     flex: 1,
@@ -105,7 +112,8 @@ export const styles = StyleSheet.create({
   },
   saveButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    ...typography.button,
     fontWeight: '500',
+    ...androidTextProps,
   },
 });

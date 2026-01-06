@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   container: {
@@ -14,15 +15,16 @@ export const styles = StyleSheet.create({
   },
   tab: {
     flex: 1,
-    paddingVertical: 16,
+    paddingVertical: spacing.lg,
     alignItems: 'center',
   },
   tabText: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '600',
+    ...androidTextProps,
   },
   listContent: {
-    padding: 16,
+    padding: spacing.lg,
   },
   requestCard: {
     flexDirection: 'row',
@@ -30,8 +32,8 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 12,
     borderWidth: 1,
-    padding: 16,
-    marginBottom: 12,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
   },
   requestInfo: {
     flexDirection: 'row',
@@ -44,60 +46,66 @@ export const styles = StyleSheet.create({
     borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   avatarText: {
     color: '#FFFFFF',
-    fontSize: 20,
+    ...typography.medium,
     fontWeight: '600',
   },
   requestDetails: {
     flex: 1,
   },
   requestName: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '600',
-    marginBottom: 4,
+    marginBottom: spacing.xs,
+    ...androidTextProps,
   },
   requestEmail: {
-    fontSize: 14,
+    ...typography.bodySmall,
+    ...androidTextProps,
   },
   actions: {
     flexDirection: 'row',
-    gap: 8,
+    gap: spacing.sm,
   },
   acceptButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
     borderRadius: 8,
   },
   acceptButtonText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
+    ...androidTextProps,
   },
   declineButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
     borderRadius: 8,
   },
   declineButtonText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '600',
+    ...androidTextProps,
   },
   pendingText: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '500',
+    ...androidTextProps,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 64,
+    paddingVertical: spacing.xxxl * 2,
   },
   emptyText: {
-    fontSize: 16,
+    ...typography.body,
     textAlign: 'center',
+    ...androidTextProps,
   },
 });

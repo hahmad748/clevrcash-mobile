@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   modalOverlay: {
@@ -9,45 +10,47 @@ export const styles = StyleSheet.create({
   modalContent: {
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingTop: 20,
-    paddingBottom: 40,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xxxl,
     maxHeight: '80%',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingBottom: 16,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.1)',
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
+    ...typography.h3,
+    ...androidTextProps,
   },
   loadingContainer: {
-    padding: 40,
+    padding: spacing.xxxl,
     alignItems: 'center',
     justifyContent: 'center',
   },
   modalScroll: {
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.lg,
   },
   modalOption: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: spacing.lg,
     borderRadius: 12,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   modalOptionText: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '500',
-    marginBottom: 4,
+    marginBottom: spacing.xs,
+    ...androidTextProps,
   },
   modalOptionDesc: {
-    fontSize: 14,
+    ...typography.bodySmall,
+    ...androidTextProps,
   },
 });

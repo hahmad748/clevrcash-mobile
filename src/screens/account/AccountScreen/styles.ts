@@ -1,4 +1,5 @@
 import {StyleSheet, Platform} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   container: {
@@ -8,15 +9,15 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 16,
-    paddingBottom: 20,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.lg,
   },
   // Profile Card
   profileCard: {
-    marginHorizontal: 16,
-    marginBottom: 24,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.xxl,
     borderRadius: 16,
-    padding: 16,
+    padding: spacing.lg,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -31,7 +32,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   avatarContainer: {
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   avatar: {
     width: 64,
@@ -49,36 +50,40 @@ export const styles = StyleSheet.create({
     borderWidth: 2,
   },
   avatarText: {
-    fontSize: 24,
+    ...typography.h2,
     fontWeight: '700',
+    ...androidTextProps,
   },
   userInfo: {
     flex: 1,
   },
   userName: {
-    fontSize: 18,
+    ...typography.medium,
     fontWeight: '700',
-    marginBottom: 4,
+    marginBottom: spacing.xs,
+    ...androidTextProps,
   },
   userEmail: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '400',
+    ...androidTextProps,
   },
   editButton: {
-    padding: 8,
+    padding: spacing.sm,
   },
   // Section Header
   sectionHeader: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '700',
-    marginHorizontal: 16,
-    marginBottom: 12,
-    marginTop: 8,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+    marginTop: spacing.sm,
+    ...androidTextProps,
   },
   // Settings Card
   settingsCard: {
-    marginHorizontal: 16,
-    marginBottom: 24,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.xxl,
     borderRadius: 16,
     overflow: 'hidden',
     shadowColor: '#000',
@@ -94,8 +99,8 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.lg,
     minHeight: 56,
   },
   settingItemBorder: {
@@ -107,25 +112,27 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   settingTitle: {
-    fontSize: 15,
+    ...typography.bodySmall,
     fontWeight: '500',
-    marginLeft: 12,
+    marginLeft: spacing.md,
+    ...androidTextProps,
   },
   settingRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: spacing.sm,
   },
   settingRightText: {
-    fontSize: 14,
+    ...typography.bodySmall,
     fontWeight: '400',
+    ...androidTextProps,
   },
   // PRO Banner
   proBanner: {
-    marginHorizontal: 16,
-    marginTop: 8,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.sm,
     borderRadius: 16,
-    padding: 20,
+    padding: spacing.lg,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -146,18 +153,20 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   proBannerTextContainer: {
-    marginLeft: 16,
+    marginLeft: spacing.lg,
   },
   proBannerTitle: {
-    fontSize: 18,
+    ...typography.medium,
     fontWeight: '700',
     color: '#FFFFFF',
-    marginBottom: 4,
+    marginBottom: spacing.xs,
+    ...androidTextProps,
   },
   proBannerSubtitle: {
-    fontSize: 14,
+    ...typography.bodySmall,
     color: '#FFFFFF',
     opacity: 0.9,
     fontWeight: '400',
+    ...androidTextProps,
   },
 });

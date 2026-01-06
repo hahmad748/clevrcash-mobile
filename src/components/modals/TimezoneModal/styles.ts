@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import {typography, spacing, androidTextProps} from '../../../theme/typography';
 
 export const styles = StyleSheet.create({
   modalOverlay: {
@@ -9,8 +10,8 @@ export const styles = StyleSheet.create({
   modalContent: {
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingTop: 20,
-    paddingBottom: 20,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.lg,
     maxHeight: '80%',
     minHeight: '80%',
   },
@@ -18,52 +19,54 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingBottom: 16,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.1)',
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
+    ...typography.h3,
+    ...androidTextProps,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: 20,
-    marginBottom: 16,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
     marginTop: 5,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     borderRadius: 12,
   },
   searchIcon: {
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
+    ...typography.body,
+    ...androidTextProps,
   },
   loadingContainer: {
-    padding: 40,
+    padding: spacing.xxxl,
     alignItems: 'center',
     justifyContent: 'center',
   },
   modalScroll: {
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.lg,
   },
   modalOption: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: spacing.lg,
     borderRadius: 12,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   modalOptionText: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '500',
     flex: 1,
+    ...androidTextProps,
   },
 });
 

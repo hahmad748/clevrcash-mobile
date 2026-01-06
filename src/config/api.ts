@@ -14,7 +14,8 @@ import DeviceInfo from 'react-native-device-info';
 // Update this to your machine's IP address for real device testing
 // Find your IP: macOS/Linux: `ipconfig getifaddr en0` or `ifconfig | grep "inet "`
 // Windows: `ipconfig` (look for IPv4 Address)
-const DEV_API_HOST = '192.168.0.143'; 
+// const DEV_API_HOST = '192.168.70.33'; 
+const DEV_API_HOST = '192.168.70.33'; 
 
 // Cache for device type detection
 let isSimulatorCache: boolean | null = null;
@@ -34,20 +35,8 @@ async function isSimulator(): Promise<boolean> {
  */
 export async function getAPIBaseURL(): Promise<string> {
   if (__DEV__) {
-    const isEmulator = await isSimulator();
-    
-    if (isEmulator) {
-      // Simulator/Emulator - use localhost
-      return 'http://localhost:8000/api/v1';
-    } else {
-      // Real device - use machine's IP address
-      if (DEV_API_HOST && DEV_API_HOST !== 'localhost' && DEV_API_HOST !== '127.0.0.1') {
-        return `http://${DEV_API_HOST}:8000/api/v1`;
-      }
-      // Fallback to localhost if DEV_API_HOST not set properly
-      console.warn('⚠️ DEV_API_HOST not set. Using localhost (may not work on real device).');
-      return 'http://localhost:8000/api/v1';
-    }
+    return `http://${DEV_API_HOST}:8000/api/v1`;
+   
   } else {
     return 'https://clevrcash.com/api/v1';
   }
