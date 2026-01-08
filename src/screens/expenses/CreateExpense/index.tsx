@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect, useCallback, useRef} from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-  FlatList,
   Image,
   Platform,
   ActionSheetIOS,
@@ -94,6 +93,11 @@ export function CreateExpenseScreen() {
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
 
+  // Debounce and request cancellation refs
+  const searchDebounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const searchRequestIdRef = useRef<number>(0);
+  const isSearchCancelledRef = useRef<boolean>(false);
+
   // Reset form function
   const resetForm = useCallback(() => {
     setDescription('');
@@ -135,19 +139,45 @@ export function CreateExpenseScreen() {
       setParticipants(prev =>
         prev.map(p => ({...p, amount: splitAmount, percentage: undefined, shares: undefined})),
       );
-    } else if (splitType === 'itemized' && items.length > 0) {
-      // Calculate total from items
-      const total = items.reduce((sum, item) => sum + item.amount * item.quantity, 0);
+    } else if (splitType === 'itemized') {
+      // Calculate total from items (even if empty, set to 0)
+      const total = items.reduce((sum, item) => {
+        const itemAmount = parseFloat(String(item.amount || 0)) || 0;
+        const itemQuantity = parseFloat(String(item.quantity || 1)) || 1;
+        return sum + itemAmount * itemQuantity;
+      }, 0);
       setAmount(total.toFixed(2));
     }
   }, [amount, participants.length, splitType, items]);
 
   useEffect(() => {
+    // Clear previous debounce timer
+    if (searchDebounceTimerRef.current) {
+      clearTimeout(searchDebounceTimerRef.current);
+    }
+
+    // Cancel previous search request
+    searchRequestIdRef.current += 1;
+    isSearchCancelledRef.current = false;
+
     if (searchQuery.trim()) {
-      searchUsers(searchQuery);
+      // Debounce search - wait 300ms after user stops typing
+      searchDebounceTimerRef.current = setTimeout(() => {
+        searchUsers(searchQuery, searchRequestIdRef.current);
+      }, 300);
     } else {
       setSearchResults([]);
     }
+
+    // Cleanup function
+    return () => {
+      if (searchDebounceTimerRef.current) {
+        clearTimeout(searchDebounceTimerRef.current);
+      }
+      // Mark current request as cancelled
+      isSearchCancelledRef.current = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
 
   const loadInitialData = useCallback(async () => {
@@ -196,24 +226,55 @@ export function CreateExpenseScreen() {
     }
   }, [groupId, friendId, user]);
 
-  const searchUsers = async (query: string) => {
+  const searchUsers = async (query: string, requestId: number) => {
     try {
       if (groupId) {
-        // When in group context, search within group members
+        // When in group context, search within group members only
+        const queryLower = query.toLowerCase().trim();
         const filtered = availableUsers.filter(
           u =>
             u.id !== user?.id &&
-            (u.name.toLowerCase().includes(query.toLowerCase()) ||
-              u.email?.toLowerCase().includes(query.toLowerCase())),
+            ((u.name || '').toLowerCase().includes(queryLower) ||
+              (u.email || '').toLowerCase().includes(queryLower)),
         );
-        setSearchResults(filtered);
+        // Remove duplicates by ID
+        const uniqueFiltered = filtered.filter((u, index, self) => 
+          index === self.findIndex(m => m.id === u.id)
+        );
+        
+        // Only update if this is still the latest request
+        if (requestId === searchRequestIdRef.current && !isSearchCancelledRef.current) {
+          setSearchResults(uniqueFiltered);
+        }
       } else {
-        // When not in group, search friends
+        // When not in group, search friends only (not all users)
         const results = await apiClient.getFriends({search: query});
-        setSearchResults(results.filter(u => u.id !== user?.id));
+        
+        // Only update if this is still the latest request
+        if (requestId === searchRequestIdRef.current && !isSearchCancelledRef.current) {
+          // Filter out current user, remove duplicates, and ensure exact substring match
+          const queryLower = query.toLowerCase().trim();
+          const uniqueResults = results
+            .filter(u => u.id !== user?.id)
+            .filter((u, index, self) => index === self.findIndex(m => m.id === u.id))
+            .filter(u => {
+              // Ensure the search query is actually a substring of name or email
+              const nameLower = (u.name || '').toLowerCase();
+              const emailLower = (u.email || '').toLowerCase();
+              return nameLower.includes(queryLower) || emailLower.includes(queryLower);
+            });
+          setSearchResults(uniqueResults);
+        }
       }
-    } catch (error) {
-      console.error('Failed to search users:', error);
+    } catch (error: any) {
+      // Only handle error if this is still the latest request
+      if (requestId === searchRequestIdRef.current && !isSearchCancelledRef.current) {
+        console.error('Failed to search users:', error);
+        // Don't clear results on error, keep previous results
+        if (error.name !== 'AbortError') {
+          setSearchResults([]);
+        }
+      }
     }
   };
 
@@ -225,6 +286,13 @@ export function CreateExpenseScreen() {
         const exists = prev.find(p => p.user_id === selectedUser.id);
         if (exists) return prev;
         return [...prev, {user_id: selectedUser.id}];
+      });
+      
+      // Add user to availableUsers if not already present
+      setAvailableUsers(prev => {
+        const exists = prev.find(u => u.id === selectedUser.id);
+        if (exists) return prev;
+        return [...prev, selectedUser];
       });
     }
     setSearchQuery('');
@@ -612,27 +680,36 @@ export function CreateExpenseScreen() {
               />
               {searchResults.length > 0 && (
                 <View style={[styles.searchResults, {backgroundColor: cardBackground}]}>
-                  {searchResults.map(result => {
-                    const isAlreadyAdded = participants.some(p => p.user_id === result.id);
-                    return (
-                      <TouchableOpacity
-                        key={result.id}
-                        style={[
-                          styles.searchResultItem,
-                          isAlreadyAdded && {opacity: 0.5},
-                        ]}
-                        onPress={() => !isAlreadyAdded && addParticipant(result)}
-                        disabled={isAlreadyAdded}>
+                  <ScrollView
+                    style={styles.searchResultsScroll}
+                    nestedScrollEnabled={true}
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={true}>
+                    {searchResults.map((result, index) => {
+                      const isAlreadyAdded = participants.some(p => p.user_id === result.id);
+                      const isLastItem = index === searchResults.length - 1;
+                      return (
+                        <TouchableOpacity
+                          key={`search-result-${result.id}-${index}`}
+                          style={[
+                            styles.searchResultItem,
+                            {backgroundColor: cardBackground},
+                            isAlreadyAdded && {opacity: 0.5},
+                            isLastItem && {borderBottomWidth: 0},
+                          ]}
+                          onPress={() => !isAlreadyAdded && addParticipant(result)}
+                          disabled={isAlreadyAdded}>
                           <View>
                             <Text style={[styles.searchResultText, {color: textColor}]}>{result.name}</Text>
                             <Text style={[styles.searchResultEmail, {color: secondaryTextColor}]}>{result.email}</Text>
                           </View>
-                        {isAlreadyAdded && (
-                          <MaterialIcons name="check-circle" size={20} color={primaryColor} />
-                        )}
-                      </TouchableOpacity>
-                    );
-                  })}
+                          {isAlreadyAdded && (
+                            <MaterialIcons name="check-circle" size={20} color={primaryColor} />
+                          )}
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </ScrollView>
                 </View>
               )}
               {!searchQuery && availableUsers.length > 1 && (
@@ -716,23 +793,35 @@ export function CreateExpenseScreen() {
                   value={description}
                   onChangeText={setDescription}
                 />
-                <View style={styles.amountRow}>
-                  <TouchableOpacity
-                    style={[styles.currencyButton, {backgroundColor: backgroundColor}]}
-                    onPress={() => setShowCurrencyModal(true)}>
-                    <Text style={[styles.currencyText, {color: textColor}]}>
-                      {currency}
+                <View>
+                  <View style={styles.amountRow}>
+                    <TouchableOpacity
+                      style={[styles.currencyButton, {backgroundColor: backgroundColor}]}
+                      onPress={() => setShowCurrencyModal(true)}>
+                      <Text style={[styles.currencyText, {color: textColor}]}>
+                        {currency}
+                      </Text>
+                      <MaterialIcons name="arrow-drop-down" size={20} color={textColor} />
+                    </TouchableOpacity>
+                    <TextInput
+                      style={[
+                        styles.amountInput,
+                        {color: textColor, borderBottomColor: secondaryTextColor + '30'},
+                        splitType === 'itemized' && styles.amountInputDisabled,
+                      ]}
+                      placeholder="0.00"
+                      placeholderTextColor={secondaryTextColor}
+                      value={amount}
+                      onChangeText={splitType === 'itemized' ? undefined : setAmount}
+                      editable={splitType !== 'itemized'}
+                      keyboardType="decimal-pad"
+                    />
+                  </View>
+                  {splitType === 'itemized' && (
+                    <Text style={[styles.amountNote, {color: secondaryTextColor}]}>
+                      Add items to calculate amount
                     </Text>
-                    <MaterialIcons name="arrow-drop-down" size={20} color={textColor} />
-                  </TouchableOpacity>
-                  <TextInput
-                    style={[styles.amountInput, {color: textColor, borderBottomColor: secondaryTextColor + '30'}]}
-                    placeholder="0.00"
-                    placeholderTextColor={secondaryTextColor}
-                    value={amount}
-                    onChangeText={setAmount}
-                    keyboardType="decimal-pad"
-                  />
+                  )}
                 </View>
               </View>
             </View>
@@ -851,29 +940,28 @@ export function CreateExpenseScreen() {
                           value={item.name}
                           onChangeText={text => updateItem(item.id, 'name', text)}
                         />
-                        <TextInput
-                          style={[styles.itemAmountInput, {color: textColor}]}
-                          placeholder="Amount"
-                          placeholderTextColor={secondaryTextColor}
-                          value={item.amount.toString()}
-                          onChangeText={text => updateItem(item.id, 'amount', text)}
-                          keyboardType="decimal-pad"
-                        />
                       </View>
                       <View style={styles.itemRow}>
                         <TextInput
                           style={[styles.itemQuantityInput, {color: textColor}]}
-                          placeholder="Qty"
+                          placeholder="Quantity"
                           placeholderTextColor={secondaryTextColor}
                           value={item.quantity.toString()}
                           onChangeText={text => updateItem(item.id, 'quantity', text)}
                           keyboardType="number-pad"
                         />
+                        <TextInput
+                          style={[styles.itemAmountInput, {color: textColor}]}
+                          placeholder="Price per item"
+                          placeholderTextColor={secondaryTextColor}
+                          value={item.amount.toString()}
+                          onChangeText={text => updateItem(item.id, 'amount', text)}
+                          keyboardType="decimal-pad"
+                        />
                         <TouchableOpacity
                           style={styles.removeItemButton}
                           onPress={() => removeItem(item.id)}>
                           <MaterialIcons name="delete" size={20} color="#F44336" />
-                          <Text style={[styles.removeItemText, {color: '#F44336'}]}>Remove</Text>
                         </TouchableOpacity>
                       </View>
                     </View>

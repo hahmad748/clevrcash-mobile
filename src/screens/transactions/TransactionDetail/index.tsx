@@ -364,6 +364,37 @@ export function TransactionDetailScreen() {
             </View>
           </View>
 
+          {/* Items List Card (for itemized expenses) */}
+          {isExpense && expense && expense.split_type === 'itemized' && expense.items && expense.items.length > 0 && (
+            <View style={[styles.card, {backgroundColor: cardBackground}]}>
+              <Text style={[styles.cardTitle, {color: textColor}]}>Items</Text>
+              <View style={styles.itemsList}>
+                {expense.items.map((item, index) => {
+                  const itemTotal = (item.amount || 0) * (item.quantity || 1);
+                  return (
+                    <View
+                      key={`item-${item.id}-${index}`}
+                      style={[
+                        styles.itemRow,
+                        index < expense.items!.length - 1 && styles.itemRowBorder,
+                        {borderColor: secondaryTextColor + '20'},
+                      ]}>
+                      <View style={styles.itemLeft}>
+                        <Text style={[styles.itemName, {color: textColor}]}>{item.name}</Text>
+                        <Text style={[styles.itemDetails, {color: secondaryTextColor}]}>
+                          {item.quantity || 1} × {formatCurrency(item.amount || 0, expense.currency || 'USD')}
+                        </Text>
+                      </View>
+                      <Text style={[styles.itemTotal, {color: textColor}]}>
+                        {formatCurrency(itemTotal, expense.currency || 'USD')}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+          )}
+
           {/* Split Details Card (for expenses) */}
           {isExpense && expense && expense.splits && expense.splits.length > 0 && (
             <View style={[styles.card, {backgroundColor: cardBackground}]}>

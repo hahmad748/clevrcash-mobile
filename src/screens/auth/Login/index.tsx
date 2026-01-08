@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  Alert,
   ActivityIndicator,
   ImageBackground,
   Image,
@@ -16,7 +15,6 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useAuth} from '../../../contexts/AuthContext';
-import {useTheme} from '../../../contexts/ThemeContext';
 import {useBrand} from '../../../contexts/BrandContext';
 import {getBrandOverlayColor, getBrandColor} from '../../../utils/colorUtils';
 import {socialLoginService} from '../../../services/socialLogin';
@@ -27,8 +25,7 @@ import { showError } from '../../../utils/flashMessage';
 
 export function LoginScreen() {
   const navigation = useNavigation();
-  const {login, user, socialLogin} = useAuth();
-  const {colors} = useTheme();
+  const {login, socialLogin} = useAuth();
   const {brand, loadBrand} = useBrand();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -305,39 +302,49 @@ export function LoginScreen() {
               )}
 
               {/* Social Login Buttons - Only show if providers are enabled and not checking */}
-              {!checkingProviders && enabledProviders.length > 0 && (
-                <View style={baseStyles.socialButtonsContainer}>
-                  {enabledProviders.includes('google') && (
-                    <TouchableOpacity
-                      style={baseStyles.socialButton}
-                      onPress={handleGoogleLogin}
-                      disabled={socialLoading !== null}
-                      activeOpacity={0.8}>
-                      {socialLoading === 'google' ? (
-                        <ActivityIndicator color="#000000" size="small" />
-                      ) : (
-                        <MaterialIcons name="mail" size={20} color="#000000" />
-                      )}
-                      <Text style={baseStyles.socialButtonText}>Google</Text>
-                    </TouchableOpacity>
-                  )}
+              {!checkingProviders && enabledProviders.length > 0 && (() => {
+                // Calculate available providers
+                const hasGoogle = enabledProviders.includes('google');
+                const hasApple = Platform.OS === 'ios' && enabledProviders.includes('apple');
+                const availableProviders = [hasGoogle, hasApple].filter(Boolean).length;
+                const buttonStyle = availableProviders === 1 
+                  ? [baseStyles.socialButton, baseStyles.socialButtonFull]
+                  : [baseStyles.socialButton, baseStyles.socialButtonHalf];
 
-                  {Platform.OS === 'ios' && enabledProviders.includes('apple') && (
-                    <TouchableOpacity
-                      style={baseStyles.socialButton}
-                      onPress={handleAppleLogin}
-                      disabled={socialLoading !== null}
-                      activeOpacity={0.8}>
-                      {socialLoading === 'apple' ? (
-                        <ActivityIndicator color="#000000" size="small" />
-                      ) : (
-                        <MaterialIcons name="apple" size={20} color="#000000" />
-                      )}
-                      <Text style={baseStyles.socialButtonText}>Apple</Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              )}
+                return (
+                  <View style={baseStyles.socialButtonsContainer}>
+                    {hasGoogle && (
+                      <TouchableOpacity
+                        style={buttonStyle}
+                        onPress={handleGoogleLogin}
+                        disabled={socialLoading !== null}
+                        activeOpacity={0.8}>
+                        {socialLoading === 'google' ? (
+                          <ActivityIndicator color="#000000" size="small" />
+                        ) : (
+                          <MaterialIcons name="mail" size={20} color="#000000" />
+                        )}
+                        <Text style={baseStyles.socialButtonText}>Google</Text>
+                      </TouchableOpacity>
+                    )}
+
+                    {hasApple && (
+                      <TouchableOpacity
+                        style={buttonStyle}
+                        onPress={handleAppleLogin}
+                        disabled={socialLoading !== null}
+                        activeOpacity={0.8}>
+                        {socialLoading === 'apple' ? (
+                          <ActivityIndicator color="#000000" size="small" />
+                        ) : (
+                          <MaterialIcons name="apple" size={20} color="#000000" />
+                        )}
+                        <Text style={baseStyles.socialButtonText}>Apple</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                );
+              })()}
 
               {/* Sign Up Link */}
               <View style={baseStyles.signUpContainer}>

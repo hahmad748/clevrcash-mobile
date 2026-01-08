@@ -289,6 +289,38 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
     ...androidTextProps,
   },
+  // Items List (for itemized expenses)
+  itemsList: {
+    gap: 0,
+  },
+  itemRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: spacing.md,
+  },
+  itemRowBorder: {
+    borderBottomWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.08)',
+  },
+  itemLeft: {
+    flex: 1,
+  },
+  itemName: {
+    ...typography.body,
+    fontWeight: '600',
+    marginBottom: spacing.xs,
+    ...androidTextProps,
+  },
+  itemDetails: {
+    ...typography.caption,
+    ...androidTextProps,
+  },
+  itemTotal: {
+    ...typography.body,
+    fontWeight: '600',
+    ...androidTextProps,
+  },
   // Delete Button
   deleteButton: {
     flexDirection: 'row',

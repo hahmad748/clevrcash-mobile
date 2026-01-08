@@ -421,6 +421,8 @@ export function TransactionsListScreen() {
             currency: filters.currency,
             group_id: filters.group_id,
             friend_id: filters.friend_id,
+            date_from: filters.date_from,
+            date_to: filters.date_to,
           }}
           onApply={appliedFilters => {
             setFilters({
@@ -428,6 +430,8 @@ export function TransactionsListScreen() {
               currency: appliedFilters.currency,
               group_id: appliedFilters.group_id,
               friend_id: appliedFilters.friend_id,
+              date_from: appliedFilters.date_from,
+              date_to: appliedFilters.date_to,
             });
           }}
           onClose={() => setShowFilters(false)}

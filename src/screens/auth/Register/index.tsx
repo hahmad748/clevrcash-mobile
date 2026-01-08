@@ -202,7 +202,6 @@ export function RegisterScreen() {
               </View>
             )}
             <Text style={baseStyles.welcomeText}>Create Account</Text>
-            <Text style={baseStyles.subtitleText}>Sign up to get started</Text>
           </View>
 
           {/* Form Card */}
@@ -315,58 +314,68 @@ export function RegisterScreen() {
               </TouchableOpacity>
 
               {/* Divider - Only show if social login is available and not checking */}
-              {!checkingProviders && enabledProviders.length > 0 && (
-                <>
-                  <View style={baseStyles.divider}>
-                    <View style={baseStyles.dividerLine} />
-                    <Text style={baseStyles.dividerText}>OR</Text>
-                    <View style={baseStyles.dividerLine} />
-                  </View>
+              {!checkingProviders && enabledProviders.length > 0 && (() => {
+                // Calculate available providers
+                const hasGoogle = enabledProviders.includes('google');
+                const hasApple = Platform.OS === 'ios' && enabledProviders.includes('apple');
+                const availableProviders = [hasGoogle, hasApple].filter(Boolean).length;
+                const buttonStyle = availableProviders === 1 
+                  ? [baseStyles.socialButton, baseStyles.socialButtonFull]
+                  : [baseStyles.socialButton, baseStyles.socialButtonHalf];
 
-                  {/* Social Login Buttons */}
-                  <View style={baseStyles.socialButtonsContainer}>
-                    {enabledProviders.includes('google') && (
-                      <TouchableOpacity
-                        style={[
-                          baseStyles.socialButton,
-                          socialLoading === 'google' && {opacity: 0.6},
-                        ]}
-                        onPress={handleGoogleLogin}
-                        disabled={socialLoading !== null}
-                        activeOpacity={0.8}>
-                        {socialLoading === 'google' ? (
-                          <ActivityIndicator size="small" color="#333333" />
-                        ) : (
-                          <>
-                            <MaterialIcons name="mail" size={20} color="#000000" />
-                            <Text style={baseStyles.socialButtonText}>Google</Text>
-                          </>
-                        )}
-                      </TouchableOpacity>
-                    )}
+                return (
+                  <>
+                    <View style={baseStyles.divider}>
+                      <View style={baseStyles.dividerLine} />
+                      <Text style={baseStyles.dividerText}>OR</Text>
+                      <View style={baseStyles.dividerLine} />
+                    </View>
 
-                    {Platform.OS === 'ios' && enabledProviders.includes('apple') && (
-                      <TouchableOpacity
-                        style={[
-                          baseStyles.socialButton,
-                          socialLoading === 'apple' && {opacity: 0.6},
-                        ]}
-                        onPress={handleAppleLogin}
-                        disabled={socialLoading !== null}
-                        activeOpacity={0.8}>
-                        {socialLoading === 'apple' ? (
-                          <ActivityIndicator size="small" color="#333333" />
-                        ) : (
-                          <>
-                            <MaterialIcons name="apple" size={20} color="#000000" />
-                            <Text style={baseStyles.socialButtonText}>Apple</Text>
-                          </>
-                        )}
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                </>
-              )}
+                    {/* Social Login Buttons */}
+                    <View style={baseStyles.socialButtonsContainer}>
+                      {hasGoogle && (
+                        <TouchableOpacity
+                          style={[
+                            ...buttonStyle,
+                            socialLoading === 'google' && {opacity: 0.6},
+                          ]}
+                          onPress={handleGoogleLogin}
+                          disabled={socialLoading !== null}
+                          activeOpacity={0.8}>
+                          {socialLoading === 'google' ? (
+                            <ActivityIndicator size="small" color="#333333" />
+                          ) : (
+                            <>
+                              <MaterialIcons name="mail" size={20} color="#000000" />
+                              <Text style={baseStyles.socialButtonText}>Google</Text>
+                            </>
+                          )}
+                        </TouchableOpacity>
+                      )}
+
+                      {hasApple && (
+                        <TouchableOpacity
+                          style={[
+                            ...buttonStyle,
+                            socialLoading === 'apple' && {opacity: 0.6},
+                          ]}
+                          onPress={handleAppleLogin}
+                          disabled={socialLoading !== null}
+                          activeOpacity={0.8}>
+                          {socialLoading === 'apple' ? (
+                            <ActivityIndicator size="small" color="#333333" />
+                          ) : (
+                            <>
+                              <MaterialIcons name="apple" size={20} color="#000000" />
+                              <Text style={baseStyles.socialButtonText}>Apple</Text>
+                            </>
+                          )}
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  </>
+                );
+              })()}
 
               {/* Sign In Link */}
               <View style={baseStyles.signInContainer}>

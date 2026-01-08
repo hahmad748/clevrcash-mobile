@@ -17,7 +17,8 @@ export const styles = StyleSheet.create({
     paddingBottom: spacing.md,
   },
   heading: {
-    ...typography.h1,
+    ...typography.h2,
+    fontWeight: '700',
     ...androidTextProps,
   },
   searchContainer: {
@@ -48,7 +49,7 @@ export const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    ...typography.bodySmall,
+    ...typography.body,
     height: '100%',
     ...androidTextProps,
   },
@@ -133,7 +134,7 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   transactionTitle: {
-    ...typography.body,
+    ...typography.medium,
     fontWeight: '600',
     marginBottom: spacing.xs,
     ...androidTextProps,
@@ -156,18 +157,18 @@ export const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   transactionPayer: {
-    ...typography.captionSmall,
+    ...typography.caption,
     ...androidTextProps,
   },
   transactionDate: {
-    ...typography.captionSmall,
+    ...typography.caption,
     ...androidTextProps,
   },
   transactionRight: {
     alignItems: 'flex-end',
   },
   transactionAmount: {
-    ...typography.medium,
+    ...typography.large,
     fontWeight: '700',
     marginBottom: spacing.xs,
     ...androidTextProps,
@@ -198,7 +199,7 @@ export const styles = StyleSheet.create({
     paddingVertical: spacing.xxxl * 2,
   },
   emptyText: {
-    ...typography.body,
+    ...typography.medium,
     textAlign: 'center',
     marginTop: spacing.lg,
     ...androidTextProps,

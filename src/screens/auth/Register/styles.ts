@@ -1,7 +1,5 @@
-import {StyleSheet, Platform, Dimensions} from 'react-native';
+import {StyleSheet, Platform} from 'react-native';
 import {typography, spacing, androidTextProps} from '../../../theme/typography';
-
-const {width} = Dimensions.get('window');
 
 export const styles = StyleSheet.create({
   container: {
@@ -30,7 +28,7 @@ export const styles = StyleSheet.create({
   },
   logoSection: {
     alignItems: 'center',
-    marginBottom: spacing.xxxl,
+    marginBottom: spacing.xxl,
   },
   logoContainer: {
     alignItems: 'center',
@@ -53,16 +51,7 @@ export const styles = StyleSheet.create({
     ...typography.h1,
     fontWeight: '700',
     color: '#FFFFFF',
-    marginTop: spacing.lg,
-    marginBottom: spacing.sm,
     letterSpacing: 0.5,
-    ...androidTextProps,
-  },
-  subtitleText: {
-    ...typography.body,
-    color: '#FFFFFF',
-    opacity: 0.9,
-    textAlign: 'center',
     ...androidTextProps,
   },
   formCard: {
@@ -171,7 +160,7 @@ export const styles = StyleSheet.create({
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: spacing.xxl,
+    marginVertical: spacing.sm,
   },
   dividerLine: {
     flex: 1,
@@ -186,12 +175,12 @@ export const styles = StyleSheet.create({
     ...androidTextProps,
   },
   socialButtonsContainer: {
-    flexDirection: 'column',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.md,
-    marginBottom: spacing.xxl,
+    marginBottom: spacing.xxxl,
   },
   socialButton: {
-    width: '100%',
     height: 56,
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
@@ -201,6 +190,13 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E0E0E0',
     gap: spacing.sm,
+  },
+  socialButtonFull: {
+    width: '100%',
+  },
+  socialButtonHalf: {
+    flex: 1,
+    minWidth: '45%',
   },
   socialButtonText: {
     ...typography.body,

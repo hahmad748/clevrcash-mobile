@@ -5,8 +5,8 @@ const {width, height} = Dimensions.get('window');
 const isSmallDevice = width < 360 || height < 640;
 
 // Increased height on Android to avoid on-screen navigation buttons
-export const TAB_BAR_HEIGHT = Platform.OS === 'android' ? 74 : 60;
-export const ACTIVE_TAB_SIZE = Platform.OS === 'android' ? (isSmallDevice ? 48 : 52) : 56;
+export const TAB_BAR_HEIGHT = Platform.OS === 'android' ? 74 : 40;
+export const ACTIVE_TAB_SIZE = Platform.OS === 'android' ? (isSmallDevice ? 48 : 52) : 48;
 export const INACTIVE_TAB_SIZE = 24;
 // Increased bottom padding on Android to account for system navigation bar
 export const BOTTOM_PADDING = 40;

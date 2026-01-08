@@ -14,6 +14,53 @@ import {styles, ACTIVE_TAB_PROTRUSION, ACTIVE_TAB_SIZE} from './styles';
 
 const {width} = Dimensions.get('window');
 
+// Separate component for tab button to properly use hooks
+interface TabButtonProps {
+  route: any;
+  visibleIndex: number;
+  isFocused: boolean;
+  iconName: string;
+  activeIndex: ReturnType<typeof useSharedValue<number>>;
+  inactiveColor: string;
+  onPress: () => void;
+  onLayout: (index: number, event: any) => void;
+}
+
+function TabButton({
+  route,
+  visibleIndex,
+  iconName,
+  activeIndex,
+  inactiveColor,
+  onPress,
+  onLayout,
+}: TabButtonProps) {
+  const animatedInactiveIconStyle = useAnimatedStyle(() => {
+    const isActive = activeIndex.value === visibleIndex;
+    return {
+      opacity: withTiming(isActive ? 0 : 1, {duration: 320}),
+      transform: [
+        {
+          scale: withTiming(isActive ? 0.8 : 1, {duration: 320}),
+        },
+      ],
+    };
+  });
+
+  return (
+    <TouchableOpacity
+      key={route.key}
+      onPress={onPress}
+      style={styles.tabButton}
+      activeOpacity={0.8}
+      onLayout={event => onLayout(visibleIndex, event)}>
+      <Animated.View style={animatedInactiveIconStyle}>
+        <MaterialIcons name={iconName as any} size={24} color={inactiveColor} />
+      </Animated.View>
+    </TouchableOpacity>
+  );
+}
+
 export function CustomTabBar({
   state,
   descriptors,
@@ -64,6 +111,7 @@ export function CustomTabBar({
       setDisplayedIconIndex(visibleIdx);
     }, 400);
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.index]);
 
   // Measure tab button positions
@@ -116,15 +164,15 @@ export function CustomTabBar({
             animatedCircleStyle,
           ]}>
           <View style={styles.activeTabContent}>
-            <View style={[styles.activeTabCircle, {backgroundColor: "#ffffff"}]}>
+            <View style={[styles.activeTabCircle, {backgroundColor: '#ffffff'}]}>
               <MaterialIcons
-                name={iconMap[visibleRoutes[displayedIconIndex]?.name] || 'circle'}
+                name={iconMap[visibleRoutes[displayedIconIndex]?.name] || 'circle' as any}
                 size={26}
                 color={activeIconColor}
               />
             </View>
             <Text 
-              style={[styles.activeTabLabel, {color: "#ffffff"}]}
+              style={[styles.activeTabLabel, {color: '#ffffff'}]}
               numberOfLines={1}
               ellipsizeMode="tail">
               {visibleRoutes[displayedIconIndex]?.name || ''}
@@ -137,25 +185,13 @@ export function CustomTabBar({
             const isFocused = state.index === actualStateIndex;
             const iconName = iconMap[route.name] || 'circle';
 
-            const animatedInactiveIconStyle = useAnimatedStyle(() => {
-              const isActive = activeIndex.value === visibleIndex;
-            return {
-              opacity: withTiming(isActive ? 0 : 1, {duration: 200}),
-              transform: [
-                {
-                  scale: withTiming(isActive ? 0.8 : 1, {duration: 200}),
-                },
-              ],
-            };
-          });
-
             const onPress = () => {
               if (!isFocused) {
                 // When switching to Groups or Friends tab from another tab, reset to list if needed
                 if (route.name === 'Groups' || route.name === 'Friends') {
-                  const state = navigation.getState();
-                  const targetRoute = state.routes.find(r => r.name === route.name);
-                  if (targetRoute?.state && targetRoute.state.index > 0) {
+                  const navState = navigation.getState();
+                  const targetRoute = navState.routes.find(r => r.name === route.name);
+                  if (targetRoute?.state && typeof targetRoute.state.index === 'number' && targetRoute.state.index > 0) {
                     // Reset to list screen before navigating
                     const listScreenName = route.name === 'Groups' ? 'GroupsList' : 'FriendsList';
                     navigation.dispatch(
@@ -181,14 +217,14 @@ export function CustomTabBar({
               } else {
                 // If already focused, reset to root screen for Groups or Friends tab
                 if (route.name === 'Groups' || route.name === 'Friends') {
-                  const state = navigation.getState();
-                  const targetRoute = state.routes.find(r => r.name === route.name);
-                  if (targetRoute?.state && targetRoute.state.index > 0) {
+                  const navState = navigation.getState();
+                  const targetRoute = navState.routes.find(r => r.name === route.name);
+                  if (targetRoute?.state && typeof targetRoute.state.index === 'number' && targetRoute.state.index > 0) {
                     const listScreenName = route.name === 'Groups' ? 'GroupsList' : 'FriendsList';
                     navigation.dispatch(
                       CommonActions.reset({
-                        index: state.routes.findIndex(r => r.name === route.name),
-                        routes: state.routes.map((r: any) => {
+                        index: navState.routes.findIndex(r => r.name === route.name),
+                        routes: navState.routes.map((r: any) => {
                           if (r.name === route.name) {
                             return {
                               ...r,
@@ -208,16 +244,17 @@ export function CustomTabBar({
             };
 
             return (
-              <TouchableOpacity
+              <TabButton
                 key={route.key}
+                route={route}
+                visibleIndex={visibleIndex}
+                isFocused={isFocused}
+                iconName={iconName}
+                activeIndex={activeIndex}
+                inactiveColor={inactiveColor}
                 onPress={onPress}
-                style={styles.tabButton}
-                activeOpacity={0.8}
-                onLayout={event => handleTabLayout(visibleIndex, event)}>
-                <Animated.View style={animatedInactiveIconStyle}>
-                  <MaterialIcons name={iconName} size={24} color={inactiveColor} />
-                </Animated.View>
-              </TouchableOpacity>
+                onLayout={handleTabLayout}
+              />
             );
           })}
       </View>

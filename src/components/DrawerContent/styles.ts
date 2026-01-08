@@ -39,22 +39,24 @@ export const styles = StyleSheet.create({
   },
   safeContent: {
     flex: 1,
+    paddingTop: 0,
   },
   contentWrapper: {
     flex: 1,
   },
   scrollView: {
     flex: 1,
+    paddingTop: 0,
   },
   scrollContent: {
-    flexGrow: 1,
+    paddingTop: 0,
     paddingBottom: spacing.sm,
   },
   // User Header - Glass Card
   userHeader: {
     marginHorizontal: spacing.lg,
-    marginTop: spacing.md,
-    marginBottom: spacing.xs,
+    marginTop: spacing.xxxl + 30,
+    marginBottom: spacing.md,
     padding: spacing.lg,
     borderRadius: 16,
     borderWidth: 1,
@@ -127,7 +129,7 @@ export const styles = StyleSheet.create({
   },
   menuItemActive: {
     // Pill-shaped active state like iOS
-    borderRadius: 20,
+    borderRadius: 15,
   },
   menuIcon: {
     marginRight: spacing.lg,
@@ -144,40 +146,32 @@ export const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderTopWidth: 0.5,
     borderTopColor: 'rgba(255, 255, 255, 0.1)',
-    paddingTop: spacing.sm,
+    paddingTop: spacing.md,
   },
-  // Logout Section - Glass Card
-  logoutSection: {
+  // Logout Button - Single Container
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
     marginHorizontal: spacing.lg,
     marginBottom: spacing.sm,
-    padding: spacing.md,
-    borderRadius: 16,
-    borderWidth: 1,
-    // iOS-style glass shadows
-    shadowColor: '#000',
+    borderRadius: 12,
+    borderWidth: 1.5,
+    backgroundColor: 'rgba(244, 67, 54, 0.1)',
+    borderColor: 'rgba(244, 67, 54, 0.3)',
+    // Subtle shadow
+    shadowColor: '#F44336',
     shadowOffset: {
       width: 0,
       height: 2,
     },
     shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    borderRadius: 12,
-    borderWidth: 1,
-    backgroundColor: 'rgba(244, 67, 54, 0.08)',
-  },
-  logoutIconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
+  logoutIcon: {
     marginRight: spacing.sm,
   },
   logoutText: {
@@ -198,6 +192,15 @@ export const styles = StyleSheet.create({
     fontWeight: '400',
     letterSpacing: 0.5,
     opacity: 0.6,
+    ...androidTextProps,
+    marginBottom: spacing.xs,
+  },
+  versionText: {
+    ...typography.captionSmall,
+    fontWeight: '300',
+    letterSpacing: 0.3,
+    opacity: 0.5,
+    marginTop: 2,
     ...androidTextProps,
   },
 });

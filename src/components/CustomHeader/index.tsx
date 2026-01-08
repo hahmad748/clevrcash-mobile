@@ -1,8 +1,9 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, TouchableOpacity, StatusBar, Alert} from 'react-native';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {View, Text, TouchableOpacity, StatusBar} from 'react-native';
+import {useNavigation, useRoute, useFocusEffect} from '@react-navigation/native';
 import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useTheme} from '../../contexts/ThemeContext';
+import {apiClient} from '../../services/apiClient';
 import {styles} from './styles';
 
 interface CustomHeaderProps {
@@ -36,19 +37,27 @@ export function CustomHeader({
     }
   }, [showNotifications]);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      if (showNotifications) {
+        loadUnreadCount();
+      }
+    }, [showNotifications])
+  );
+
   const loadUnreadCount = async () => {
     try {
-      // TODO: Replace with actual notifications API call
-      // const notifications = await apiClient.getNotifications({unread: true});
-      // setUnreadCount(notifications.filter(n => !n.read_at).length);
-      setUnreadCount(0); // Placeholder
+      const response = await apiClient.getNotifications({unread: true, per_page: 100});
+      const unreadNotifications = response.data.filter(n => !n.read_at);
+      setUnreadCount(unreadNotifications.length);
     } catch (error) {
       console.error('Failed to load notification count:', error);
+      setUnreadCount(0);
     }
   };
 
   const handleNotificationsPress = () => {
-    Alert.alert('Coming Soon', 'Notifications feature will be available soon!');
+    navigation.navigate('Notifications' as never);
   };
 
   // Determine if we should show drawer or back button

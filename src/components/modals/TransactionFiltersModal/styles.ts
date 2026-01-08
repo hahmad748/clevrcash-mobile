@@ -34,10 +34,11 @@ export const styles = StyleSheet.create({
     borderBottomColor: 'rgba(0, 0, 0, 0.1)',
   },
   tab: {
-    flex: 1,
     paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
     alignItems: 'center',
     borderBottomWidth: 2,
+    minWidth: 100,
   },
   tabText: {
     ...typography.bodySmall,
@@ -107,6 +108,74 @@ export const styles = StyleSheet.create({
   applyButtonText: {
     color: '#FFFFFF',
     ...typography.button,
+    ...androidTextProps,
+  },
+  sectionTitle: {
+    ...typography.body,
+    fontWeight: '700',
+    marginBottom: spacing.md,
+    ...androidTextProps,
+  },
+  dateRangeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  dateRangeContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  dateRangeInfo: {
+    flexDirection: 'column',
+  },
+  dateRangeLabel: {
+    ...typography.caption,
+    marginBottom: spacing.xs / 2,
+    ...androidTextProps,
+  },
+  dateRangeValue: {
+    ...typography.bodySmall,
+    fontWeight: '600',
+    ...androidTextProps,
+  },
+  clearDateButton: {
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: spacing.md,
+    alignItems: 'center',
+    marginTop: spacing.lg,
+  },
+  clearDateText: {
+    ...typography.bodySmall,
+    fontWeight: '600',
+    ...androidTextProps,
+  },
+  datePresetsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  datePresetItem: {
+    flexBasis: '31%',
+    minWidth: '31%',
+    maxWidth: '31%',
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 56,
+  },
+  datePresetText: {
+    ...typography.bodySmall,
+    fontWeight: '600',
+    textAlign: 'center',
     ...androidTextProps,
   },
 });

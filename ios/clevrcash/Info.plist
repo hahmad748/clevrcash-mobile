@@ -62,8 +62,6 @@
 	<string></string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to select receipt images</string>
-	<key>NSUserTrackingUsageDescription</key>
-	<string>We use this to improve your experience</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UIAppFonts</key>
