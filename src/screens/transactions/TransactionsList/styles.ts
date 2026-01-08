@@ -1,8 +1,6 @@
-import {StyleSheet, Dimensions} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {TOTAL_TAB_BAR_HEIGHT} from '../../../components/CustomTabBar/styles';
 import {typography, spacing, androidTextProps} from '../../../theme/typography';
-
-const {width} = Dimensions.get('window');
 
 export const styles = StyleSheet.create({
   container: {
@@ -74,15 +72,15 @@ export const styles = StyleSheet.create({
   },
   filterBadge: {
     position: 'absolute',
-    top: -spacing.xs,
-    right: -spacing.xs,
+    top: -(spacing.xs ?? 0),
+    right: -(spacing.xs ?? 0),
     backgroundColor: '#F44336',
     borderRadius: 10,
     minWidth: 20,
     height: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: spacing.xs,
+    paddingHorizontal: spacing.xs ?? 0,
   },
   filterBadgeText: {
     color: '#FFFFFF',
@@ -92,7 +90,7 @@ export const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: spacing.lg,
-    paddingBottom: TOTAL_TAB_BAR_HEIGHT + spacing.lg,
+    paddingBottom: TOTAL_TAB_BAR_HEIGHT + (spacing.lg ?? 0),
   },
   emptyListContent: {
     flexGrow: 1,
@@ -134,10 +132,26 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   transactionTitle: {
-    ...typography.medium,
+    ...typography.body,
     fontWeight: '600',
     marginBottom: spacing.xs,
     ...androidTextProps,
+  },
+  paymentDescription: {
+    marginBottom: spacing.xs,
+  },
+  paymentFlow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: (spacing.xs ?? 0) / 2,
+  },
+  paymentFromTo: {
+    ...typography.bodySmall,
+    fontWeight: '500',
+    ...androidTextProps,
+  },
+  paymentArrow: {
+    marginHorizontal: spacing.xs ?? 0,
   },
   transactionMeta: {
     flexDirection: 'row',
@@ -147,7 +161,7 @@ export const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   transactionMetaText: {
-    ...typography.caption,
+    ...typography.bodySmall,
     ...androidTextProps,
   },
   transactionFooter: {
@@ -157,18 +171,18 @@ export const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   transactionPayer: {
-    ...typography.caption,
+    ...typography.bodySmall,
     ...androidTextProps,
   },
   transactionDate: {
-    ...typography.caption,
+    ...typography.bodySmall,
     ...androidTextProps,
   },
   transactionRight: {
     alignItems: 'flex-end',
   },
   transactionAmount: {
-    ...typography.large,
+    ...typography.medium,
     fontWeight: '700',
     marginBottom: spacing.xs,
     ...androidTextProps,
@@ -196,7 +210,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: spacing.xxxl * 2,
+    paddingVertical: (spacing.xxxl ?? 0) * 2,
   },
   emptyText: {
     ...typography.medium,

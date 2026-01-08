@@ -1,6 +1,6 @@
 import React, {useEffect, useRef} from 'react';
 import {View, Text, Image, ActivityIndicator, ImageBackground, StatusBar, StyleSheet} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {useAuth} from '../../contexts/AuthContext';
 import {useBrand} from '../../contexts/BrandContext';
 import {getBrandOverlayColor, getBrandColor} from '../../utils/colorUtils';
@@ -8,9 +8,10 @@ import {styles as baseStyles} from './styles';
 
 export function SplashScreen() {
   const navigation = useNavigation();
-  const {isAuthenticated, loading: authLoading, user} = useAuth();
+  const {isAuthenticated, loading: authLoading} = useAuth();
   const {loading: brandLoading, loadBrand, brand} = useBrand();
   const hasNavigatedRef = useRef(false);
+  const previousAuthStateRef = useRef<boolean | null>(null);
 
   const primaryColor = getBrandColor(brand?.primary_color);
   const overlayColor = getBrandOverlayColor(brand?.primary_color, 0.7);
@@ -24,45 +25,56 @@ export function SplashScreen() {
   });
 
   useEffect(() => {
-    initializeApp();
-  }, []);
+    loadBrand();
+  }, [loadBrand]);
+
+  // Reset navigation flag when screen is focused (e.g., after logout)
+  useFocusEffect(
+    React.useCallback(() => {
+      // Reset hasNavigatedRef when screen is focused, but only if auth state changed
+      if (previousAuthStateRef.current !== null && previousAuthStateRef.current !== isAuthenticated) {
+        hasNavigatedRef.current = false;
+      }
+      previousAuthStateRef.current = isAuthenticated;
+    }, [isAuthenticated])
+  );
 
   useEffect(() => {
-    // Only navigate once on initial load, not when isAuthenticated changes
-    if (!authLoading && !brandLoading && !hasNavigatedRef.current) {
-      hasNavigatedRef.current = true;
-      navigateToNextScreen();
-    }
-  }, [authLoading, brandLoading]);
-
-  const initializeApp = async () => {
-    await loadBrand();
-  };
-
-  const navigateToNextScreen = () => {
-    // Small delay for smooth transition
-    setTimeout(() => {
-      try {
-        if (isAuthenticated) {
-          console.log('navigating to Main from Splash');
-          navigation.reset({
-            index: 0,
-            routes: [{name: 'Main' as never}],
-          });
-        } else {
-          console.log('navigating to Auth from Splash');
-          navigation.reset({
-            index: 0,
-            routes: [{name: 'Auth' as never, params: {
-              screen: 'Welcome',
-            } as never}],
-          });
-        }
-      } catch (error) {
-        console.error('Navigation error in SplashScreen:', error);
+    // Navigate when loading is complete and we haven't navigated yet
+    // Also navigate if auth state changed (e.g., after logout)
+    if (!authLoading && !brandLoading) {
+      const authStateChanged = previousAuthStateRef.current !== null && previousAuthStateRef.current !== isAuthenticated;
+      if (!hasNavigatedRef.current || authStateChanged) {
+        hasNavigatedRef.current = true;
+        previousAuthStateRef.current = isAuthenticated;
+        
+        // Small delay for smooth transition
+        setTimeout(() => {
+          try {
+            if (isAuthenticated) {
+              console.log('navigating to Main from Splash');
+              navigation.reset({
+                index: 0,
+                routes: [{name: 'Main' as never}],
+              });
+            } else {
+              console.log('navigating to Auth from Splash 2');
+              navigation.reset({
+                index: 0,
+                routes: [{name: 'Auth' as never, params: {
+                  screen: 'Welcome',
+                } as never}],
+              });
+            }
+          } catch (error) {
+            console.error('Navigation error in SplashScreen:', error);
+          }
+        }, 2000);
       }
-    }, 2000);
-  };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authLoading, brandLoading, isAuthenticated]);
+
 
   // Don't render anything until both auth and brand are loaded to prevent flickering
   if (authLoading || brandLoading) {
