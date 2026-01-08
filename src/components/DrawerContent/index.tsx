@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, Image, Linking, Alert} from 'react-native';
+import {View, Text, TouchableOpacity, Image, Linking, Alert, Platform} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {
   DrawerContentScrollView,
@@ -8,6 +8,7 @@ import {
 import {BlurView} from '@react-native-community/blur';
 import {CommonActions} from '@react-navigation/native';
 import {MaterialIcons} from '@react-native-vector-icons/material-icons';
+import DeviceInfo from 'react-native-device-info';
 import {useAuth} from '../../contexts/AuthContext';
 import {useTheme} from '../../contexts/ThemeContext';
 import {useBrand} from '../../contexts/BrandContext';
@@ -38,7 +39,7 @@ export function DrawerContent(props: DrawerContentComponentProps) {
     {label: 'Add Expense', icon: 'add-circle-outline', screen: 'MainTabs', tabScreen: 'Expenses', action: 'CreateExpense'},
     {label: 'Settings', icon: 'settings', screen: 'ProfileSettings', isDirectNavigation: true},
     {label: 'Help Center', icon: 'help-outline', action: 'openUrl', url: 'https://clevrcash.com/faq'},
-    {label: 'Notifications', icon: 'notifications', action: 'comingSoon'},
+    {label: 'Notifications', icon: 'notifications', screen: 'Notifications', isDirectNavigation: true},
   ];
 
   const isActive = (screen: string | undefined, tabScreen?: string) => {
@@ -121,12 +122,12 @@ export function DrawerContent(props: DrawerContentComponentProps) {
       </BlurView>
       
       {/* Content Container */}
-      <SafeAreaView style={styles.safeContent} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={styles.safeContent} edges={['left', 'right']}>
         <View style={styles.contentWrapper}>
           <DrawerContentScrollView
             {...props}
-            contentContainerStyle={styles.scrollContent}
-            style={styles.scrollView}
+            contentContainerStyle={[styles.scrollContent, {paddingTop: 0}]}
+            style={[styles.scrollView, {paddingTop: 0}]}
             showsVerticalScrollIndicator={false}>
             
             {/* User Header Section - Glass Card */}
@@ -200,21 +201,23 @@ export function DrawerContent(props: DrawerContentComponentProps) {
 
           {/* Sticky Logout Button at Bottom */}
           <SafeAreaView style={styles.stickyFooter} edges={['bottom', 'left', 'right']}>
-            <View style={[styles.logoutSection, {backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.4)', borderColor: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.5)'}]}>
-              <TouchableOpacity 
-                style={[styles.logoutButton, {borderColor: isDark ? 'rgba(244, 67, 54, 0.4)' : 'rgba(244, 67, 54, 0.3)'}]}
-                onPress={logout}
-                activeOpacity={0.7}>
-                <View style={[styles.logoutIconContainer, {backgroundColor: 'rgba(244, 67, 54, 0.15)'}]}>
-                  <MaterialIcons name="logout" size={18} color="#F44336" />
-                </View>
-                <Text style={[styles.logoutText, {color: '#F44336'}]}>Logout</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity 
+              style={styles.logoutButton}
+              onPress={logout}
+              activeOpacity={0.7}>
+              <MaterialIcons name="logout" size={20} color="#F44336" style={styles.logoutIcon} />
+              <Text style={[styles.logoutText, {color: '#F44336'}]}>Logout</Text>
+            </TouchableOpacity>
             {/* Footer */}
             <View style={styles.footer}>
               <Text style={[styles.footerText, {color: isDark ? '#666666' : '#999999'}]}>
                 Powered by Devsfort
+              </Text>
+              <Text style={[styles.versionText, {color: isDark ? '#555555' : '#AAAAAA'}]}>
+                v{DeviceInfo.getVersion()} ({DeviceInfo.getBuildNumber()}) • {Platform.OS === 'ios' ? 'iOS' : 'Android'}
+              </Text>
+              <Text style={[styles.versionText, {color: isDark ? '#555555' : '#AAAAAA'}]}>
+                {__DEV__ ? 'Development Build' : ''}
               </Text>
             </View>
           </SafeAreaView>

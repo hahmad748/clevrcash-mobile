@@ -1,25 +1,25 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
   ScrollView,
   TextInput,
   TouchableOpacity,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, CommonActions} from '@react-navigation/native';
 import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useTheme} from '../../../contexts/ThemeContext';
 import {useBrand} from '../../../contexts/BrandContext';
 import {useAuth} from '../../../contexts/AuthContext';
 import {apiClient} from '../../../services/apiClient';
 import {CurrencyModal} from '../../../components/modals/CurrencyModal';
+import {showError, showSuccess} from '../../../utils/flashMessage';
 import {styles} from './styles';
 
 export function CreateGroupScreen() {
   const navigation = useNavigation();
-  const {colors, isDark} = useTheme();
+  const {colors} = useTheme();
   const {brand} = useBrand();
   const {user} = useAuth();
   const [name, setName] = useState('');
@@ -48,16 +48,28 @@ export function CreateGroupScreen() {
         description: description.trim() || undefined,
         currency,
       });
-      Alert.alert('Success', 'Group created successfully', [
-        {
-          text: 'OK',
-          onPress: () =>
-            navigation.navigate('Groups' as never, {
-              screen: 'GroupDetail',
-              params: {groupId: group.hash || String(group.id)},
-            } as never),
-        },
-      ]);
+      showSuccess('Success', 'Group created successfully');
+      
+      // Navigate to GroupDetail through the navigation hierarchy:
+      // RootStack -> Main (DrawerNavigator) -> MainTabs -> Groups -> GroupDetail
+      navigation.goBack();
+      setTimeout(() => {
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'Main',
+            params: {
+              screen: 'MainTabs',
+              params: {
+                screen: 'Groups',
+                params: {
+                  screen: 'GroupDetail',
+                  params: {groupId: group.hash || String(group.id)},
+                },
+              },
+            },
+          }),
+        );
+      }, 300);
     } catch (error: any) {
       showError('Error', error.message || 'Failed to create group');
     } finally {

@@ -1,8 +1,8 @@
-import React, {createContext, useContext, useState, useEffect} from 'react';
+import React, {createContext, useContext, useState, useEffect, useCallback, useRef} from 'react';
 import type {Brand} from '../types/api';
 import {apiClient} from '../services/apiClient';
 import {defaultBrand} from '../config/brand';
-import {getToken, getBrand, setBrand as saveBrand, removeBrand} from '../services/storage';
+import {getToken, getBrand, setBrand as saveBrand} from '../services/storage';
 
 interface BrandContextType {
   brand: Brand | null;
@@ -31,31 +31,16 @@ const defaultBrandData: Brand = {
 export function BrandProvider({children}: {children: React.ReactNode}) {
   const [brand, setBrand] = useState<Brand | null>(defaultBrandData);
   const [loading, setLoading] = useState(true);
+  const isLoadingRef = useRef(false);
 
-  useEffect(() => {
-    loadBrand();
-  }, []);
-
-  // Reload brand when app comes to foreground (user might have logged in)
-  useEffect(() => {
-    const {AppState} = require('react-native');
+  const loadBrand = useCallback(async () => {
+    // Prevent multiple simultaneous calls
+    if (isLoadingRef.current) {
+      return;
+    }
     
-    const handleAppStateChange = (nextAppState: string) => {
-      if (nextAppState === 'active') {
-        // Reload brand when app becomes active (user might have logged in)
-        loadBrand();
-      }
-    };
-    
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
-    
-    return () => {
-      subscription?.remove();
-    };
-  }, []);
-
-  const loadBrand = async () => {
     try {
+      isLoadingRef.current = true;
       setLoading(true);
       
       // First, try to load from storage (for faster initial load)
@@ -96,8 +81,31 @@ export function BrandProvider({children}: {children: React.ReactNode}) {
       setBrand(cachedBrand || defaultBrandData);
     } finally {
       setLoading(false);
+      isLoadingRef.current = false;
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadBrand();
+  }, [loadBrand]);
+
+  // Reload brand when app comes to foreground (user might have logged in)
+  useEffect(() => {
+    const {AppState} = require('react-native');
+    
+    const handleAppStateChange = (nextAppState: string) => {
+      if (nextAppState === 'active') {
+        // Reload brand when app becomes active (user might have logged in)
+        loadBrand();
+      }
+    };
+    
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    
+    return () => {
+      subscription?.remove();
+    };
+  }, [loadBrand]);
 
   return (
     <BrandContext.Provider value={{brand, loading, loadBrand}}>

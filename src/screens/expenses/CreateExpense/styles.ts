@@ -77,6 +77,11 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 20,
+    overflow: 'hidden',
+  },
+  searchResultsScroll: {
+    maxHeight: 200,
+    flexGrow: 0,
   },
   searchResultItem: {
     padding: spacing.md,
@@ -84,7 +89,7 @@ export const styles = StyleSheet.create({
     borderBottomColor: 'rgba(0,0,0,0.1)',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems:'center',
+    alignItems: 'center',
   },
   searchResultText: {
     ...typography.body,
@@ -241,6 +246,16 @@ export const styles = StyleSheet.create({
     borderBottomWidth: 2,
     ...androidTextProps,
   },
+  amountInputDisabled: {
+    opacity: 0.6,
+    backgroundColor: 'rgba(0,0,0,0.02)',
+  },
+  amountNote: {
+    ...typography.captionSmall,
+    marginTop: spacing.xs,
+    fontStyle: 'italic',
+    ...androidTextProps,
+  },
   // Paid By Section
   paidBySection: {
     paddingVertical: spacing.lg,
@@ -375,7 +390,7 @@ export const styles = StyleSheet.create({
     ...androidTextProps,
   },
   itemQuantityInput: {
-    width: 80,
+    flex: 1,
     height: 40,
     borderRadius: 8,
     paddingHorizontal: spacing.md,

@@ -8,6 +8,25 @@ class NavigationService {
     this.navigationRef = ref;
   }
 
+  navigateToSplash() {
+    if (!this.navigationRef?.isReady()) return;
+    
+    try {
+      const state = this.navigationRef.getState();
+      const hasSplashRoute = state?.routes?.some((route: any) => route.name === 'Splash');
+      if (hasSplashRoute) {
+        this.navigationRef.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{name: 'Splash'}],
+          }),
+        );
+      }
+    } catch (error) {
+      console.error('Navigation error in navigateToSplash:', error);
+    }
+  }
+
   navigateToAuth() {
     if (!this.navigationRef?.isReady()) return;
     
@@ -18,21 +37,7 @@ class NavigationService {
       if (retries === 0) {
         console.warn('navigateToAuth: Auth route not found after retries, navigating to Splash');
         // Fallback: navigate to Splash, which will handle navigation based on auth state
-        try {
-          if (!this.navigationRef?.isReady()) return;
-          const state = this.navigationRef.getState();
-          const hasSplashRoute = state?.routes?.some((route: any) => route.name === 'Splash');
-          if (hasSplashRoute) {
-            this.navigationRef.dispatch(
-              CommonActions.reset({
-                index: 0,
-                routes: [{name: 'Splash'}],
-              }),
-            );
-          }
-        } catch (error) {
-          console.error('Navigation error in navigateToAuth fallback:', error);
-        }
+        this.navigateToSplash();
         return;
       }
       

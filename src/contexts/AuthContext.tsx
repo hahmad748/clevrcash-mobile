@@ -140,8 +140,12 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
     setUserState(null);
     setIsAuthenticated(false);
     
-    // Navigate to Auth screen after logout
-    navigationService.navigateToAuth();
+    // Reset navigation to Splash, which will handle navigation based on auth state
+    // This prevents multiple navigation attempts
+    // Use a small delay to ensure state is updated before navigation
+    setTimeout(() => {
+      navigationService.navigateToSplash();
+    }, 200);
   };
 
   // Register logout handler for global 401 handling
@@ -166,8 +170,11 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
     setUserState(null);
     setIsAuthenticated(false);
     
-    // Navigate to Auth screen after logout
-    navigationService.navigateToAuth();
+    // Reset navigation to Splash, which will handle navigation based on auth state
+    // This prevents multiple navigation attempts
+    setTimeout(() => {
+      navigationService.navigateToSplash();
+    }, 200);
   };
 
   const refreshUser = async () => {

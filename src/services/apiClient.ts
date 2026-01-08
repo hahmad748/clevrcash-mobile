@@ -27,6 +27,7 @@ import type {
   TransactionFilters,
   PaginatedResponse,
   Attachment,
+  Notification,
 } from '../types/api';
 
 class ApiClient {
@@ -876,6 +877,35 @@ class ApiClient {
       {message},
     );
     return response.data;
+  }
+
+  // ==================== Notifications ====================
+  async getNotifications(filters?: {
+    unread?: boolean;
+    page?: number;
+    per_page?: number;
+  }): Promise<PaginatedResponse<Notification>> {
+    const query = new URLSearchParams();
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined) {
+          query.append(key, String(value));
+        }
+      });
+    }
+    const queryString = query.toString();
+    const response = await apiService.get<ApiResponse<PaginatedResponse<Notification>>>(
+      `/notifications${queryString ? `?${queryString}` : ''}`,
+    );
+    return response.data;
+  }
+
+  async markNotificationAsRead(notificationId: string): Promise<void> {
+    await apiService.put(`/notifications/${notificationId}/read`);
+  }
+
+  async markAllNotificationsAsRead(): Promise<void> {
+    await apiService.put('/notifications/read-all');
   }
 }
 

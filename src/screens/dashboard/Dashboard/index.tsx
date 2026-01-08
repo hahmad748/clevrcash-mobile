@@ -306,9 +306,7 @@ export function DashboardScreen() {
                         index < transactions.length - 1 && styles.transactionItemBorder,
                       ]}
                       onPress={() => {
-                        if (isExpense && data?.id) {
-                          navigation.navigate('ExpenseDetail' as never, {expenseId: data.id} as never);
-                        }
+                        navigation.navigate('TransactionDetail' as never, {transaction} as never);
                       }}>
                       <View style={styles.transactionContent}>
                         <View

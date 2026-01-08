@@ -24,7 +24,7 @@ import { showError, showSuccess } from '../../../utils/flashMessage';
 
 export function TransactionsListScreen() {
   const navigation = useNavigation();
-  const {colors, isDark} = useTheme();
+  const {colors} = useTheme();
   const {brand} = useBrand();
   const {user} = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -220,11 +220,11 @@ export function TransactionsListScreen() {
     // Get payment user names with fallback
     const getPaymentDescription = () => {
       if (isExpense) return data?.description || 'Expense';
-      const fromName = data?.fromUser?.name || data?.from_user?.name || 'Unknown';
-      const toName = data?.toUser?.name || data?.to_user?.name || 'Unknown';
-      return `Payment: ${fromName} → ${toName}`;
+      return null; // Will be rendered separately for payments
     };
     const description = getPaymentDescription();
+    const fromName = !isExpense ? (data?.fromUser?.name || data?.from_user?.name || 'Unknown') : null;
+    const toName = !isExpense ? (data?.toUser?.name || data?.to_user?.name || 'Unknown') : null;
     const amount = data?.amount || 0;
     const currency = data?.currency || defaultCurrency;
     const category = isExpense ? data?.category?.name : null;
@@ -257,9 +257,20 @@ export function TransactionsListScreen() {
                 />
               </View>
               <View style={styles.transactionInfo}>
-                <Text style={[styles.transactionTitle, {color: textColor}]} numberOfLines={1}>
-                  {description}
-                </Text>
+                {isExpense ? (
+                  <Text style={[styles.transactionTitle, {color: textColor}]} numberOfLines={1}>
+                    {description}
+                  </Text>
+                ) : (
+                  <View style={styles.paymentDescription}>
+                    <Text style={[styles.transactionTitle, {color: textColor}]}>Payment</Text>
+                    <View style={styles.paymentFlow}>
+                      <Text style={[styles.paymentFromTo, {color: textColor}]}>{fromName}</Text>
+                      <MaterialIcons name="arrow-forward" size={16} color={secondaryTextColor} style={styles.paymentArrow} />
+                      <Text style={[styles.paymentFromTo, {color: textColor}]}>{toName}</Text>
+                    </View>
+                  </View>
+                )}
                 <View style={styles.transactionMeta}>
                   {category && (
                     <>
@@ -308,7 +319,11 @@ export function TransactionsListScreen() {
               </View>
             </View>
             <View style={styles.transactionRight}>
-              <Text style={[styles.transactionAmount, {color: textColor}]}>
+              <Text
+                style={[
+                  styles.transactionAmount,
+                  {color: isExpense ? '#F44336' : '#4CAF50'},
+                ]}>
                 {formatCurrency(amount, currency)}
               </Text>
               <Text style={[styles.transactionCurrency, {color: secondaryTextColor}]}>
@@ -421,6 +436,8 @@ export function TransactionsListScreen() {
             currency: filters.currency,
             group_id: filters.group_id,
             friend_id: filters.friend_id,
+            date_from: filters.date_from,
+            date_to: filters.date_to,
           }}
           onApply={appliedFilters => {
             setFilters({
@@ -428,6 +445,8 @@ export function TransactionsListScreen() {
               currency: appliedFilters.currency,
               group_id: appliedFilters.group_id,
               friend_id: appliedFilters.friend_id,
+              date_from: appliedFilters.date_from,
+              date_to: appliedFilters.date_to,
             });
           }}
           onClose={() => setShowFilters(false)}

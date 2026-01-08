@@ -23,6 +23,7 @@ import {FriendsListScreen} from '../screens/friends/FriendsList';
 import {FriendDetailScreen} from '../screens/friends/FriendDetail';
 import {TransactionsListScreen} from '../screens/transactions/TransactionsList';
 import {TransactionDetailScreen} from '../screens/transactions/TransactionDetail';
+import {NotificationsListScreen} from '../screens/notifications/NotificationsList';
 import {AccountScreen} from '../screens/account/AccountScreen';
 import {DashboardScreen} from '../screens/dashboard/Dashboard';
 import {CreateExpenseScreen} from '../screens/expenses/CreateExpense';
@@ -339,7 +340,7 @@ function DrawerNavigator() {
       />
       <Drawer.Screen
         name="Notifications"
-        component={DashboardScreen} // TODO: Replace with NotificationsScreen
+        component={NotificationsListScreen}
         options={{
           title: 'Notifications',
           drawerLabel: 'Notifications',
@@ -486,6 +487,18 @@ export default function AppNavigator() {
                   <CustomHeader
                     title={options.title || 'Expenses'}
                     showNotifications={true}
+                  />
+                ),
+              }}
+            />
+            <RootStack.Screen
+              name="Notifications"
+              component={NotificationsListScreen}
+              options={{
+                header: ({options}) => (
+                  <CustomHeader
+                    title={options.title || 'Notifications'}
+                    showNotifications={false}
                   />
                 ),
               }}
