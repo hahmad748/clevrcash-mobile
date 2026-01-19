@@ -12,7 +12,7 @@ import {
   ActionSheetIOS,
 } from 'react-native';
 import {launchCamera, launchImageLibrary, ImagePickerResponse, MediaType} from 'react-native-image-picker';
-import {pick, keepLocalCopy, types, isCancel} from '@react-native-documents/picker';
+import {pick, keepLocalCopy, types} from '@react-native-documents/picker';
 import {useRoute, useNavigation, useFocusEffect} from '@react-navigation/native';
 import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useTheme} from '../../../contexts/ThemeContext';
@@ -29,7 +29,7 @@ import { showError, showSuccess } from '../../../utils/flashMessage';
 export function SettleUpGroupScreen() {
   const route = useRoute();
   const navigation = useNavigation();
-  const {colors, isDark} = useTheme();
+  const {colors} = useTheme();
   const {brand} = useBrand();
   const {user} = useAuth();
   const {groupId, friendId, amount: prefillAmount} = (route.params as any) || {};
@@ -48,6 +48,7 @@ export function SettleUpGroupScreen() {
   const [receiptUri, setReceiptUri] = useState<string | null>(null);
   const [receiptType, setReceiptType] = useState<'image' | 'document' | null>(null);
   const [receiptName, setReceiptName] = useState<string | null>(null);
+  const [isPickerActive, setIsPickerActive] = useState(false);
 
   // UI state
   const [showFromModal, setShowFromModal] = useState(false);
@@ -56,8 +57,8 @@ export function SettleUpGroupScreen() {
   const [showMethodModal, setShowMethodModal] = useState(false);
 
   // Data state
-  const [group, setGroup] = useState<Group | null>(null);
-  const [balances, setBalances] = useState<Balance[]>([]);
+  const [_group, setGroup] = useState<Group | null>(null);
+  const [_balances, setBalances] = useState<Balance[]>([]);
   const [availableUsers, setAvailableUsers] = useState<User[]>([]);
 
   // Loading state
@@ -80,16 +81,19 @@ export function SettleUpGroupScreen() {
 
   useEffect(() => {
     loadGroupData();
-  }, [groupId]);
+  }, [groupId, loadGroupData]);
 
-  // Reset form when screen loses focus
+  // Reset form when screen loses focus (but not when picker is active)
   useFocusEffect(
     React.useCallback(() => {
       loadGroupData();
       return () => {
-        resetForm();
+        // Only reset form if picker is not active (to prevent reset when pickers open)
+        if (!isPickerActive) {
+          resetForm();
+        }
       };
-    }, [resetForm]),
+    }, [resetForm, isPickerActive]),
   );
 
   const loadGroupData = useCallback(async () => {
@@ -187,6 +191,7 @@ export function SettleUpGroupScreen() {
   };
 
   const handleTakePhoto = () => {
+    setIsPickerActive(true);
     launchCamera(
       {
         mediaType: 'photo' as MediaType,
@@ -195,6 +200,7 @@ export function SettleUpGroupScreen() {
         maxHeight: 2048,
       },
       (response: ImagePickerResponse) => {
+        setIsPickerActive(false);
         if (response.didCancel) return;
         if (response.errorMessage) {
           showError('Error', response.errorMessage);
@@ -211,6 +217,7 @@ export function SettleUpGroupScreen() {
   };
 
   const handleChooseFromLibrary = () => {
+    setIsPickerActive(true);
     launchImageLibrary(
       {
         mediaType: 'photo' as MediaType,
@@ -219,6 +226,7 @@ export function SettleUpGroupScreen() {
         maxHeight: 2048,
       },
       (response: ImagePickerResponse) => {
+        setIsPickerActive(false);
         if (response.didCancel) return;
         if (response.errorMessage) {
           showError('Error', response.errorMessage);
@@ -235,6 +243,7 @@ export function SettleUpGroupScreen() {
   };
 
   const handleChooseDocument = async () => {
+    setIsPickerActive(true);
     try {
       const [file] = await pick({
         type: [types.pdf, types.images, types.allFiles],
@@ -252,12 +261,14 @@ export function SettleUpGroupScreen() {
           destination: 'cachesDirectory',
         });
 
-        setReceiptUri(localCopy.uri);
+        setReceiptUri(localCopy.localUri);
         setReceiptType('document');
-        setReceiptName(localCopy.name || 'document');
+        setReceiptName(file.name || 'document');
       }
-    } catch (err) {
-      if (isCancel(err)) {
+    } catch (err: any) {
+      setIsPickerActive(false);
+      // Check if user cancelled
+      if (err?.message?.includes('cancel') || err?.code === 'DOCUMENT_PICKER_CANCELED') {
         return;
       }
       showError('Error', 'Failed to pick document');
@@ -314,31 +325,48 @@ export function SettleUpGroupScreen() {
         to_user_id: toUserId,
       });
 
-      // TODO: Upload receipt if API endpoint is available
-      // For now, receipt is stored but not uploaded
-      // if (receiptUri && payment.id) {
-      //   try {
-      //     const formData = new FormData();
-      //     const fileUri = Platform.OS === 'android' && !receiptUri.startsWith('file://') 
-      //       ? `file://${receiptUri}` 
-      //       : receiptUri;
-      //     let mimeType = 'image/jpeg';
-      //     if (receiptType === 'document') {
-      //       const extension = receiptName?.split('.').pop()?.toLowerCase();
-      //       if (extension === 'pdf') {
-      //         mimeType = 'application/pdf';
-      //       }
-      //     }
-      //     formData.append('file', {
-      //       uri: fileUri,
-      //       type: mimeType,
-      //       name: receiptName || (receiptType === 'image' ? 'receipt.jpg' : 'receipt.pdf'),
-      //     } as any);
-      //     // await apiClient.uploadPaymentAttachment(payment.id, formData);
-      //   } catch (error: any) {
-      //     console.error('Failed to upload receipt:', error);
-      //   }
-      // }
+      // Upload receipt if available
+      if (receiptUri && payment.id) {
+        try {
+          const formData = new FormData();
+          // Handle URI format for both platforms
+          const fileUri = Platform.OS === 'android' && !receiptUri.startsWith('file://') 
+            ? `file://${receiptUri}` 
+            : receiptUri;
+          
+          // Determine MIME type
+          let mimeType = 'image/jpeg';
+          if (receiptType === 'document') {
+            const extension = receiptName?.split('.').pop()?.toLowerCase();
+            if (extension === 'pdf') {
+              mimeType = 'application/pdf';
+            } else if (extension === 'png') {
+              mimeType = 'image/png';
+            } else if (extension === 'jpg' || extension === 'jpeg') {
+              mimeType = 'image/jpeg';
+            }
+          } else {
+            // For images, try to determine from URI or default to jpeg
+            if (receiptUri.toLowerCase().endsWith('.png')) {
+              mimeType = 'image/png';
+            } else if (receiptUri.toLowerCase().endsWith('.jpg') || receiptUri.toLowerCase().endsWith('.jpeg')) {
+              mimeType = 'image/jpeg';
+            }
+          }
+
+          formData.append('file', {
+            uri: fileUri,
+            type: mimeType,
+            name: receiptName || (receiptType === 'image' ? 'receipt.jpg' : 'receipt.pdf'),
+          } as any);
+
+          await apiClient.uploadPaymentAttachment(payment.id, formData);
+        } catch (error: any) {
+          console.error('Failed to upload receipt:', error);
+          // Don't fail the entire operation if receipt upload fails
+          showError('Warning', 'Payment recorded but receipt upload failed');
+        }
+      }
 
       resetForm();
       navigation.goBack();

@@ -650,6 +650,19 @@ class ApiClient {
     await apiService.delete(`/payments/${paymentId}`);
   }
 
+  async uploadPaymentAttachment(paymentId: number, file: FormData): Promise<Attachment> {
+    const response = await apiService.post<ApiResponse<Attachment>>(
+      `/payments/${paymentId}/attachments`,
+      file,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      },
+    );
+    return response.data;
+  }
+
   // ==================== Transactions ====================
   async getTransactions(
     filters?: TransactionFilters,
