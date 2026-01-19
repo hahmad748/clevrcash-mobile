@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import {launchCamera, launchImageLibrary, ImagePickerResponse, MediaType} from 'react-native-image-picker';
 import {pick, keepLocalCopy, types} from '@react-native-documents/picker';
-import {useRoute, useNavigation, useFocusEffect} from '@react-navigation/native';
+import {useRoute, useNavigation} from '@react-navigation/native';
 import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useTheme} from '../../../contexts/ThemeContext';
 import {useBrand} from '../../../contexts/BrandContext';
@@ -48,7 +48,7 @@ export function SettleUpGroupScreen() {
   const [receiptUri, setReceiptUri] = useState<string | null>(null);
   const [receiptType, setReceiptType] = useState<'image' | 'document' | null>(null);
   const [receiptName, setReceiptName] = useState<string | null>(null);
-  const [isPickerActive, setIsPickerActive] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
 
   // UI state
   const [showFromModal, setShowFromModal] = useState(false);
@@ -77,24 +77,13 @@ export function SettleUpGroupScreen() {
     setReceiptUri(null);
     setReceiptType(null);
     setReceiptName(null);
+    // Reset tracking flags
+    userHasSetCurrency.current = false;
+    userHasSetAmount.current = false;
+    userHasSetFrom.current = false;
+    userHasSetTo.current = false;
+    hasLoadedInitialData.current = false;
   }, [defaultCurrency, prefillAmount]);
-
-  useEffect(() => {
-    loadGroupData();
-  }, [groupId, loadGroupData]);
-
-  // Reset form when screen loses focus (but not when picker is active)
-  useFocusEffect(
-    React.useCallback(() => {
-      loadGroupData();
-      return () => {
-        // Only reset form if picker is not active (to prevent reset when pickers open)
-        if (!isPickerActive) {
-          resetForm();
-        }
-      };
-    }, [resetForm, isPickerActive]),
-  );
 
   const loadGroupData = useCallback(async () => {
     try {
@@ -106,8 +95,9 @@ export function SettleUpGroupScreen() {
       setGroup(groupData);
       setBalances(balancesData.balances || []);
       
-      // Set group currency as default
-      if (groupData.currency) {
+      // Set group currency as default (only if user hasn't manually set it)
+      // This prevents overwriting user-entered currency when returning from picker
+      if (groupData.currency && !userHasSetCurrency.current) {
         setCurrency(groupData.currency);
       }
 
@@ -118,35 +108,38 @@ export function SettleUpGroupScreen() {
       );
       setAvailableUsers(uniqueMembers.filter(Boolean));
 
-      // Pre-select users based on balance logic
-      // If friendId is provided, use that specific member
-      // Otherwise, find the first member with a non-zero balance
-      const targetMemberId = friendId || (() => {
-        const firstNonZeroBalance = balancesData.balances?.find((b: any) => 
-          b.user_id !== user?.id && Math.abs(b.balance || 0) > 0.01
-        );
-        return firstNonZeroBalance?.user_id;
-      })();
+      // Pre-select users based on balance logic (only on initial load)
+      // Only set from/to if user hasn't manually selected them
+      if (!userHasSetFrom.current || !userHasSetTo.current) {
+        // If friendId is provided, use that specific member
+        // Otherwise, find the first member with a non-zero balance
+        const targetMemberId = friendId || (() => {
+          const firstNonZeroBalance = balancesData.balances?.find((b: any) => 
+            b.user_id !== user?.id && Math.abs(b.balance || 0) > 0.01
+          );
+          return firstNonZeroBalance?.user_id;
+        })();
 
-      if (targetMemberId) {
-        const targetMember = uniqueMembers.find(m => m.id === targetMemberId);
-        if (targetMember) {
-          // Find the balance between current user and target member
-          // Based on GroupDetail logic:
-          // - balance > 0: Label says "owes you" → Member owes user → Member pays user
-          // - balance < 0: Label says "you owe" → User owes member → User pays member
-          const memberBalance = balancesData.balances?.find((b: any) => b.user_id === targetMemberId);
-          
-          if (memberBalance) {
-            const balance = memberBalance.balance || 0;
-            if (balance > 0) {
-              // Member owes user (user is owed) → Member pays user
-              setFromUserId(targetMemberId);
-              setToUserId(user?.id || null);
-            } else if (balance < 0) {
-              // User owes member (user owes) → User pays member
-              setFromUserId(user?.id || null);
-              setToUserId(targetMemberId);
+        if (targetMemberId) {
+          const targetMember = uniqueMembers.find(m => m.id === targetMemberId);
+          if (targetMember) {
+            // Find the balance between current user and target member
+            // Based on GroupDetail logic:
+            // - balance > 0: Label says "owes you" → Member owes user → Member pays user
+            // - balance < 0: Label says "you owe" → User owes member → User pays member
+            const memberBalance = balancesData.balances?.find((b: any) => b.user_id === targetMemberId);
+            
+            if (memberBalance) {
+              const balance = memberBalance.balance || 0;
+              if (balance > 0) {
+                // Member owes user (user is owed) → Member pays user
+                if (!userHasSetFrom.current) setFromUserId(targetMemberId);
+                if (!userHasSetTo.current) setToUserId(user?.id || null);
+              } else if (balance < 0) {
+                // User owes member (user owes) → User pays member
+                if (!userHasSetFrom.current) setFromUserId(user?.id || null);
+                if (!userHasSetTo.current) setToUserId(targetMemberId);
+              }
             }
           }
         }
@@ -158,6 +151,20 @@ export function SettleUpGroupScreen() {
       setLoading(false);
     }
   }, [groupId, friendId, user?.id]);
+
+  // Track if user has manually set currency/amount/from/to (to prevent overwriting)
+  const userHasSetCurrency = React.useRef(false);
+  const userHasSetAmount = React.useRef(false);
+  const userHasSetFrom = React.useRef(false);
+  const userHasSetTo = React.useRef(false);
+  const hasLoadedInitialData = React.useRef(false);
+
+  useEffect(() => {
+    if (!hasLoadedInitialData.current) {
+      hasLoadedInitialData.current = true;
+      loadGroupData();
+    }
+  }, [loadGroupData]);
 
   const handleReceiptPicker = () => {
     if (Platform.OS === 'ios') {
@@ -191,33 +198,49 @@ export function SettleUpGroupScreen() {
   };
 
   const handleTakePhoto = () => {
-    setIsPickerActive(true);
+    setImageLoading(true);
     launchCamera(
       {
         mediaType: 'photo' as MediaType,
         quality: 0.8,
         maxWidth: 2048,
         maxHeight: 2048,
+        saveToPhotos: false,
       },
       (response: ImagePickerResponse) => {
-        setIsPickerActive(false);
-        if (response.didCancel) return;
+        if (response.didCancel) {
+          setImageLoading(false);
+          return;
+        }
         if (response.errorMessage) {
+          setImageLoading(false);
           showError('Error', response.errorMessage);
           return;
         }
         if (response.assets && response.assets[0]) {
           const asset = response.assets[0];
-          setReceiptUri(asset.uri || null);
+          // Ensure proper URI format for Android
+          let imageUri = asset.uri || null;
+          if (imageUri && Platform.OS === 'android' && !imageUri.startsWith('file://')) {
+            imageUri = `file://${imageUri}`;
+          }
           setReceiptType('image');
           setReceiptName(asset.fileName || 'receipt.jpg');
+          // Set URI last and reset loading after a small delay to allow image to render
+          setReceiptUri(imageUri);
+          // Reset loading state after a short delay as fallback if onLoadEnd doesn't fire
+          setTimeout(() => {
+            setImageLoading(false);
+          }, 100);
+        } else {
+          setImageLoading(false);
         }
       },
     );
   };
 
   const handleChooseFromLibrary = () => {
-    setIsPickerActive(true);
+    setImageLoading(true);
     launchImageLibrary(
       {
         mediaType: 'photo' as MediaType,
@@ -226,24 +249,38 @@ export function SettleUpGroupScreen() {
         maxHeight: 2048,
       },
       (response: ImagePickerResponse) => {
-        setIsPickerActive(false);
-        if (response.didCancel) return;
+        if (response.didCancel) {
+          setImageLoading(false);
+          return;
+        }
         if (response.errorMessage) {
+          setImageLoading(false);
           showError('Error', response.errorMessage);
           return;
         }
         if (response.assets && response.assets[0]) {
           const asset = response.assets[0];
-          setReceiptUri(asset.uri || null);
+          // Ensure proper URI format for Android
+          let imageUri = asset.uri || null;
+          if (imageUri && Platform.OS === 'android' && !imageUri.startsWith('file://')) {
+            imageUri = `file://${imageUri}`;
+          }
           setReceiptType('image');
           setReceiptName(asset.fileName || asset.uri?.split('/').pop() || 'receipt.jpg');
+          // Set URI last and reset loading after a small delay to allow image to render
+          setReceiptUri(imageUri);
+          // Reset loading state after a short delay as fallback if onLoadEnd doesn't fire
+          setTimeout(() => {
+            setImageLoading(false);
+          }, 100);
+        } else {
+          setImageLoading(false);
         }
       },
     );
   };
 
   const handleChooseDocument = async () => {
-    setIsPickerActive(true);
     try {
       const [file] = await pick({
         type: [types.pdf, types.images, types.allFiles],
@@ -261,12 +298,19 @@ export function SettleUpGroupScreen() {
           destination: 'cachesDirectory',
         });
 
-        setReceiptUri(localCopy.localUri);
-        setReceiptType('document');
-        setReceiptName(file.name || 'document');
+        // Handle LocalCopyResponse which can be success or error
+        if (localCopy.status === 'success') {
+          setReceiptUri(localCopy.localUri);
+          setReceiptType('document');
+          setReceiptName(file.name || 'document');
+        } else {
+          // If copy failed, use original file URI
+          setReceiptUri(file.uri);
+          setReceiptType('document');
+          setReceiptName(file.name || 'document');
+        }
       }
     } catch (err: any) {
-      setIsPickerActive(false);
       // Check if user cancelled
       if (err?.message?.includes('cancel') || err?.code === 'DOCUMENT_PICKER_CANCELED') {
         return;
@@ -279,6 +323,7 @@ export function SettleUpGroupScreen() {
     setReceiptUri(null);
     setReceiptType(null);
     setReceiptName(null);
+    setImageLoading(false);
   };
 
   const getUserName = (userId: number | null): string => {
@@ -360,17 +405,19 @@ export function SettleUpGroupScreen() {
             name: receiptName || (receiptType === 'image' ? 'receipt.jpg' : 'receipt.pdf'),
           } as any);
 
-          await apiClient.uploadPaymentAttachment(payment.id, formData);
+          console.log('Uploading receipt for payment:', payment.id, {fileUri, mimeType, name: receiptName});
+          const attachment = await apiClient.uploadPaymentAttachment(payment.id, formData);
+          console.log('Receipt uploaded successfully:', attachment);
         } catch (error: any) {
           console.error('Failed to upload receipt:', error);
           // Don't fail the entire operation if receipt upload fails
-          showError('Warning', 'Payment recorded but receipt upload failed');
+          showError('Warning', `Payment recorded but receipt upload failed: ${error.message || 'Unknown error'}`);
         }
       }
 
-      resetForm();
+      // resetForm();
       navigation.goBack();
-      showSuccess('Success', 'Payment recorded successfully');
+      showSuccess('Success', receiptUri ? 'Payment recorded with receipt successfully' : 'Payment recorded successfully');
     } catch (error: any) {
       showError('Error', error.message || 'Failed to record payment');
     } finally {
@@ -408,14 +455,20 @@ export function SettleUpGroupScreen() {
               <Text style={[styles.paidByText, {color: textColor}]}>Paid by</Text>
               <TouchableOpacity
                 style={[styles.paidByButton, {backgroundColor: backgroundColor}]}
-                onPress={() => setShowFromModal(true)}>
+                onPress={() => {
+                  userHasSetFrom.current = true;
+                  setShowFromModal(true);
+                }}>
                 <Text style={[styles.paidByButtonText, {color: textColor}]}>{getUserName(fromUserId)}</Text>
                 <MaterialIcons name="arrow-drop-down" size={20} color={textColor} />
               </TouchableOpacity>
               <Text style={[styles.paidByText, {color: textColor}]}>to</Text>
               <TouchableOpacity
                 style={[styles.paidByButton, {backgroundColor: backgroundColor}]}
-                onPress={() => setShowToModal(true)}>
+                onPress={() => {
+                  userHasSetTo.current = true;
+                  setShowToModal(true);
+                }}>
                 <Text style={[styles.paidByButtonText, {color: textColor}]}>{getUserName(toUserId)}</Text>
                 <MaterialIcons name="arrow-drop-down" size={20} color={textColor} />
               </TouchableOpacity>
@@ -428,7 +481,10 @@ export function SettleUpGroupScreen() {
             <View style={styles.amountRow}>
               <TouchableOpacity
                 style={[styles.currencyButton, {backgroundColor: backgroundColor}]}
-                onPress={() => setShowCurrencyModal(true)}>
+                onPress={() => {
+                  userHasSetCurrency.current = true;
+                  setShowCurrencyModal(true);
+                }}>
                 <Text style={[styles.currencyText, {color: textColor}]}>{currency}</Text>
                 <MaterialIcons name="arrow-drop-down" size={20} color={textColor} />
               </TouchableOpacity>
@@ -437,7 +493,10 @@ export function SettleUpGroupScreen() {
                 placeholder="0.00"
                 placeholderTextColor={secondaryTextColor}
                 value={amount}
-                onChangeText={setAmount}
+                onChangeText={(text) => {
+                  userHasSetAmount.current = true;
+                  setAmount(text);
+                }}
                 keyboardType="decimal-pad"
               />
             </View>
@@ -457,29 +516,58 @@ export function SettleUpGroupScreen() {
           {/* Receipt Section */}
           <View style={[styles.section, {backgroundColor: cardBackground}]}>
             <Text style={[styles.sectionLabel, {color: secondaryTextColor}]}>Receipt/Invoice (Optional)</Text>
-            {receiptUri ? (
+            {receiptUri || imageLoading ? (
               <TouchableOpacity
                 style={styles.receiptPreviewContainer}
                 onPress={handleReceiptPicker}
                 activeOpacity={0.8}>
-                {receiptType === 'image' ? (
-                  <Image source={{uri: receiptUri}} style={styles.receiptPreview} />
-                ) : (
+                {imageLoading && !receiptUri ? (
+                  <View style={[styles.receiptPreview, styles.receiptDocumentPreview, {justifyContent: 'center', alignItems: 'center'}]}>
+                    <ActivityIndicator size="large" color={primaryColor} />
+                    <Text style={[styles.receiptDocumentName, {color: textColor, marginTop: 8}]}>
+                      Loading image...
+                    </Text>
+                  </View>
+                ) : receiptUri && receiptType === 'image' ? (
+                  <View style={styles.receiptPreview}>
+                    {imageLoading && (
+                      <View style={[styles.receiptPreview, {position: 'absolute', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.1)', zIndex: 1}]}>
+                        <ActivityIndicator size="small" color={primaryColor} />
+                      </View>
+                    )}
+                    <Image
+                      source={{uri: receiptUri}}
+                      style={styles.receiptPreview}
+                      resizeMode="contain"
+                      onLoadStart={() => setImageLoading(true)}
+                      onLoadEnd={() => {
+                        setImageLoading(false);
+                      }}
+                      onError={(error) => {
+                        setImageLoading(false);
+                        console.error('Image load error:', error);
+                        showError('Error', 'Failed to load image');
+                      }}
+                    />
+                  </View>
+                ) : receiptUri && receiptType === 'document' ? (
                   <View style={[styles.receiptPreview, styles.receiptDocumentPreview]}>
                     <MaterialIcons name="description" size={32} color={primaryColor} />
                     <Text style={[styles.receiptDocumentName, {color: textColor}]} numberOfLines={1}>
                       {receiptName}
                     </Text>
                   </View>
+                ) : null}
+                {receiptUri && (
+                  <TouchableOpacity
+                    style={[styles.removeReceiptButton, {backgroundColor: '#F44336'}]}
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      removeReceipt();
+                    }}>
+                    <MaterialIcons name="close" size={16} color="#FFFFFF" />
+                  </TouchableOpacity>
                 )}
-                <TouchableOpacity
-                  style={[styles.removeReceiptButton, {backgroundColor: '#F44336'}]}
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    removeReceipt();
-                  }}>
-                  <MaterialIcons name="close" size={16} color="#FFFFFF" />
-                </TouchableOpacity>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
@@ -547,7 +635,10 @@ export function SettleUpGroupScreen() {
           selectedUserId={fromUserId}
           currentUserId={user?.id}
           title="Paid by"
-          onSelect={setFromUserId}
+          onSelect={(userId) => {
+            userHasSetFrom.current = true;
+            setFromUserId(userId);
+          }}
           onClose={() => setShowFromModal(false)}
           getParticipantName={(userId) => getUserName(userId)}
         />
@@ -558,7 +649,10 @@ export function SettleUpGroupScreen() {
           selectedUserId={toUserId}
           currentUserId={user?.id}
           title="To"
-          onSelect={setToUserId}
+          onSelect={(userId) => {
+            userHasSetTo.current = true;
+            setToUserId(userId);
+          }}
           onClose={() => setShowToModal(false)}
           getParticipantName={(userId) => getUserName(userId)}
         />
@@ -566,7 +660,10 @@ export function SettleUpGroupScreen() {
         <CurrencyModal
           visible={showCurrencyModal}
           selectedCurrency={currency}
-          onSelect={setCurrency}
+          onSelect={(selectedCurrency) => {
+            userHasSetCurrency.current = true;
+            setCurrency(selectedCurrency);
+          }}
           onClose={() => setShowCurrencyModal(false)}
         />
 

@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import {launchCamera, launchImageLibrary, ImagePickerResponse, MediaType} from 'react-native-image-picker';
 import {pick, keepLocalCopy, types} from '@react-native-documents/picker';
-import {useRoute, useNavigation, useFocusEffect} from '@react-navigation/native';
+import {useRoute, useNavigation} from '@react-navigation/native';
 import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useTheme} from '../../../contexts/ThemeContext';
 import {useBrand} from '../../../contexts/BrandContext';
@@ -47,7 +47,7 @@ export function SettleUpFriendScreen() {
   const [receiptUri, setReceiptUri] = useState<string | null>(null);
   const [receiptType, setReceiptType] = useState<'image' | 'document' | null>(null);
   const [receiptName, setReceiptName] = useState<string | null>(null);
-  const [isPickerActive, setIsPickerActive] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
 
   // UI state
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
@@ -73,24 +73,13 @@ export function SettleUpFriendScreen() {
     setReceiptUri(null);
     setReceiptType(null);
     setReceiptName(null);
+    // Reset tracking flags
+    userHasSetCurrency.current = false;
+    userHasSetAmount.current = false;
+    userHasSetFrom.current = false;
+    userHasSetTo.current = false;
+    hasLoadedInitialData.current = false;
   }, [defaultCurrency, prefillAmount]);
-
-  useEffect(() => {
-    loadFriendData();
-  }, [friendId, loadFriendData]);
-
-  // Reset form when screen loses focus (but not when picker is active)
-  useFocusEffect(
-    React.useCallback(() => {
-      loadFriendData();
-      return () => {
-        // Only reset form if picker is not active (to prevent reset when pickers open)
-        if (!isPickerActive) {
-          resetForm();
-        }
-      };
-    }, [resetForm, isPickerActive]),
-  );
 
   const loadFriendData = useCallback(async () => {
     try {
@@ -99,25 +88,28 @@ export function SettleUpFriendScreen() {
       setFriend(balanceData.friend);
       setBalance(balanceData);
 
-      // Pre-select users based on balance logic
-      // balance > 0: Friend owes user (user is owed) → Friend pays user
-      // balance < 0: User owes friend (user owes) → User pays friend
-      const balanceValue = balanceData.converted_balance ?? balanceData.balance ?? 0;
-      if (balanceValue > 0) {
-        // Friend owes user → Friend pays user
-        setFromUserId(friendId);
-        setToUserId(user?.id || null);
-      } else if (balanceValue < 0) {
-        // User owes friend → User pays friend
-        setFromUserId(user?.id || null);
-        setToUserId(friendId);
+      // Pre-select users based on balance logic (only on initial load)
+      // Only set from/to if user hasn't manually selected them
+      if (!userHasSetFrom.current || !userHasSetTo.current) {
+        // balance > 0: Friend owes user (user is owed) → Friend pays user
+        // balance < 0: User owes friend (user owes) → User pays friend
+        const balanceValue = balanceData.converted_balance ?? balanceData.balance ?? 0;
+        if (balanceValue > 0) {
+          // Friend owes user → Friend pays user
+          if (!userHasSetFrom.current) setFromUserId(friendId);
+          if (!userHasSetTo.current) setToUserId(user?.id || null);
+        } else if (balanceValue < 0) {
+          // User owes friend → User pays friend
+          if (!userHasSetFrom.current) setFromUserId(user?.id || null);
+          if (!userHasSetTo.current) setToUserId(friendId);
+        }
       }
 
-      // Set currency from balance if available
-      if (balanceData.converted_currency) {
+      // Set currency from balance if available (only if user hasn't manually set it)
+      // This prevents overwriting user-entered currency when returning from picker
+      if (balanceData.converted_currency && !userHasSetCurrency.current) {
         setCurrency(balanceData.converted_currency);
       }
-    }, [friendId, user?.id]);
     } catch (error) {
       console.error('Failed to load friend data:', error);
       showError('Error', 'Failed to load friend data');
@@ -125,6 +117,22 @@ export function SettleUpFriendScreen() {
       setLoading(false);
     }
   }, [friendId, user?.id]);
+
+  // Track if user has manually set currency/amount/from/to (to prevent overwriting)
+  const userHasSetCurrency = React.useRef(false);
+  const userHasSetAmount = React.useRef(false);
+  const userHasSetFrom = React.useRef(false);
+  const userHasSetTo = React.useRef(false);
+  const hasLoadedInitialData = React.useRef(false);
+
+  useEffect(() => {
+    if (!hasLoadedInitialData.current) {
+      hasLoadedInitialData.current = true;
+      loadFriendData();
+    }
+  }, [loadFriendData]);
+
+  // Don't reset form on focus changes - user should keep their data until they submit or cancel
 
   const handleReceiptPicker = () => {
     if (Platform.OS === 'ios') {
@@ -158,33 +166,49 @@ export function SettleUpFriendScreen() {
   };
 
   const handleTakePhoto = () => {
-    setIsPickerActive(true);
+    setImageLoading(true);
     launchCamera(
       {
         mediaType: 'photo' as MediaType,
         quality: 0.8,
         maxWidth: 2048,
         maxHeight: 2048,
+        saveToPhotos: false,
       },
       (response: ImagePickerResponse) => {
-        setIsPickerActive(false);
-        if (response.didCancel) return;
+        if (response.didCancel) {
+          setImageLoading(false);
+          return;
+        }
         if (response.errorMessage) {
+          setImageLoading(false);
           showError('Error', response.errorMessage);
           return;
         }
         if (response.assets && response.assets[0]) {
           const asset = response.assets[0];
-          setReceiptUri(asset.uri || null);
+          // Ensure proper URI format for Android
+          let imageUri = asset.uri || null;
+          if (imageUri && Platform.OS === 'android' && !imageUri.startsWith('file://')) {
+            imageUri = `file://${imageUri}`;
+          }
           setReceiptType('image');
           setReceiptName(asset.fileName || 'receipt.jpg');
+          // Set URI last and reset loading after a small delay to allow image to render
+          setReceiptUri(imageUri);
+          // Reset loading state after a short delay as fallback if onLoadEnd doesn't fire
+          setTimeout(() => {
+            setImageLoading(false);
+          }, 100);
+        } else {
+          setImageLoading(false);
         }
       },
     );
   };
 
   const handleChooseFromLibrary = () => {
-    setIsPickerActive(true);
+    setImageLoading(true);
     launchImageLibrary(
       {
         mediaType: 'photo' as MediaType,
@@ -193,24 +217,38 @@ export function SettleUpFriendScreen() {
         maxHeight: 2048,
       },
       (response: ImagePickerResponse) => {
-        setIsPickerActive(false);
-        if (response.didCancel) return;
+        if (response.didCancel) {
+          setImageLoading(false);
+          return;
+        }
         if (response.errorMessage) {
+          setImageLoading(false);
           showError('Error', response.errorMessage);
           return;
         }
         if (response.assets && response.assets[0]) {
           const asset = response.assets[0];
-          setReceiptUri(asset.uri || null);
+          // Ensure proper URI format for Android
+          let imageUri = asset.uri || null;
+          if (imageUri && Platform.OS === 'android' && !imageUri.startsWith('file://')) {
+            imageUri = `file://${imageUri}`;
+          }
           setReceiptType('image');
           setReceiptName(asset.fileName || asset.uri?.split('/').pop() || 'receipt.jpg');
+          // Set URI last and reset loading after a small delay to allow image to render
+          setReceiptUri(imageUri);
+          // Reset loading state after a short delay as fallback if onLoadEnd doesn't fire
+          setTimeout(() => {
+            setImageLoading(false);
+          }, 100);
+        } else {
+          setImageLoading(false);
         }
       },
     );
   };
 
   const handleChooseDocument = async () => {
-    setIsPickerActive(true);
     try {
       const [file] = await pick({
         type: [types.pdf, types.images, types.allFiles],
@@ -228,12 +266,19 @@ export function SettleUpFriendScreen() {
           destination: 'cachesDirectory',
         });
 
-        setReceiptUri(localCopy.localUri);
-        setReceiptType('document');
-        setReceiptName(file.name || 'document');
+        // Handle LocalCopyResponse which can be success or error
+        if (localCopy.status === 'success') {
+          setReceiptUri(localCopy.localUri);
+          setReceiptType('document');
+          setReceiptName(file.name || 'document');
+        } else {
+          // If copy failed, use original file URI
+          setReceiptUri(file.uri);
+          setReceiptType('document');
+          setReceiptName(file.name || 'document');
+        }
       }
     } catch (err: any) {
-      setIsPickerActive(false);
       // Check if user cancelled
       if (err?.message?.includes('cancel') || err?.code === 'DOCUMENT_PICKER_CANCELED') {
         return;
@@ -246,6 +291,7 @@ export function SettleUpFriendScreen() {
     setReceiptUri(null);
     setReceiptType(null);
     setReceiptName(null);
+    setImageLoading(false);
   };
 
   const getUserName = (userId: number | null): string => {
@@ -325,17 +371,19 @@ export function SettleUpFriendScreen() {
             name: receiptName || (receiptType === 'image' ? 'receipt.jpg' : 'receipt.pdf'),
           } as any);
 
-          await apiClient.uploadPaymentAttachment(payment.id, formData);
+          console.log('Uploading receipt for payment:', payment.id, {fileUri, mimeType, name: receiptName});
+          const attachment = await apiClient.uploadPaymentAttachment(payment.id, formData);
+          console.log('Receipt uploaded successfully:', attachment);
         } catch (error: any) {
           console.error('Failed to upload receipt:', error);
           // Don't fail the entire operation if receipt upload fails
-          showError('Warning', 'Payment recorded but receipt upload failed');
+          showError('Warning', `Payment recorded but receipt upload failed: ${error.message || 'Unknown error'}`);
         }
       }
 
       resetForm();
       navigation.goBack();
-      showSuccess('Success', 'Payment recorded successfully');
+      showSuccess('Success', receiptUri ? 'Payment recorded with receipt successfully' : 'Payment recorded successfully');
     } catch (error: any) {
       showError('Error', error.message || 'Failed to record payment');
     } finally {
@@ -374,13 +422,15 @@ export function SettleUpFriendScreen() {
             <TouchableOpacity
               style={[styles.paidByButton, {backgroundColor: backgroundColor}]}
               onPress={() => {
+                userHasSetFrom.current = true;
+                userHasSetTo.current = true;
                 // Toggle between user and friend
                 if (fromUserId === user?.id) {
                   setFromUserId(friendId);
                   setToUserId(user?.id);
                 } else {
-              setFromUserId(user?.id || null);
-              setToUserId(friendId);
+                  setFromUserId(user?.id || null);
+                  setToUserId(friendId);
                 }
               }}>
               <Text style={[styles.paidByButtonText, {color: textColor}]}>{getUserName(fromUserId)}</Text>
@@ -390,13 +440,15 @@ export function SettleUpFriendScreen() {
             <TouchableOpacity
               style={[styles.paidByButton, {backgroundColor: backgroundColor}]}
               onPress={() => {
+                userHasSetFrom.current = true;
+                userHasSetTo.current = true;
                 // Toggle between user and friend
                 if (toUserId === user?.id) {
                   setToUserId(friendId);
                   setFromUserId(user?.id);
                 } else {
-              setToUserId(user?.id || null);
-              setFromUserId(friendId);
+                  setToUserId(user?.id || null);
+                  setFromUserId(friendId);
                 }
               }}>
               <Text style={[styles.paidByButtonText, {color: textColor}]}>{getUserName(toUserId)}</Text>
@@ -411,7 +463,10 @@ export function SettleUpFriendScreen() {
           <View style={styles.amountRow}>
             <TouchableOpacity
               style={[styles.currencyButton, {backgroundColor: backgroundColor}]}
-              onPress={() => setShowCurrencyModal(true)}>
+              onPress={() => {
+                userHasSetCurrency.current = true;
+                setShowCurrencyModal(true);
+              }}>
               <Text style={[styles.currencyText, {color: textColor}]}>{currency}</Text>
               <MaterialIcons name="arrow-drop-down" size={20} color={textColor} />
             </TouchableOpacity>
@@ -420,7 +475,10 @@ export function SettleUpFriendScreen() {
               placeholder="0.00"
               placeholderTextColor={secondaryTextColor}
               value={amount}
-              onChangeText={setAmount}
+              onChangeText={(text) => {
+                userHasSetAmount.current = true;
+                setAmount(text);
+              }}
               keyboardType="decimal-pad"
             />
           </View>
@@ -440,29 +498,58 @@ export function SettleUpFriendScreen() {
         {/* Receipt Section */}
         <View style={[styles.section, {backgroundColor: cardBackground}]}>
           <Text style={[styles.sectionLabel, {color: secondaryTextColor}]}>Receipt/Invoice (Optional)</Text>
-          {receiptUri ? (
+          {receiptUri || imageLoading ? (
             <TouchableOpacity
               style={styles.receiptPreviewContainer}
               onPress={handleReceiptPicker}
               activeOpacity={0.8}>
-              {receiptType === 'image' ? (
-                <Image source={{uri: receiptUri}} style={styles.receiptPreview} />
-              ) : (
+              {imageLoading && !receiptUri ? (
+                <View style={[styles.receiptPreview, styles.receiptDocumentPreview, {justifyContent: 'center', alignItems: 'center'}]}>
+                  <ActivityIndicator size="large" color={primaryColor} />
+                  <Text style={[styles.receiptDocumentName, {color: textColor, marginTop: 8}]}>
+                    Loading image...
+                  </Text>
+                </View>
+              ) : receiptUri && receiptType === 'image' ? (
+                <View style={styles.receiptPreview}>
+                  {imageLoading && (
+                    <View style={[styles.receiptPreview, {position: 'absolute', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.1)', zIndex: 1}]}>
+                      <ActivityIndicator size="small" color={primaryColor} />
+                    </View>
+                  )}
+                  <Image
+                    source={{uri: receiptUri}}
+                    style={styles.receiptPreview}
+                    resizeMode="contain"
+                    onLoadStart={() => setImageLoading(true)}
+                    onLoadEnd={() => {
+                      setImageLoading(false);
+                    }}
+                    onError={(error) => {
+                      setImageLoading(false);
+                      console.error('Image load error:', error);
+                      showError('Error', 'Failed to load image');
+                    }}
+                  />
+                </View>
+              ) : receiptUri && receiptType === 'document' ? (
                 <View style={[styles.receiptPreview, styles.receiptDocumentPreview]}>
                   <MaterialIcons name="description" size={32} color={primaryColor} />
                   <Text style={[styles.receiptDocumentName, {color: textColor}]} numberOfLines={1}>
                     {receiptName}
                   </Text>
                 </View>
+              ) : null}
+              {receiptUri && (
+                <TouchableOpacity
+                  style={[styles.removeReceiptButton, {backgroundColor: '#F44336'}]}
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    removeReceipt();
+                  }}>
+                  <MaterialIcons name="close" size={16} color="#FFFFFF" />
+                </TouchableOpacity>
               )}
-              <TouchableOpacity
-                style={[styles.removeReceiptButton, {backgroundColor: '#F44336'}]}
-                onPress={(e) => {
-                  e.stopPropagation();
-                  removeReceipt();
-                }}>
-                <MaterialIcons name="close" size={16} color="#FFFFFF" />
-              </TouchableOpacity>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
@@ -527,7 +614,10 @@ export function SettleUpFriendScreen() {
       <CurrencyModal
         visible={showCurrencyModal}
         selectedCurrency={currency}
-        onSelect={setCurrency}
+        onSelect={(selectedCurrency) => {
+          userHasSetCurrency.current = true;
+          setCurrency(selectedCurrency);
+        }}
         onClose={() => setShowCurrencyModal(false)}
       />
 

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   Alert,
   RefreshControl,
 } from 'react-native';
-import {useRoute, useNavigation} from '@react-navigation/native';
+import {useRoute, useNavigation, useFocusEffect} from '@react-navigation/native';
 import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useTheme} from '../../../contexts/ThemeContext';
 import {useBrand} from '../../../contexts/BrandContext';
@@ -39,11 +39,7 @@ export function GroupDetailScreen() {
   const textColor = colors.text;
   const secondaryTextColor = colors.textSecondary;
 
-  useEffect(() => {
-    loadGroupData();
-  }, [groupId]);
-
-  const loadGroupData = async () => {
+  const loadGroupData = useCallback(async () => {
     try {
       setLoading(true);
       const [groupData, balancesData, transactionsData] = await Promise.all([
@@ -84,7 +80,18 @@ export function GroupDetailScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [groupId, user?.id]);
+
+  useEffect(() => {
+    loadGroupData();
+  }, [loadGroupData]);
+
+  // Refresh stats when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadGroupData();
+    }, [loadGroupData]),
+  );
 
   const onRefresh = async () => {
     setRefreshing(true);

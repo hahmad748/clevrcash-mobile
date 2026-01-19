@@ -232,6 +232,7 @@ export interface Payment {
   fromUser?: User;
   toUser?: User;
   group?: Group;
+  attachments?: Attachment[];
   metadata?: Record<string, any>;
 }
 
@@ -409,9 +410,16 @@ export interface Import {
 // Device Types
 export interface Device {
   id: number;
-  name: string;
-  created_at: string;
-  last_used_at: string;
+  device_id: string;
+  device_name: string;
+  device_type?: string;
+  os_version?: string;
+  app_version?: string;
+  created_at?: string;
+  last_active_at?: string;
+  // Legacy fields for backward compatibility
+  name?: string;
+  last_used_at?: string;
 }
 
 // Utility Types

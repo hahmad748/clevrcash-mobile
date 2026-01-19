@@ -85,9 +85,26 @@ export function DevicesScreen() {
     );
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+  const formatDate = (dateString?: string | null) => {
+    if (!dateString) {
+      return 'Never';
+    }
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return 'Invalid Date';
+      }
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      }) + ' ' + date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } catch (error) {
+      return 'Invalid Date';
+    }
   };
 
   if (loading) {
@@ -131,16 +148,16 @@ export function DevicesScreen() {
                 />
                 <View style={styles.deviceDetails}>
                   <Text style={[styles.deviceName, {color: isDark ? colors.text : '#1A1A1A'}]}>
-                    {device.name}
+                    {device.device_name || device.name || 'Unknown Device'}
                   </Text>
                   <Text style={[styles.deviceDate, {color: isDark ? colors.textSecondary : '#666666'}]}>
-                    Last used: {formatDate(device.last_used_at)}
+                    Last used: {formatDate(device.last_active_at || device.last_used_at || device.created_at)}
                   </Text>
                 </View>
               </View>
               <TouchableOpacity
                 style={[styles.revokeButton, {borderColor: colors.error}]}
-                onPress={() => handleRevokeDevice(device.id, device.name)}
+                onPress={() => handleRevokeDevice(device.id, device.device_name || device.name || 'Unknown Device')}
                 disabled={revoking === device.id}>
                 {revoking === device.id ? (
                   <ActivityIndicator size="small" color={colors.error} />

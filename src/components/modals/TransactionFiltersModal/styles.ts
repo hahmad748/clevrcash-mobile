@@ -11,7 +11,7 @@ export const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     maxHeight: '80%',
-    minHeight: 500,
+    minHeight: 550,
     width: '100%',
     paddingBottom: 20,
   },
@@ -32,6 +32,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+    
   },
   tab: {
     paddingVertical: spacing.md,
@@ -39,6 +40,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomWidth: 2,
     minWidth: 100,
+    maxHeight: 50,
   },
   tabText: {
     ...typography.bodySmall,

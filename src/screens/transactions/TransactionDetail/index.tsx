@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  Image,
 } from 'react-native';
 import {useRoute, useNavigation} from '@react-navigation/native';
 import {MaterialIcons} from '@react-native-vector-icons/material-icons';
@@ -13,7 +14,7 @@ import {useTheme} from '../../../contexts/ThemeContext';
 import {useBrand} from '../../../contexts/BrandContext';
 import {useAuth} from '../../../contexts/AuthContext';
 import {apiClient} from '../../../services/apiClient';
-import type {Transaction, Expense, Payment} from '../../../types/api';
+import type {Transaction, Expense, Payment, Attachment} from '../../../types/api';
 import {styles} from './styles';
 import { AttachmentViewer } from '../../../components/AttachmentViewer';
 import { showError, showSuccess } from '../../../utils/flashMessage';
@@ -490,6 +491,49 @@ export function TransactionDetailScreen() {
                     style={[
                       styles.attachmentRow,
                       index < expense.attachments!.length - 1 && styles.attachmentRowBorder,
+                      {borderColor: secondaryTextColor + '20'},
+                    ]}
+                    onPress={() => {
+                      setSelectedAttachment(attachment);
+                      setShowAttachmentViewer(true);
+                    }}>
+                    {attachment.thumbnail_url ? (
+                      <Image
+                        source={{uri: attachment.thumbnail_url}}
+                        style={styles.attachmentThumb}
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <View style={[styles.attachmentIcon, {backgroundColor: primaryColor + '30'}]}>
+                        <MaterialIcons name="description" size={24} color={primaryColor} />
+                      </View>
+                    )}
+                    <View style={styles.attachmentInfo}>
+                      <Text style={[styles.attachmentName, {color: textColor}]} numberOfLines={1}>
+                        {attachment.name}
+                      </Text>
+                      <Text style={[styles.attachmentSize, {color: secondaryTextColor}]}>
+                        {(attachment.size / 1024).toFixed(2)} KB
+                      </Text>
+                    </View>
+                    <MaterialIcons name="chevron-right" size={24} color={secondaryTextColor} />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Attachments Card (for payments) */}
+          {!isExpense && payment && payment.attachments && payment.attachments.length > 0 && (
+            <View style={[styles.card, {backgroundColor: cardBackground}]}>
+              <Text style={[styles.cardTitle, {color: textColor}]}>Receipt/Attachments</Text>
+              <View style={styles.attachmentsList}>
+                {payment.attachments.map((attachment, index) => (
+                  <TouchableOpacity
+                    key={`attachment-${attachment.id}-${index}`}
+                    style={[
+                      styles.attachmentRow,
+                      index < payment.attachments!.length - 1 && styles.attachmentRowBorder,
                       {borderColor: secondaryTextColor + '20'},
                     ]}
                     onPress={() => {

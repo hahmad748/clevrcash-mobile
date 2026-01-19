@@ -17,6 +17,9 @@ class PushNotificationService {
   private deviceInfo: DeviceInfoData | null = null;
   private isRegisteringForRemoteMessages: boolean = false;
   private hasRegisteredForRemoteMessages: boolean = false;
+  private messageHandlersSetup: boolean = false;
+  private lastNotificationId: string | null = null;
+  private lastNotificationTime: number = 0;
 
   /**
    * Ensure device is registered for remote messages (iOS only)
@@ -309,9 +312,30 @@ class PushNotificationService {
    * Setup message handlers
    */
   setupMessageHandlers() {
+    // Prevent duplicate handler registration
+    if (this.messageHandlersSetup) {
+      console.log('Message handlers already setup, skipping...');
+      return;
+    }
+
+    this.messageHandlersSetup = true;
+
     // Handle foreground messages
     messaging().onMessage(async remoteMessage => {
       console.log('Foreground message received:', remoteMessage);
+      
+      // Prevent duplicate alerts for the same notification
+      const messageId = remoteMessage.messageId || `${remoteMessage.sentTime}_${remoteMessage.data?.type || 'unknown'}`;
+      const currentTime = Date.now();
+      
+      // Skip if this is the same notification within 2 seconds (duplicate prevention)
+      if (messageId === this.lastNotificationId && (currentTime - this.lastNotificationTime) < 2000) {
+        console.log('Duplicate notification detected, skipping alert');
+        return;
+      }
+
+      this.lastNotificationId = messageId;
+      this.lastNotificationTime = currentTime;
       
       // Show alert for foreground notifications
       if (remoteMessage.notification) {
@@ -328,9 +352,24 @@ class PushNotificationService {
     });
 
     // Handle notification taps (when app is opened from notification)
+    // Note: This fires when app is in background/quit state and user taps notification
+    // When app is in foreground, onMessage handles it, so we don't show alert here
     messaging().onNotificationOpenedApp(remoteMessage => {
       console.log('Notification opened app:', remoteMessage);
-      // TODO: Navigate to appropriate screen based on notification data
+      
+      // Prevent duplicate handling if onMessage already handled it
+      const messageId = remoteMessage.messageId || `${remoteMessage.sentTime}_${remoteMessage.data?.type || 'unknown'}`;
+      const currentTime = Date.now();
+      
+      // Only handle if this is a different notification or enough time has passed
+      if (messageId !== this.lastNotificationId || (currentTime - this.lastNotificationTime) >= 2000) {
+        this.lastNotificationId = messageId;
+        this.lastNotificationTime = currentTime;
+        
+        // Don't show alert here - onMessage already handled it for foreground
+        // Just navigate to appropriate screen based on notification data
+        // TODO: Navigate to appropriate screen based on notification data
+      }
     });
 
     // Check if app was opened from a notification

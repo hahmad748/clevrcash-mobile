@@ -147,6 +147,7 @@ export const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: 12,
+    backgroundColor: 'rgba(0,0,0,0.05)',
   },
   receiptDocumentPreview: {
     backgroundColor: 'rgba(0,0,0,0.05)',

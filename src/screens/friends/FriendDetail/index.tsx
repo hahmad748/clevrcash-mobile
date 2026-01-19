@@ -8,7 +8,7 @@ import {
   Alert,
   RefreshControl,
 } from 'react-native';
-import {useRoute, useNavigation} from '@react-navigation/native';
+import {useRoute, useNavigation, useFocusEffect} from '@react-navigation/native';
 import {MaterialIcons} from '@react-native-vector-icons/material-icons';
 import {useTheme} from '../../../contexts/ThemeContext';
 import {useBrand} from '../../../contexts/BrandContext';
@@ -41,11 +41,7 @@ export function FriendDetailScreen() {
   const secondaryTextColor = colors.textSecondary;
   const defaultCurrency = user?.default_currency || 'USD';
 
-  useEffect(() => {
-    loadFriendData();
-  }, [friendId]);
-
-  const loadFriendData = async () => {
+  const loadFriendData = useCallback(async () => {
     try {
       setLoading(true);
       const [balanceData, transactionsData, sharedGroupsData] = await Promise.all([
@@ -63,7 +59,18 @@ export function FriendDetailScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [friendId]);
+
+  useEffect(() => {
+    loadFriendData();
+  }, [loadFriendData]);
+
+  // Refresh stats when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadFriendData();
+    }, [loadFriendData]),
+  );
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);

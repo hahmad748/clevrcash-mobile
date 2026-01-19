@@ -596,11 +596,6 @@ class ApiClient {
     const response = await apiService.post<ApiResponse<Attachment>>(
       `/expenses/${expenseId}/attachments`,
       file,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      },
     );
     return response.data;
   }
@@ -654,11 +649,6 @@ class ApiClient {
     const response = await apiService.post<ApiResponse<Attachment>>(
       `/payments/${paymentId}/attachments`,
       file,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      },
     );
     return response.data;
   }
