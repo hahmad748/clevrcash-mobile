@@ -30,7 +30,7 @@
     "axios": "^1.13.2",
     "jsonwebtoken": "^9.0.3",
     "react": "19.2.0",
-    "react-native": "0.83.0",
+    "react-native": "0.83.1",
     "react-native-deep-linking": "^2.2.0",
     "react-native-device-info": "^15.0.1",
     "react-native-flash-message": "^0.4.2",
